@@ -304,7 +304,7 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
   s <- weights*residuals(nullFit, type="martingale" )
   lambda.max <- .Call(grpreg:::maxgrad, XG$X%*%solve(Wb), s, K1, as.double(XG$m)) / n
   print(lambda.max)
-  lambda.max <- 3
+  lambda.max <- 10
   if (lambda.min==0) lambda <- c(exp(seq(log(.001*lambda.max),log(lambda.max), len=nlambda-1)),0)
   else lambda <- exp(seq(log(lambda.min*lambda.max),log(lambda.max), len=nlambda))
 
@@ -610,7 +610,7 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
               x2starb <- xstarb%*%W0[[1]][sparse.all, sparse.all]
 
               xb <- xb%*%W0[[1]][sparse.all, sparse.all]
-              lasso <- gglasso:::gglasso(x=x2starb, y=zstar, group=rep(1,ncol(x2starb)), intercept=FALSE, lambda=lambda[j])# /sqrt(1+kappa))
+              lasso <- gglasso:::gglasso(x=x2starb, y=zstar, group=rep(1,ncol(x2starb)), intercept=FALSE, lambda=lambda[j], pf=1)# /sqrt(1+kappa))
 
               newbetab <- lasso$beta
               newbetaa <- solve(t(xa)%*%xa)%*%t(xa)%*%(newz - xb%*%newbetab)
