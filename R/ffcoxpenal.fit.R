@@ -632,12 +632,27 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
               nonzero <- newbeta[(k-1)*(nlambda) + j,]  != 0
 
               d2l <- solve(-coxLik$var)
-              df[(k-1)*(nlambda) + j] <- sum(diag( solve(d2l[nonzero, nonzero] - Omega[nonzero, nonzero] - Sigma[nonzero, nonzero])%*%d2l[nonzero, nonzero] ) )
-              loglik[(k-1)*(nlambda) + j] <- coxLik$loglik[1]
+              df <- sum(diag( solve(d2l[nonzero, nonzero] - Omega[nonzero, nonzero] - Sigma[nonzero, nonzero])%*%d2l[nonzero, nonzero] ) )
+              loglik <- coxLik$loglik[1]
 
-              if(tuning.method == "GCV") gcv[(k-1)*(nlambda) + j] <- -coxLik$loglik[1]/(n*(1-df[(k-1)*(nlambda) + j]/n)^2)
-              else if (tuning.method == "AIC") aic[(k-1)*(nlambda) + j] <- -coxLik$loglik[1] + df[(k-1)*(nlambda) + j]
-              else if (tuning.method == "BIC") bic[(k-1)*(nlambda) + j] <- -coxLik$loglik[1] + log(n)*df[(k-1)*(nlambda) + j]
+              gcv <- -coxLik$loglik[1]/(n*(1-df/n)^2)
+              aic <- -coxLik$loglik[1] + df
+              bic <- -coxLik$loglik[1] + log(n)*df
+
+              if(k==1 & j==1) {
+                dfsave <- df
+                logliksave <- loglik
+                gcvsave <- gcv
+                aicsave <- aic
+                bicsave <- bic
+              }else{
+                dfsave <- c(dfsave, df)
+                logliksave <- c(logliksave, loglik)
+                gcvsave <- c(gcvsave, gcv)
+                aicsave <- c(aicsave, aic)
+                bicsave <- c(bicsave, bic)
+
+              }
             } else{
               newbeta[(k-1)*(nlambda) + j,] <- init
               coxLik  <-  survival:::coxph.fit(xx[sorted,], y[sorted,], strata, offset, init, list(iter.max=0), weights=weights,
@@ -646,13 +661,31 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
               Omega <- t(DD)%*%DD/2
 
               d2l <- solve(-coxLik$var)
-              df[(k-1)*(nlambda) + j] <- sum(diag( solve(d2l - Omega)%*%d2l ) )
-              loglik[(k-1)*(nlambda) + j] <- coxLik$loglik[1]
+              df <- sum(diag( solve(d2l[nonzero, nonzero] - Omega[nonzero, nonzero] - Sigma[nonzero, nonzero])%*%d2l[nonzero, nonzero] ) )
+              loglik <- coxLik$loglik[1]
 
-              if(tuning.method == "GCV") gcv[(k-1)*(nlambda) + j]  <- -coxLik$loglik[1]/n*(1-df[(k-1)*(nlambda) + j] /n)^2
-              else if (tuning.method == "AIC") aic[(k-1)*(nlambda) + j]  <- -coxLik$loglik[1] + df[(k-1)*(nlambda) + j]
-              else if (tuning.method == "BIC") bic[(k-1)*(nlambda) + j]  <- -coxLik$loglik[1] + log(n)*df[(k-1)*(nlambda) + j]
-            }
+              gcv <- -coxLik$loglik[1]/(n*(1-df/n)^2)
+              aic <- -coxLik$loglik[1] + df
+              bic <- -coxLik$loglik[1] + log(n)*df
+
+              if(k==1 & j==1) {
+                dfsave <- df
+                logliksave <- loglik
+                gcvsave <- gcv
+                aicsave <- aic
+                bicsave <- bic
+              }else{
+                dfsave <- c(dfsave, df)
+                logliksave <- c(logliksave, loglik)
+                gcvsave <- c(gcvsave, gcv)
+                aicsave <- c(aicsave, aic)
+                bicsave <- c(bicsave, bic)
+
+              }
+
+
+
+              }
 
 
             betaTRUE <- FALSE
@@ -666,6 +699,7 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
           }
         }
 
+        print(aic)
         niter <- length(aic)
         if(tuning.method == "AIC") which <- min(c(1:niter)[aic==min(aic)])
         else if (tuning.method == "BIC") which <- min(c(1:niter)[bic==min(bic)])
@@ -722,7 +756,6 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
     lambdalist[[i]] <- lflambda
   }
   W <- lW
-
   if (andersen)  coxfit <- .C(survival:::Cagfit5b,
                               iter=as.integer(0),
                               as.integer(n),
@@ -738,7 +771,7 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
                               as.double(control$toler.chol),
                               as.integer(method=='efron'),
                               as.integer(nfrail),
-                              fcoef = as.double(lfbeta),
+                              fcoef = as.double(finit),
                               fdiag = double(nfrail+nvar),
                               f.expr1,f.expr2,rho)
   else   coxfit <- .C(survival:::Ccoxfit5b,
@@ -756,7 +789,7 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
                       as.double(control$toler.chol),
                       as.integer(method=='efron'),
                       as.integer(nfrail),
-                      fcoef = as.double(lfbeta),
+                      fcoef = as.double(finit),
                       fdiag = double(nfrail+nvar),
                       f.expr1,f.expr2,rho)
 
