@@ -11,7 +11,7 @@ TWeiRandom.f <- function(tt,  lam, alp, tau) {
 }
 
 #' @export
-data.generator <- function(nSimu, N, lam, alp, gamma1, gamma2, rangeval, probC, tau)
+data.generator <- function(N, lam, alp, gamma1, gamma2, rangeval, probC, tau)
 {
   nbasis=50+5-2
   data.basis <- create.bspline.basis(rangeval=c(0, 1),norder=5,nbasis=nbasis)
