@@ -303,7 +303,8 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
   s <- weights*residuals(nullFit, type="martingale" )
   lambda.max <- .Call(grpreg:::maxgrad, XG$X%*%solve(Wb), s, K1, as.double(XG$m)) / n
-
+  print(lambda.max)
+  lambda.max <- 3
   if (lambda.min==0) lambda <- c(exp(seq(log(.001*lambda.max),log(lambda.max), len=nlambda-1)),0)
   else lambda <- exp(seq(log(lambda.min*lambda.max),log(lambda.max), len=nlambda))
 
@@ -555,7 +556,7 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
         }
 
          K <- length(kappa[[1]])
-        tuning.par <- expand.grid(lambda, kappa[[1]])
+        tuning.par <- expand.grid(lambda, theta.init[[1]])
 
 
         if(sparse == "global" | !is.null(l)) TT <- 1
@@ -564,17 +565,13 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
         iter3 <- 1
 
         for(t in TT:1){
-
-
-          print(sparse.all)
-        newbeta <- matrix(0, nrow = K*nlambda, ncol = n.coef)
+         newbeta <- matrix(0, nrow = K*nlambda, ncol = n.coef)
         gcv <- aic <- bic <- df <- loglik <- rep(0, K*nlambda)
 
 
 
         for(k in 1:K){
           init <- coef0[,k]
-          print(init)
           lp <- c(x %*% init) + offset - sum(init*colMeans(x))
           score <- exp(lp[sorted])
           resid <- Score(n, as.integer(method=='efron'), stime, sstat, newstrat,   score, weights)
@@ -594,10 +591,8 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
           WW <- as.matrix(bdiag(W))
           H <- as.numeric(sqrt(t(init)%*%WW%*%init))
-          print(H)
-          for(j in 1:nlambda){
-            print(scadderiv(H, alpha, lambda[j]))
 
+          for(j in 1:nlambda){
             if(scadderiv(H, alpha, lambda[j])>0){
               xa <- newx[,-sparse.all]
               xb <- newx[,sparse.all]
