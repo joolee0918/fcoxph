@@ -425,6 +425,7 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
     }
 
 
+    iter <- 0
     for(i in 1:control$outer.max){
       if (andersen)  coxfit <- .C(survival:::Cagfit5b,
                                   iter=as.integer(control$iter.max),
