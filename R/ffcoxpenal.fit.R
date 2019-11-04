@@ -426,7 +426,6 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
 
     for(i in 1:control$outer.max){
-      iter <- i
       if (andersen)  coxfit <- .C(survival:::Cagfit5b,
                                   iter=as.integer(control$iter.max),
                                   as.integer(n),
@@ -464,7 +463,7 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
                           fdiag = double(nfrail+nvar),
                           f.expr1,f.expr2,rho)
 
-
+      iter <- i
       if(iter==1) coef0 <- coxfit$coef
       else coef0 <- cbind(coef0, coxfit$coef)
 
