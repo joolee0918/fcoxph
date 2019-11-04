@@ -104,23 +104,24 @@ beta.func <- function(t)
 }
 
 
-require('fda')
-nSimu <- 1000
-n <- 500
-lam <- 1.5
-alp <- 1
-tau <- 1
-probC <- 0.2
-gamma1 <- log(0.8)
-gamma2 <- log(1.2)
-rangeval <- c(0,1)
+#require('fda')
+#set.seed(12345)
+#nSimu <- 1000
+#n <- 500
+#lam <- 1.5
+#alp <- 1
+#tau <- 1
+#probC <- 0.2
+#gamma1 <- log(0.8)
+#gamma2 <- log(1.2)
+#rangeval <- c(0,1)
 
 
 #data <- data.generator(nSimu, n, lam, alp, gamma1, gamma2, rangeval, probC, tau)
 #data1 <- list(estop = data[[1]]$estop, estatus=data[[1]]$estatus, X = data$X)
 
 #data1 <- data.frame(data[[1]], X=data$X)
-#m1 <- fcoxph(Surv(estop, estatus)~fs(X, k=30, bs="ps", integration="riemann"),  data=data1, sparse ="none")
+#m1 <- fcoxph(Surv(estop, estatus)~fspline(X, k=30, bs="ps", integration="riemann"),  data=data1, sparse ="none")
 
 #data2 <- cbind(data$data, m1$pcox$smoothdata[[1]])
 #m2 <-  gam(estop~s(X.smat,by=X.LX, k=30, bs="cr"),

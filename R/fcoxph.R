@@ -13,14 +13,14 @@ fcoxph <- function (formula, data, weights, na.action, init, control, knots = NU
   call <- match.call()
   dots <- list(...)
 
-  tf <- terms.formula(formula, specials = c("s", "fs", "fpc"))
+  tf <- terms.formula(formula, specials = c("s", "fspline", "fpc"))
   trmstrings <- attr(tf, "term.labels")
   terms <- sapply(trmstrings, function(trm) as.call(parse(text = trm))[[1]],
                   simplify = FALSE)
   frmlenv <- environment(formula)
   specials <- attr(tf, "specials")
   where.s <- specials$s - 1
-  where.fs <- specials$fs - 1
+  where.fs <- specials$fspline - 1
   where.fp <- specials$fpc - 1
 
   where.all <- c( where.s, where.fs, where.fp)
@@ -59,13 +59,13 @@ fcoxph <- function (formula, data, weights, na.action, init, control, knots = NU
    if (length(where.refund)) {
 
        fterms <- lapply(terms[where.refund], function(x) {
-         newx <- match.call(fs, call = x)
+         newx <- match.call(fspline, call = x)
          newx$sparse <- sparse
          newx$theta <- theta
          newx$lambda <- lambda
          newx$penalty <- penalty
 
-      eval(x, envir = evalenv, enclos = frmlenv)
+      eval(newx, envir = evalenv, enclos = frmlenv)
     })
 
     newtrmstrings[where.refund] <- sapply(fterms, function(x) {
@@ -177,7 +177,8 @@ on.exit({
   newcall$data <- quote(pfrdata)
   newcall$na.action <- na.omit_pcox
 
-  if(length(trmstrings)) {
+
+  if(length(trmstrings)==0) {
     newcall$eps <-  newcall$knots <- newcall$cutoff <- newcall$argvals <- newcall$penalty <- NULL
     newcall$theta <- newcall$lambda <- newcall$lambda.min <- newcall$nlambda <- newcall$alpha <- NULL
     newcall$sparse <- newcall$group.multiplier <- newcall$tuning.method <- NULL

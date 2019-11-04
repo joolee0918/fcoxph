@@ -1,13 +1,11 @@
 #' @importFrom mgcv s smoothCon
 
-fs <- function (X, argvals = NULL, xind = NULL, integration = c("simpson","trapezoidal", "riemann"),
+#' @export
+fspline <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapezoidal", "riemann"),
                 L = NULL, presmooth = NULL, presmooth.opts = NULL, sparse = c("none", "global", "local", "tail"),
                 theta = NULL, lambda = NULL, penalty = c("Lasso", "SCAD", "MCP"),
           ...)
 {
-  penalty <- match.arg(penalty)
-  sparse <- match.arg(sparse)
-  integration <- match.arg(integration)
   dots <- list(...)
   dots.unmatched <- names(dots)[!(names(dots) %in% names(formals(mgcv::s)))]
 
@@ -85,7 +83,6 @@ fs <- function (X, argvals = NULL, xind = NULL, integration = c("simpson","trape
     stop("We don't yet support terms with multiple smooth objects.")
   }
 
-  print(sparse)
  if(sparse == "none") X <- pterm(smooth[[1]], theta,  eps = 1e-06)
  else X <- pterm1(smooth[[1]], theta, lambda, penalty, eps = 1e-06)
 
@@ -159,7 +156,7 @@ pterm1 <- function (sm, theta, lambda, penalty, method = c("aic", "caic", "bic",
                    eps = 1e-06){
   method <- match.arg(method)
 
-  if(is.null(theta)) theta <- rev(c(0.5, 0.7250000,0.95,  0.995 ,0.997, 0.999, 0.9995, 0.9999, 0.9999, 0.99999))
+  if(is.null(theta)) theta <- rev(c(0.5, 0.7250000,0.95,  0.995 ,0.997, 0.999, 0.9995, 0.9999, 0.99995, 0.99999))
   #if (!is.null(theta)) {
   method <- 'fixed'
   if (theta <=0 || theta >=1) stop("Invalid value for theta")
@@ -171,7 +168,7 @@ pterm1 <- function (sm, theta, lambda, penalty, method = c("aic", "caic", "bic",
   D <- sm$S[[1]]
   n <- nrow(X)
 
-  pfun.lFunc <- function(coef, theta, lambda, W, D, n, penalty) {
+  pfun.lFunc <- function(coef, theta, lambda, W, D, n, pen) {
 
     H <- sqrt(t(coef)%*%W%*%coef)
     #theta <- 0
@@ -180,7 +177,7 @@ pterm1 <- function (sm, theta, lambda, penalty, method = c("aic", "caic", "bic",
     lambda <- ifelse(lambda <=0, 0, lambda)
     if(H == 0) lampen <- 0
     else {
-      lampen <- switch(penalty,
+      lampen <- switch(pen,
                        Lasso = ifelse(lambda == 0, 0, lambda/H),
                        SCAD = ifelse(lambda == 0, 0, scadderiv(H, 3.7, lambda)/H),
                        MCP = ifelse(lambda == 0, 0, mcpderiv(H, 3.7, lambda)/H) )
@@ -219,7 +216,7 @@ pterm1 <- function (sm, theta, lambda, penalty, method = c("aic", "caic", "bic",
                                                      df, loglik - dfc,  loglik - log(parms$n) * df,  -loglik/(parms$n*(1-df/parms$n)^2)))
 
                    list(theta = parms$theta[iter+1], done = done, history = history)
-                   }, diag = FALSE, pparm = list(D = D), cparm = list(theta = theta, n = n),
+                   }, diag = FALSE, pparm = list(D = D, pen = penalty), cparm = list(theta = theta, n = n),
                    cargs = c("neff", "df", "plik"),
                   printfun = printfun),
 

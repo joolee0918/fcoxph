@@ -172,7 +172,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
         if (is.null(extralist[[i]]))
           temp <- ((pattr[[i]])$pfun)(coef, thetalist[[i]], lambdalist[[i]], W[[i]])
         else    temp <- ((pattr[[i]])$pfun)(coef, thetalist[[i]], lambdalist[[i]],
-                                            W[[i]], extralist[[i]][[1]], n)
+                                            W[[i]], extralist[[i]][[1]], n, extralist[[i]][[2]])
         if (!is.null(temp$recenter))
           coxlist2$coef[pen.col] <- coxlist2$coef[pen.col]-
           temp$recenter
@@ -812,6 +812,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
            class = c('fcoxph.penal', 'coxph.penal', 'coxph'),
            df = df,
            penalty= c(penalty0, penalty),
+           tuning.par = c( lftheta, lflambda),
            pterms = pterms, assign2=assign,
            history = lhistory,
            coxlist1=coxlist1,
@@ -827,6 +828,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
             class = c('fcoxph.penal', 'coxph.penal', 'coxph'),
             df = df,
             penalty = c(penalty0, penalty),
+            tuning.par = c( lftheta, lflambda),
             pterms = pterms, assign2=assign,
             history = lhistory,
             printfun=printfun)
@@ -845,6 +847,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
          class = c('fcoxph.penal', 'coxph.penal', 'coxph'),
          df = df,
          penalty= c(penalty0, penalty),
+         tuning.par = c( lftheta, lflambda),
          pterms = pterms, assign2=assign,
          history = lhistory,
          coxlist2=coxlist2,

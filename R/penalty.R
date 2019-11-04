@@ -22,7 +22,7 @@ scadderiv <- function(ftheta, fa, flambda) {
   return(flambda*(1-(1-apply(as.matrix(fa*flambda-abs(ftheta)), 1, positivepart)/((fa-1)*flambda))*as.numeric(abs(ftheta)>flambda)))
 }
 
-mcdderiv <- function(ftheta, fa, flambda) {
+mcpderiv <- function(ftheta, fa, flambda) {
   return( ifelse(abs(ftheta) < fa*flambda, (flambda - abs(ftheta)/fa)*sign(ftheta), 0))
 }
 

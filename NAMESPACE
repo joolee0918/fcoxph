@@ -2,6 +2,7 @@
 
 export(data.generator)
 export(fcoxph)
+export(fspline)
 import(grpreg)
 import(refund)
 import(survival)
