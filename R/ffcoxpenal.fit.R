@@ -415,12 +415,6 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
     #
     #  Now for the actual fit
     #
-    iter <- 0
-    iter2 <- 0
-    iterfail <- NULL
-    final.history <- matrix(0, nrow=nlambda, ncol=9)
-    history <- NULL
-
     # for (outer1 in 1:control$outer.max1) {
     #    betazero <- FALSE
     #    for(outer2 in 1:control$outer.max2) {
@@ -431,7 +425,8 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
     }
 
 
-    for(iter in 1:control$outer.max){
+    for(i in 1:control$outer.max){
+      iter <- i
       if (andersen)  coxfit <- .C(survival:::Cagfit5b,
                                   iter=as.integer(control$iter.max),
                                   as.integer(n),
