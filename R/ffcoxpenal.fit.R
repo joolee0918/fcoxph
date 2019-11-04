@@ -578,8 +578,6 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
           score <- exp(lp[sorted])
           resid <- Score(n, as.integer(method=='efron'), stime, sstat, newstrat,   score, weights)
           ss <- ii <- double(n)
-          print(head(ss))
-          print(head(ii))
           ss[sorted] <- resid$score
           ii[sorted] <- resid$infor
 
@@ -670,10 +668,10 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
           }
         }
 
-        niter <- nrow(aic)
-        if(tuning.method == "AIC") which <- min((1:niter)[aic==min(aic)])
-        else if (tuning.method == "BIC") which <- min((1:niter)[bic==min(bic)])
-        else if (tuning.method == "GCV") which <- min((1:niter)[gcv==min(gcv)])
+        niter <- length(aic)
+        if(tuning.method == "AIC") which <- min(c(1:niter)[aic==min(aic)])
+        else if (tuning.method == "BIC") which <- min(c(1:niter)[bic==min(bic)])
+        else if (tuning.method == "GCV") which <- min(c(1:niter)[gcv==min(gcv)])
 
 
         coef <- newbeta[which,]
