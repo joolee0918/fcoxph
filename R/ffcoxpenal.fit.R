@@ -583,7 +583,7 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
           DD <- as.matrix(bdiag(diag(0, n.par), as.matrix(bdiag(DD))))
 
           newz <- c(sqrt(ii)*(x%*%init + 1/ii*ss), rep(0, nrow(DD)))
-          newx <-  rbind(sqrt(ii)*x%*%as.matrix(bdiag(W0)), -DD)
+          newx <-  rbind(cbind(sqrt(ii)*x[,-sparse.all], sqrt(ii)*x[,sparse.all]%*%as.matrix(bdiag(W0))), -DD)
 
           if(ngroup == 1) nfactor <- 1
           else nfactor <- c(0, rep(1, ngroup-1))
@@ -726,7 +726,7 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
       if (sparse.what == "tail"){
         W[[i]] <- compute.W(cutoff[[i]], beta.basis[[i]])
-        W0[[i]] <- as.matrix(bdiag(diag(1, cutoff[[i]]-1), solve(chol(W[[i]]))))
+        W0[[i]] <- solve(chol(W[[i]]))
         W[[i]] <- as.matrix(Matrix::bdiag(matrix(0, cutoff[[i]]-1, cutoff[[i]]-1), W[[i]]))
       }
       sparse.where[[i]] <-  seq(pcols[[i]][1] + cutoff[[i]] -1, pcols[[i]][n.nonp])
