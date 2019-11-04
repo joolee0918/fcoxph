@@ -261,7 +261,7 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
       W[[i]] <- as.matrix(Matrix::bdiag(matrix(0, cutoff[[i]]-1, cutoff[[i]]-1), W[[i]]))
     } else if (sparse.what == "tail"){
       W[[i]] <- compute.W(cutoff[[i]], beta.basis[[i]])
-      W0[[i]] <- as.matrix(bdiag(diag(1, cutoff[[i]]-1), solve(chol(W[[i]]))))
+      W0[[i]] <- solve(chol(W[[i]]))
       W[[i]] <- as.matrix(Matrix::bdiag(matrix(0, cutoff[[i]]-1, cutoff[[i]]-1), W[[i]]))
     }
   }
@@ -303,8 +303,7 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
   s <- weights*residuals(nullFit, type="martingale" )
   lambda.max <- .Call(grpreg:::maxgrad, XG$X%*%solve(Wb), s, K1, as.double(XG$m)) / n
-  print(lambda.max)
-  lambda.max <- 10
+  lambda.max <- lambda.max*sqrt(n.coef)
   if (lambda.min==0) lambda <- c(exp(seq(log(.001*lambda.max),log(lambda.max), len=nlambda-1)),0)
   else lambda <- exp(seq(log(lambda.min*lambda.max),log(lambda.max), len=nlambda))
 
@@ -607,14 +606,14 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
               zstar <- as.numeric(newz-Ha%*%newz)
               xstarb <- xb - Ha%*%xb
 
-              x2starb <- xstarb%*%W0[[1]][sparse.all, sparse.all]
+              x2starb <- xstarb%*%W0[[1]]
 
-              xb <- xb%*%W0[[1]][sparse.all, sparse.all]
+              xb <- xb%*%W0[[1]]
               lasso <- gglasso:::gglasso(x=x2starb, y=zstar, group=rep(1,ncol(x2starb)), intercept=FALSE, pf=1)#, lambda=lambda[j], pf=1)# /sqrt(1+kappa))
               print(lasso$lambda)
               newbetab <- lasso$beta[,2]
               newbetaa <- solve(t(xa)%*%xa)%*%t(xa)%*%(newz - xb%*%newbetab)
-              newbeta[(k-1)*(nlambda) + j,] <- as.numeric(c(newbetaa, W0[[1]][sparse.all, sparse.all]%*%newbetab*lambda[j]/scadderiv(H, alpha, lambda[j]) ))#*sqrt(1+kappa)))
+              newbeta[(k-1)*(nlambda) + j,] <- as.numeric(c(newbetaa, W0[[1]]%*%newbetab*lambda[j]/scadderiv(H, alpha, lambda[j]) ))#*sqrt(1+kappa)))
               print(newbeta[(k-1)*(nlambda) + j,])
               coxLik  <-  survival:::coxph.fit(x[sorted,], y[sorted,], strata, offset, newbeta[(k-1)*(nlambda) + j,] , list(iter.max=0), weights=weights,
                                     method="breslow", row.names(x[ind,]))
