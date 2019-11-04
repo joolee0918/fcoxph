@@ -548,15 +548,7 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
           D[[i]] <- sm[[i]]$D*0.25
         }
 
-        print(init)
-        lp <- c(x %*% init) + offset - sum(init*colMeans(x))
-        score <- exp(lp[ind])
-        resid <- Score(n, as.integer(method=='efron'), stime, sstat, newstrat,   score, weights)
-        ss <- ii <- double(n)
-        ss[ind] <- resid$score
-        ii[ind] <- resid$infor
-
-        K <- length(kappa[[1]])
+         K <- length(kappa[[1]])
         tuning.par <- expand.grid(lambda, kappa[[1]])
 
 
@@ -575,6 +567,15 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
         for(k in 1:K){
           init <- coef0[,k]
+          print(init)
+          lp <- c(x %*% init) + offset - sum(init*colMeans(x))
+          score <- exp(lp[ind])
+          resid <- Score(n, as.integer(method=='efron'), stime, sstat, newstrat,   score, weights)
+          ss <- ii <- double(n)
+          ss[ind] <- resid$score
+          ii[ind] <- resid$infor
+
+
           DD <- lapply(1:m, function(l) sqrt(kappa[[l]][k])*D[[l]])
           DD <- as.matrix(bdiag(diag(0, n.par), as.matrix(bdiag(DD))))
 
