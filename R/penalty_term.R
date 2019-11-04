@@ -1,0 +1,351 @@
+#' @importFrom mgcv s smoothCon
+
+lf <- function (X, argvals = NULL, xind = NULL, integration = c("simpson","trapezoidal", "riemann"),
+                L = NULL, presmooth = NULL, presmooth.opts = NULL, sparse = c("none", "global", "local", "tail"),
+                theta = NULL, lambda = NULL, penalty = c("Lasso", "SCAD", "MCP"),
+          ...)
+{
+  penalty <- match.arg(penalty)
+  dots <- list(...)
+  dots.unmatched <- names(dots)[!(names(dots) %in% names(formals(mgcv::s)))]
+  if (any(dots.unmatched %in% names(formals(refund::lf_old))) | is.logical(presmooth)) {
+    warning(paste0("The interface for lf() has changed, see ?lf for details. ",
+                   "This interface will not be supported in the next ",
+                   "refund release."))
+    call <- sys.call()
+    call[[1]] <- as.symbol("lf_old")
+    ret <- eval(call, envir = parent.frame())
+    return(ret)
+  }
+
+  if (!is.null(xind)) {
+    cat("Argument xind is placed by argvals. xind will not be supported in the next\n        version of refund.")
+    argvals = xind
+  }
+  if (class(X) == "fd") {
+    if (is.null(argvals))
+      argvals <- argvals <- seq(X$basis$rangeval[1], X$basis$rangeval[2],
+                                length = length(X$fdnames[[1]]))
+    X <- t(eval.fd(argvals, X))
+  }
+  else if (is.null(argvals))
+    argvals <- seq(0, 1, l = ncol(X))
+  xrange <- c(argvals[1], argvals[length(argvals)])
+  xind = argvals
+  n = nrow(X)
+  nt = ncol(X)
+  integration <- match.arg(integration)
+  tindname <- paste(deparse(substitute(X)), ".smat", sep = "")
+
+  LXname <- paste("L.", deparse(substitute(X)), sep = "")
+  basistype = "s"
+  newcall <- list(as.symbol(basistype))
+
+
+  if (is.null(dim(xind))) {
+    xind <- t(xind)
+    stopifnot(ncol(xind) == nt)
+    if (nrow(xind) == 1) {
+      xind <- matrix(as.vector(xind), nrow = n, ncol = nt,
+                     byrow = T)
+    }
+    stopifnot(nrow(xind) == n)
+  }
+  if (!is.null(presmooth)) {
+    prep.func = refund::create.prep.func(X = X, argvals = xind[1,
+                                                       ], method = presmooth, options = presmooth.opts)
+    X <- prep.func(newX = X)
+  }
+  if (!is.null(L)) {
+    stopifnot(nrow(L) == n, ncol(L) == nt)
+  }
+  else {
+    L <- switch(integration, simpson = {
+      ((xind[, nt] - xind[, 1])/nt)/3 * matrix(c(1, rep(c(4,
+                                                          2), length = nt - 2), 1), nrow = n, ncol = nt,
+                                               byrow = T)
+    }, trapezoidal = {
+      diffs <- t(apply(xind, 1, diff))
+      0.5 * cbind(diffs[, 1], t(apply(diffs, 1, filter,
+                                      filter = c(1, 1)))[, -(nt - 1)], diffs[, (nt -
+                                                                                  1)])
+    }, riemann = {
+      diffs <- t(apply(xind, 1, diff))
+      cbind(rep(mean(diffs), n), diffs)
+    })
+  }
+  LX <- L * X
+
+  newcall <- c(newcall, as.symbol(substitute(tindname)))
+  newcall <- c(newcall, by=as.symbol(substitute(LXname)))
+
+  data <- list(xind, LX)
+  names(data) <- c(tindname, LXname)
+  #print(head(data))
+  splinefun <- as.symbol(basistype)
+
+  newcall <- c(newcall, dots)
+
+  smooth <- mgcv::smoothCon(eval(as.call(newcall)), data = data,
+                            knots = NULL, absorb.cons = TRUE, n=nrow(LX))
+  if (length(smooth) > 1) {
+    stop("We don't yet support terms with multiple smooth objects.")
+  }
+
+ if(sparse == "none") X <- pterm(smooth[[1]], theta,  eps = 1e-06)
+ else if (sparse %in% c("global", "local", "tail")) X <- pterm1(smooth[[1]], theta, lambda, penalty, eps = 1e-06)
+
+ smooth[[1]]$X <- NULL
+
+ names <- paste0(basistype, "(", tindname,  ", ", "by = ", LXname, ")")
+
+ res <- list(names=names, X=X, sm = smooth[[1]], argvals = argvals)
+  return(res)
+}
+
+
+
+
+
+
+pterm <- function (sm, theta, method = c("aic", "caic", "epic", "df", "fixed"),
+                   eps = 1e-06)
+{
+
+  method <- match.arg(method)
+  if (!is.null(theta) ) {
+    method <- 'fixed'
+    if (theta <=0 || theta >=1) stop("Invalid value for theta")
+  }
+
+  W <- sm$X
+  D <- sm$S[[1]]
+
+  pfun.lFunc <- function(coef, theta, nevent, D) {
+    lambda <- ifelse(theta <= 0, 0, theta/(1 - theta))
+    list(penalty = as.numeric(t(coef) %*% D %*% coef) * lambda/2,
+         first = lambda * D %*% coef, second = lambda * D,
+         flag = FALSE)
+  }
+  printfun <- function(coef, var, var2, df, history, cbase) {
+    cmat <- matrix(c(NA, NA, NA, NA, df, NA), nrow = 1)
+    nn <- nrow(history$history)
+    theta <- ifelse(length(nn), history$history[nn, 1], history$theta)
+    list(coef = cmat, history = paste("theta:", format(theta)))
+  }
+  temp <- switch(method, fixed = list(pfun = pfun.lFunc, cfun = function(parms,
+                                                                         ...) {
+    list(theta = parms$theta, done = TRUE)
+  }, diag = FALSE, pparm = D, cparm = list(theta = theta),
+  printfun = printfun),
+  df = list(pfun = pfun.lFunc, cfun = survival:::frailty.controldf,
+            diag = FALSE, pparm = D, printfun = printfun),
+
+  aic = list(pfun = pfun.lFunc,cfun = control.tuning, cparm = list(eps = eps, init = c(0.5,0.95), lower = 0, upper = 1, type = "aic", n=n),
+             diag = FALSE, pparm = D, cargs = c("neff", "df", "plik"), printfun = printfun),
+
+  caic = list(pfun = pfun.lFunc, cfun = control.tuning, cparm = list(eps = eps,
+                                                                  init = c(0.5, 0.95), lower = 0, upper = 1, type = "caic", n=n),
+              diag = FALSE, pparm = D, cargs = c("neff", "df",
+                                                 "plik"), printfun = printfun),
+  bic = list(pfun = pfun.lFunc, cfun =control.tuning, cparm =  list(eps = eps, init = c(0.5,0.95), lower = 0, upper = 1, type = "bic", n=n),
+             diag = FALSE, pparm = list(D = D),  cargs = c("neff", "df","plik"), printfun = printfun),
+  gcv = list(pfun = pfun.lFunc, cfun =control.tuning, cparm =  list(eps = eps, init = c(0.5,0.95), lower = 0, upper = 1, type = "gcv", n=n),
+             diag = FALSE, pparm = list(D = D),  cargs = c("neff", "df","plik"), printfun = printfun))
+
+  class(W) <- "coxph.penalty"
+  attributes(W) <- c(attributes(W), temp)
+  W
+}
+
+
+
+
+pterm1 <- function (sm, theta, lambda, penalty, method = c("aic", "caic", "bic", "gcv", "fixed"),
+                   eps = 1e-06){
+  method <- match.arg(method)
+
+  if(is.null(theta)) theta <- rev(c(0.5, 0.7250000,0.95,  0.995 ,0.997, 0.999, 0.9995, 0.9999, 0.9999, 0.99999))
+  #if (!is.null(theta)) {
+  method <- 'fixed'
+  if (theta <=0 || theta >=1) stop("Invalid value for theta")
+  #}
+
+
+  method <- match.arg(method)
+  X <- sm$X
+  D <- sm$S[[1]]
+  n <- nrow(X)
+
+  pfun.lFunc <- function(coef, theta, lambda, W, D, n, penalty) {
+
+    H <- sqrt(t(coef)%*%W%*%coef)
+    #theta <- 0
+    theta <- ifelse(theta <= 0, 0, theta/(1-theta))
+    #lambda <- 0
+    lambda <- ifelse(lambda <=0, 0, lambda)
+    if(H == 0) lampen <- 0
+    else {
+      lampen <- switch(penalty,
+                       Lasso = ifelse(lambda == 0, 0, lambda/H),
+                       SCAD = ifelse(lambda == 0, 0, scadderiv(H, 3.7, lambda)/H),
+                       MCP = ifelse(lambda == 0, 0, mcpderiv(H, 3.7, lambda)/H) )
+    }
+    list(penalty = as.numeric(t(coef) %*% D %*% coef) * theta/2 + n*as.numeric(lampen)*as.numeric(t(coef)%*%W%*%coef)/2,
+         first = theta * D %*% coef + n*as.numeric(lampen)*W %*% coef, second = theta * D + n*as.numeric(lampen)*W,
+         flag = FALSE)
+  }
+  printfun <- function(coef, var, var2, df, history, cbase) {
+    cmat <- matrix(c(NA, NA, NA, NA, df, NA), nrow = 1)
+    nn <- nrow(history$history)
+    theta <- ifelse(length(nn), history$history[nn, 1], history$theta)
+    lambda <- ifelse(length(nn), history$history[nn, 1], history$lambda)
+
+    list(coef = cmat, history = paste("Theta:", format(theta), "Lambda:", format(lambda)))
+  }
+
+  temp <- switch(method,
+
+                 fixed = list(pfun = pfun.lFunc, cfun = function(parms, iter, old, n, df, loglik) {
+                   if (iter == 0) {
+                     theta <- parms$theta[1]
+                     return(list(theta = theta, done = FALSE))
+                   }
+
+                   done  <- (iter  == length(parms$theta))
+                   if (n < df + 2)
+                     dfc <- (df - n) + (df + 1) * df/2 - 1
+                   else dfc <- -1 + (df + 1)/(1 - ((df + 2)/n))
+
+                   if (iter == 1) {
+                     history <- c(theta = old$theta, loglik = loglik, df = df,
+                                  aic = loglik - df, aicc = loglik - dfc, bic = loglik - log(parms$n) * df, gcv = -loglik/(parms$n*(1-df/parms$n)^2))
+                   }
+                   history <- rbind(old$history, c(old$theta, loglik, df, loglik -
+                                                     df, loglik - dfc,  loglik - log(parms$n) * df,  -loglik/(parms$n*(1-df/parms$n)^2)))
+
+                   list(theta = parms$theta[iter+1], done = done, history = history)
+                   }, diag = FALSE, pparm = list(D = D), cparm = list(theta = theta, n = n),
+                   cargs = c("neff", "df", "plik"),
+                  printfun = printfun),
+
+                 df = list(pfun = pfun.lFunc, cfun = survival:::frailty.controldf,
+                           diag = FALSE, pparm = list(D = D), printfun = printfun),
+
+                 aic = list(pfun = pfun.lFunc,cfun = control.tuning, cparm =  list(eps = eps, init = c(0.5,0.95), lower = 0, upper = 1, type = "aic", n=n),
+                            diag = FALSE, pparm = list(D = D),  cargs = c("neff", "df", "plik"), printfun = printfun),
+                 caic = list(pfun = pfun.lFunc, cfun = control.tuning, cparm =  list(eps = eps, init = c(0.5,0.95), lower = 0, upper = 1, type = "caic", n=n),
+                             diag = FALSE, pparm = list(D = D),  cargs = c("neff", "df","plik"), printfun = printfun),
+                 bic = list(pfun = pfun.lFunc, cfun =control.tuning, cparm =  list(eps = eps, init = c(0.5,0.95), lower = 0, upper = 1, type = "bic", n=n),
+                            diag = FALSE, pparm = list(D = D),  cargs = c("neff", "df","plik"), printfun = printfun),
+                 gcv = list(pfun = pfun.lFunc, cfun =control.tuning, cparm =  list(eps = eps, init = c(0.5,0.95), lower = 0, upper = 1, type = "gcv", n=n),
+                            diag = FALSE, pparm = list(D = D),  cargs = c("neff", "df","plik"), printfun = printfun)
+  )
+
+
+  class(X) <- "coxph.penalty"
+  attributes(X) <- c(attributes(X), temp)
+  X
+}
+
+
+
+
+
+f_override <- function (...)
+{
+  callstring <- deparse(match.call(), width.cutoff = 500L)
+  if (length(callstring) > 1)
+    callstring <- paste0(callstring)
+  get(callstring, parent.frame())
+}
+
+
+
+control.fcoxph <- function (eps = 1e-06, eps2 = 1e-04, toler.chol = .Machine$double.eps^0.75,
+          iter.max = 100, toler.inf = sqrt(eps), outer.max = 10, timefix = TRUE)
+{
+  if (iter.max < 0)
+    stop("Invalid value for iterations")
+  if (eps <= 0)
+    stop("Invalid convergence criteria")
+  if (eps2 <= 0)
+    stop("Invalid convergence criteria")
+
+  if (eps <= toler.chol)
+    warning("For numerical accuracy, tolerance should be < eps")
+  if (toler.inf <= 0)
+    stop("The inf.warn setting must be >0")
+  if (!is.logical(timefix))
+    stop("timefix must be TRUE or FALSE")
+  list(eps = eps, eps2 = eps2, toler.chol = toler.chol, iter.max = as.integer(iter.max),
+       toler.inf = toler.inf, outer.max = outer.max,
+       timefix = timefix)
+}
+
+
+
+
+
+control.tuning<- function (parms, iter, old, n, df, loglik)
+{
+  if (iter == 0) {
+    if (is.null(parms$init))
+      theta <- 0.005
+    else theta <- parms$init[1]
+    return(list(theta = theta, done = FALSE))
+  }
+  if (length(parms$type))
+    type <- parms$type
+  else type <- "aic"
+  if (n < df + 2)
+    dfc <- (df - n) + (df + 1) * df/2 - 1
+  else dfc <- -1 + (df + 1)/(1 - ((df + 2)/n))
+  if (iter == 1) {
+    history <- c(theta = old$theta, loglik = loglik, df = df,
+                 aic = loglik - df, aicc = loglik - dfc, epic = loglik -
+                   2 * df,  bic = loglik - log(parms$n)*df, gcv = -loglik/(parms$n*(1-df/parms$n)^2))
+    if (length(parms$init) < 2)
+      theta <- 1
+    else theta <- parms$init[2]
+    temp <- list(theta = theta, done = FALSE, history = history)
+    return(temp)
+  }
+  history <- rbind(old$history, c(old$theta, loglik, df, loglik -
+                                    df, loglik - dfc, loglik - 2 * df,  loglik - log(parms$n)*df,  -loglik/(parms$n*(1-df/parms$n)^2)))
+  if (is.null(parms$trace))
+    trace <- FALSE
+  else trace <- parms$trace
+  if (iter == 2) {
+    theta <- mean(history[, 1])
+    return(list(theta = theta, done = FALSE, history = history,
+                tst = 4))
+  }
+  if (type == "caic") {
+    aic <- history[, 5]
+  }
+  else if (type == "epic") {
+    aic <- history[, 6]
+  }
+  else if (type == "bic"){
+    aic <- history[, 7]
+  }
+  else if (type == "gcv"){
+    aic <- history[, 8]
+  } else{
+    aic <- history[, 4]
+  }
+  done <- (abs(1 - aic[iter]/aic[iter - 1]) < parms$eps)
+  x <- history[, 1]
+  if (x[iter] == max(aic) && x[iter] == max(x))
+    newtheta <- 2 * max(x)
+  else newtheta <- survival:::frailty.brent(x, aic, lower = parms$lower,
+                                            upper = parms$upper)
+  if (length(parms$trace) && parms$trace) {
+    print(history)
+    cat("    new theta=", format(newtheta), "\n\n")
+  }
+  list(theta = newtheta, done = done, history = history, tst = 4)
+}
+
+
