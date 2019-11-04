@@ -244,7 +244,7 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
   beta.basis <- lapply(1:m, function(i) fda::create.bspline.basis(rangeval=c(argvals[[i]][1], argvals[[i]][length(argvals[[i]])]), nbasis=sm[[i]]$bs.dim))
   extralist<- lapply(pattr, function(x) x$pparm)
-  iterlist <- thetalist <- lambdalist <- W <- cutoff <- sparse.where <- betazero <- vector('list', length(cfun))
+  iterlist <- thetalist <- lambdalist <- W <- cutoff <- sparse.where <- W0 <-  vector('list', length(cfun))
   printfun  <- lapply(pattr, function(x) x$printfun)
 
 
