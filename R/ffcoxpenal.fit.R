@@ -470,7 +470,6 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
                           f.expr1,f.expr2,rho)
 
 
-      print(coxfit$coef)
       if(iter==1) coef0 <- coxfit$coef
       else coef0 <- cbind(coef0, coxfit$coef)
 
@@ -511,10 +510,15 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
     }
 
+
+
     theta.init <- vector('list', m)
     for (i in 1:m)
       theta.init[[i]] <- iterlist[[i]]$history[,1]
   }
+
+  print(coef0)
+  print(theta.init)
 
     for (i in 1:m) {
       temp <- (cfun[[i]])(parmlist[[i]], iter=0)
