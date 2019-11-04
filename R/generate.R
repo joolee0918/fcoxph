@@ -118,19 +118,19 @@ gamma2 <- log(1.2)
 rangeval <- c(0,1)
 
 
-data <- data.generator(nSimu, n, lam, alp, gamma1, gamma2, rangeval, probC, tau)
+#data <- data.generator(nSimu, n, lam, alp, gamma1, gamma2, rangeval, probC, tau)
 
 
-data1 <- cbind(data$data, X=data$X)
-m1 <- pcox(Surv(estop, estatus)~bf(X, k=30, bs="ps"), data=data1)
+#data1 <- cbind(data$data, X=data$X)
+#m1 <- fcoxph(Surv(estop, estatus)~lf(X, k=30, bs="ps", integration="riemann"),  data=data1, sparse ="none")
 
-data2 <- cbind(data$data, m1$pcox$smoothdata[[1]])
-m2 <-  gam(estop~s(X.smat,by=X.LX, k=30, bs="cr"),
-                family=cox.ph(),data=data2,weights=estatus)
+#data2 <- cbind(data$data, m1$pcox$smoothdata[[1]])
+#m2 <-  gam(estop~s(X.smat,by=X.LX, k=30, bs="cr"),
+#                family=cox.ph(),data=data2,weights=estatus)
 
-m30 <- fcoxph(Surv(estop, estatus)~lf(X, k=30, bs="ps", integration="riemann"),  data=data1, penalty="Lasso", tuning.method = "GCV", sparse ="tail", nlambda=20)
-m31 <- fcoxph(Surv(estop, estatus)~lf(X, k=30, bs="ps", integration="riemann"),  data=data1, penalty="SCAD", tuning.method = "GCV", sparse ="tail", nlambda=20)
-m32 <- fcoxph(Surv(estop, estatus)~lf(X, k=30, bs="ps", integration="riemann"),  data=data1, penalty="MCP", tuning.method = "GCV", sparse ="tail", nlambda=20)
+#m30 <- fcoxph(Surv(estop, estatus)~lf(X, k=30, bs="ps", integration="riemann"),  data=data1, penalty="Lasso", tuning.method = "GCV", sparse ="tail", nlambda=20)
+#m31 <- fcoxph(Surv(estop, estatus)~lf(X, k=30, bs="ps", integration="riemann"),  data=data1, penalty="SCAD", tuning.method = "GCV", sparse ="tail", nlambda=20)
+#m32 <- fcoxph(Surv(estop, estatus)~lf(X, k=30, bs="ps", integration="riemann"),  data=data1, penalty="MCP", tuning.method = "GCV", sparse ="tail", nlambda=20)
 
 
 
