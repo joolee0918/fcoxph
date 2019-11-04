@@ -611,8 +611,6 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
               zstar <- as.numeric(newz-Ha%*%newz)
               xstarb <- xb - Ha%*%xb
 
-              print(dim(W0[[1]][sparse.all, sparse.all]))
-              print(dim(xstarb))
               x2starb <- xstarb%*%W0[[1]][sparse.all, sparse.all]
 
               xb <- xb%*%W0[[1]][sparse.all, sparse.all]
@@ -678,6 +676,10 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
         ftheta <- tuning.par[which, 2]
         flambda <- tuning.par[which, 1]
 
+        print(coef)
+        print(ftheta)
+        print(flambda)
+
         if(!any(coef==0)) break
 
         lbeta <- coef
@@ -687,6 +689,7 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
         lsparse.where <- sparse.where
 
 
+    iter3 <- iter3 + 1
     if(t==1) break
 
     for (i in 1:m) {
@@ -705,7 +708,7 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
   ### at convergence
   if(iter3==1) {
-    lbeta <- beta
+    lbeta <- coef
    #lfbeta <- fbeta
     lftheta <- ftheta
     lflambda <- flambda
