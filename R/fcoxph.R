@@ -2,6 +2,7 @@
 
 #' @import survival refund
 #' @importFrom pryr modify_call
+#' @importFrom Matrix bdiag
 
 #' @export
 fcoxph <- function (formula, data, weights, na.action, init, control, knots = NULL, cutoff = NULL, penalty = c("Lasso", "SCAD", "MCP"),
