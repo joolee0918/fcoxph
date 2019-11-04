@@ -751,6 +751,7 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
     lsparse.where <- sparse.where
   }
 
+  print(lbeta)
   for (i in 1:length(cfun)) {
     thetalist[[i]] <- lftheta
     lambdalist[[i]] <- lflambda
@@ -867,9 +868,9 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
 
 
-  if (control$iter.max >1 && length(iterfail)>0)
-    warning(paste("Inner loop failed to coverge for iterations",
-                  paste(iterfail, collapse=' ')))
+#  if (control$iter.max >1 && length(iterfail)>0)
+#    warning(paste("Inner loop failed to coverge for iterations",
+#                  paste(iterfail, collapse=' ')))
 
 
 
