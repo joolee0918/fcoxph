@@ -618,9 +618,9 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
               lasso <- gglasso:::gglasso(x=x2starb, y=zstar, group=rep(1,ncol(x2starb)), intercept=FALSE, lambda=lambda[j])# /sqrt(1+kappa))
 
               newbetab <- lasso$beta
-              print(newbetab)
               newbetaa <- solve(t(xa)%*%xa)%*%t(xa)%*%(newz - xb%*%newbetab)
               newbeta[(k-1)*(nlambda) + j,] <- as.numeric(c(newbetaa, W0[[1]][sparse.all, sparse.all]%*%newbetab*lambda[j]/scadderiv(H, alpha, lambda[j]) ))#*sqrt(1+kappa)))
+              print(newbeta[(k-1)*(nlambda) + j,])
               coxLik  <-  survival:::coxph.fit(x[sorted,], y[sorted,], strata, offset, newbeta[(k-1)*(nlambda) + j,] , list(iter.max=0), weights=weights,
                                     method="breslow", row.names(x[ind,]))
 
@@ -893,7 +893,7 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
            penalty= c(penalty0, penalty),
            tuning.par = c( lftheta, lflambda),
            pterms = pterms, assign2=assign,
-           history = lhistory,
+           #history = lhistory,
            coxlist1=coxlist1,
            printfun=printfun)
     }
@@ -909,7 +909,7 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
             penalty = c(penalty0, penalty),
             tuning.par = c( lftheta, lflambda),
             pterms = pterms, assign2=assign,
-            history = lhistory,
+            #history = lhistory,
             printfun=printfun)
     }
   }
@@ -928,7 +928,7 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
          penalty= c(penalty0, penalty),
          tuning.par = c( lftheta, lflambda),
          pterms = pterms, assign2=assign,
-         history = lhistory,
+         #history = lhistory,
          coxlist2=coxlist2,
          printfun= printfun)
   }
