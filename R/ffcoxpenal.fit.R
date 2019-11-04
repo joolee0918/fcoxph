@@ -465,6 +465,8 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
                           f.expr1,f.expr2,rho)
 
       iter <- i
+      print(iter)
+      print(coxfit$coef)
       if(iter==1) coef0 <- coxfit$coef
       else coef0 <- cbind(coef0, coxfit$coef)
 
@@ -502,6 +504,7 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
         thetalist[[i]] <- temp$theta
         iterlist[[i]] <- temp
       }
+      print(iterlist[[i]])
 
     }
 
