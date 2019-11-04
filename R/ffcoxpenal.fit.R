@@ -470,6 +470,7 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
                           f.expr1,f.expr2,rho)
 
 
+      print(coxfit$coef)
       if(iter==1) coef0 <- coxfit$coef
       else coef0 <- cbind(coef0, coxfit$coef)
 
