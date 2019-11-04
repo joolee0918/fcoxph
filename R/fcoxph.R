@@ -6,12 +6,13 @@
 #' @export
 fcoxph <- function (formula, data, weights, na.action, init, control, knots = NULL, cutoff = NULL, penalty = c("Lasso", "SCAD", "MCP"),
                     theta = NULL, lambda = NULL, lambda.min = 0.001, nlambda = 20, alpha = switch(penalty, SCAD = 3.7, MCP = 3),
-                    sparse = c("none", "global", "local", "tail"),  group.multiplier, tuning.method = c("GCV", "AIC", "BIC"),
+                    sparse = "none",  group.multiplier, tuning.method = c("GCV", "AIC", "BIC"),
                     method = "breslow", x = TRUE, model = FALSE, y = TRUE, ...)
 {
 
   call <- match.call()
   dots <- list(...)
+  penalty <- match.arg(penalty)
 
   tf <- terms.formula(formula, specials = c("s", "fspline", "fpc"))
   trmstrings <- attr(tf, "term.labels")
