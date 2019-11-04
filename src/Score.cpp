@@ -1,35 +1,6 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
-
-// This is a simple example of exporting a C++ function to R. You can
-// source this function into an R session using the Rcpp::sourceCpp
-// function (or via the Source button on the editor toolbar). Learn
-// more about Rcpp at:
-//
-//   http://www.rcpp.org/
-//   http://adv-r.had.co.nz/Rcpp.html
-//   http://gallery.rcpp.org/
-//
-
-/*
-** Compute the martingale residual for a Cox model
-**
-** Input
-**      n       number of subjects
-**      method  will be ==1 for the Efron method
-**      time    vector of times
-**      status  vector of status values
-**      score   the vector of subject scores, i.e., exp(beta*z)
-**      strata  is =1 for the last obs of a strata
-**      mark    carried forward from the coxfit routine
-**
-** Output
-**      expected the expected number of events for the subject
-**
-** The martingale residual is more of a nuisance for the Efron method
-**
-*/
 #include <stdio.h>
 #include <float.h>
 #include <Rmath.h>

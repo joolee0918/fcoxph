@@ -23,13 +23,8 @@ BEGIN_RCPP
 END_RCPP
 }
 
-RcppExport SEXP Ccoxcount1(SEXP, SEXP);
-RcppExport SEXP Ccoxcount2(SEXP, SEXP, SEXP, SEXP);
-
 static const R_CallMethodDef CallEntries[] = {
     {"_fcoxph_Score", (DL_FUNC) &_fcoxph_Score, 7},
-    {"Ccoxcount1", (DL_FUNC) &Ccoxcount1, 2},
-    {"Ccoxcount2", (DL_FUNC) &Ccoxcount2, 4},
     {NULL, NULL, 0}
 };
 
