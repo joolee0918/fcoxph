@@ -1,5 +1,5 @@
 
-
+#' @importFrom fda eval.basis
 TWeiRandom.f <- function(tt,  lam, alp, tau) {
   v <- runif(1, min = 0, max = 1)
 
@@ -14,7 +14,7 @@ TWeiRandom.f <- function(tt,  lam, alp, tau) {
 data.generator <- function(N, lam, alp, gamma1, gamma2, rangeval, probC, tau)
 {
   nbasis=50+5-2
-  data.basis <- create.bspline.basis(rangeval=c(0, 1),norder=5,nbasis=nbasis)
+  data.basis <- fda::create.bspline.basis(rangeval=c(0, 1),norder=5,nbasis=nbasis)
 
   getdata.f <- function(id,  tau, lam, alp, gamma1, gamma2, W1, W2, Xbeta) {
 
@@ -54,9 +54,9 @@ data.generator <- function(N, lam, alp, gamma1, gamma2, rangeval, probC, tau)
     W2 <- rnorm(N, 0, 1)
     Xbeta <- cMat1 %*% G1
 
-    data.basis <- create.bspline.basis(rangeval=c(0, 1),norder=5,nbasis=nbasis)
+    data.basis <- fda::create.bspline.basis(rangeval=c(0, 1),norder=5,nbasis=nbasis)
     knots <- c(0,data.basis$params,1)
-    X <- as.matrix(cMat1%*%t(eval.basis(knots, data.basis)))
+    X <- as.matrix(cMat1%*%t(fda::eval.basis(knots, data.basis)))
 
     event <- lapply(1:N, function(i) getdata.f(id = i, W1 = W1[i], W2 = W2[i], Xbeta = Xbeta[i],
                                                tau = CC[i], lam = lam, alp = alp, gamma1 = gamma1, gamma2 = gamma2))
@@ -70,7 +70,7 @@ data.generator <- function(N, lam, alp, gamma1, gamma2, rangeval, probC, tau)
 
 inner.prod <- function(f,basis,j)
 {
-  rng <- getbasisrange(basis)
+  rng <- fda::getbasisrange(basis)
   knots <- c(rng[1],basis$params,1)
   nbasis <- basis$nbasis
   norder <- basis$nbasis - length(knots) + 2
@@ -83,7 +83,7 @@ inner.prod <- function(f,basis,j)
 
   bfun <- function(t)
   {
-    mat <- eval.basis(t,basis)
+    mat <- fda::eval.basis(t,basis)
     z <- t(mat[,j])
     return(z)
   }
