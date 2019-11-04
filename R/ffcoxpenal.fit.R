@@ -521,9 +521,20 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
       iterlist[[i]] <- temp
     }
 
-   stime <- y[ind, 1]
-   sstat <- y[ind, 2]
 
+  if (length(strata)==0) {
+    sorted <- order(y[,1])
+    strata <- NULL
+    newstrat <- as.integer(rep(0,n))
+  }
+  else {
+    sorted <- order(strata, y[,1])
+    strata <- strata[sorted]
+    newstrat <- as.integer(c(1*(diff(as.numeric(strata))!=0), 1))
+  }
+
+   stime <- y[sorted, 1]
+   sstat <- y[sorted, 2]
 
 
    sparse.all <- unlist(sparse.where)
@@ -564,11 +575,13 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
           init <- coef0[,k]
           print(init)
           lp <- c(x %*% init) + offset - sum(init*colMeans(x))
-          score <- exp(lp[ind])
+          score <- exp(lp[sorted])
           resid <- Score(n, as.integer(method=='efron'), stime, sstat, newstrat,   score, weights)
           ss <- ii <- double(n)
-          ss[ind] <- resid$score
-          ii[ind] <- resid$infor
+          print(head(ss))
+          print(head(ii))
+          ss[sorted] <- resid$score
+          ii[sorted] <- resid$infor
 
 
           DD <- lapply(1:m, function(l) sqrt(kappa[[l]][k])*D[[l]])
@@ -611,7 +624,7 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
               print(newbetab)
               newbetaa <- solve(t(xa)%*%xa)%*%t(xa)%*%(newz - xb%*%newbetab)
               newbeta[(k-1)*(nlambda) + j,] <- as.numeric(c(newbetaa, W0[[1]][sparse.all, sparse.all]%*%newbetab*lambda[j]/scadderiv(H, alpha, lambda[j]) ))#*sqrt(1+kappa)))
-              coxLik  <-  survival:::coxph.fit(x[ind,], y[ind,], strata, offset, newbeta[(k-1)*(nlambda) + j,] , list(iter.max=0), weights=weights,
+              coxLik  <-  survival:::coxph.fit(x[sorted,], y[sorted,], strata, offset, newbeta[(k-1)*(nlambda) + j,] , list(iter.max=0), weights=weights,
                                     method="breslow", row.names(x[ind,]))
 
               Omega <- t(DD)%*%DD/2
@@ -631,8 +644,8 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
               else if (tuning.method == "BIC") bic[(k-1)*(nlambda) + j] <- -coxLik$loglik[1] + log(n)*df[(k-1)*(nlambda) + j]
             } else{
               newbeta[(k-1)*(nlambda) + j,] <- init
-              coxLik  <-  survival:::coxph.fit(xx[ind,], y[ind,], strata, offset, init, list(iter.max=0), weights=weights,
-                                    method="breslow", row.names(x[ind,]))
+              coxLik  <-  survival:::coxph.fit(xx[sorted,], y[sorted,], strata, offset, init, list(iter.max=0), weights=weights,
+                                    method="breslow", row.names(x[sorted,]))
 
               Omega <- t(DD)%*%DD/2
 
