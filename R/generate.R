@@ -96,28 +96,28 @@ inner.prod <- function(f,basis,j)
 beta.func <- function(t)
 {
   t1 <- t[t<=0.5]
-  # t3 <- t[t>=0.7]
+ # t3 <- t[t>0.5 & t<=0.7]
   y <- matrix(0,1,length(t))
   y[t<=0.5] <- 2*(1-t1)*sin(2*pi*(t1+0.2))
-  # y[t>=0.7] <- 2*t3*sin(2*pi*(t3-0.2))
+#  y[0.5<t & t<=0.7] <- 2*(1-t1)*sin(2*pi*(t1+0.2)) + t3*sin(2*pi*(t3))
   y
 }
 
 
-#require('fda')
-#set.seed(12345)
+require('fda')
+set.seed(100)
 #nSimu <- 1000
-#n <- 500
-#lam <- 1.5
-#alp <- 1
-#tau <- 1
-#probC <- 0.2
-#gamma1 <- log(0.8)
-#gamma2 <- log(1.2)
-#rangeval <- c(0,1)
+n <- 500
+lam <- 1.5
+alp <- 1
+tau <- 1
+probC <- 0.2
+gamma1 <- log(0.8)
+gamma2 <- log(1.2)
+rangeval <- c(0,1)
 
-
-#data <- data.generator(nSimu, n, lam, alp, gamma1, gamma2, rangeval, probC, tau)
+set.seed(57)
+#data <- data.generator(n, lam, alp, gamma1, gamma2, rangeval, probC, tau)
 #data1 <- list(estop = data[[1]]$estop, estatus=data[[1]]$estatus, X = data$X)
 
 #data1 <- data.frame(data[[1]], X=data$X)
@@ -127,9 +127,9 @@ beta.func <- function(t)
 #m2 <-  gam(estop~s(X.smat,by=X.LX, k=30, bs="cr"),
 #                family=cox.ph(),data=data2,weights=estatus)
 
-#m30 <- fcoxph(Surv(estop, estatus)~lf(X, k=30, bs="ps", integration="riemann"),  data=data1, penalty="Lasso", tuning.method = "GCV", sparse ="tail", nlambda=20)
-#m31 <- fcoxph(Surv(estop, estatus)~lf(X, k=30, bs="ps", integration="riemann"),  data=data1, penalty="SCAD", tuning.method = "GCV", sparse ="tail", nlambda=20)
-#m32 <- fcoxph(Surv(estop, estatus)~lf(X, k=30, bs="ps", integration="riemann"),  data=data1, penalty="MCP", tuning.method = "GCV", sparse ="tail", nlambda=20)
+#m30 <- fcoxph(Surv(estop, estatus)~fspline(X, k=30, bs="ps", integration="riemann"),  data=data1, penalty="Lasso", tuning.method = "GCV", sparse ="tail", nlambda=20)
+#m31 <- fcoxph(Surv(estop, estatus)~fspline(X, k=30, bs="ps", integration="riemann"),  data=data1, penalty="SCAD", tuning.method = "GCV", sparse ="tail", nlambda=20)
+#m32 <- fcoxph(Surv(estop, estatus)~fspline(X, k=30, bs="ps", integration="riemann"),  data=data1, penalty="MCP", tuning.method = "GCV", sparse ="tail", nlambda=20)
 
 
 

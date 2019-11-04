@@ -204,16 +204,12 @@ pterm1 <- function (sm, theta, lambda, penalty, method = c("aic", "caic", "bic",
                    }
 
                    done  <- (iter  == length(parms$theta))
-                   if (n < df + 2)
-                     dfc <- (df - n) + (df + 1) * df/2 - 1
-                   else dfc <- -1 + (df + 1)/(1 - ((df + 2)/n))
-
-                   if (iter == 1) {
+                    if (iter == 1) {
                      history <- c(theta = old$theta, loglik = loglik, df = df,
-                                  aic = loglik - df, aicc = loglik - dfc, bic = loglik - log(parms$n) * df, gcv = -loglik/(parms$n*(1-df/parms$n)^2))
+                                  aic = loglik - df,  bic = loglik - log(parms$n) * df, gcv = -loglik/(parms$n*(1-df/parms$n)^2))
                    }
                    history <- rbind(old$history, c(old$theta, loglik, df, loglik -
-                                                     df, loglik - dfc,  loglik - log(parms$n) * df,  -loglik/(parms$n*(1-df/parms$n)^2)))
+                                                     df, loglik - log(parms$n) * df,  -loglik/(parms$n*(1-df/parms$n)^2)))
 
                    list(theta = parms$theta[iter+1], done = done, history = history)
                    }, diag = FALSE, pparm = list(D = D, pen = penalty), cparm = list(theta = theta, n = n),

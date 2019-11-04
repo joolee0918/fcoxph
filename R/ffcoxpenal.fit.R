@@ -2,11 +2,12 @@
 # General penalized likelihood
 #
 
+#' @importFrom gglasso gglasso
 #' @importFrom fda create.bspline.basis
 #' @import grpreg
-fcoxpenal.fit <- function(x, y, strata, offset, init, control,
-                         weights, method, rownames,
-                         pcols, pattr, assign, npcols, tuning.method, sm, l, alpha, theta, lambda, lambda.min, nlambda, penalty, sparse.what, argvals, group.multiplier) {
+ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
+                          weights, method, rownames,
+                          pcols, pattr, assign, npcols, tuning.method, sm, l, alpha, theta, lambda, lambda.min, nlambda, penalty, sparse.what, argvals, group.multiplier) {
   eps <- control$eps
   n <-  nrow(y)
   if (is.matrix(x)) nvar <- ncol(x)
@@ -247,7 +248,6 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
   printfun  <- lapply(pattr, function(x) x$printfun)
 
 
-
   for (i in 1:m) {
 
     if(!is.null(l)) cutoff[[i]] <- l[i]
@@ -297,7 +297,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
   K1 <- as.integer(if (min(group)==0) cumsum(K) else c(0, cumsum(K)))
 
   nullFit <- survival:::coxph.fit(XG$X[, group==0, drop=FALSE], y[ind,], strata[ind], offset[ind], init=rep(0, length(group[group==0])),
-                                      control, weights[ind], method, rownames=row.names(XG$X))
+                                  control, weights[ind], method, rownames=row.names(XG$X))
 
   s <- weights*residuals(nullFit, type="martingale" )
   lambda.max <- .Call(grpreg:::maxgrad, XG$X%*%solve(Wb), s, K1, as.double(XG$m)) / n
@@ -316,7 +316,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
     iterlist[[i]] <- temp
   }
 
-    #
+  #
   # Manufacture the list of calls to cfun, with appropriate arguments
   #
   ## Amazingly, all this works in R, so I don't need to understand it.
@@ -363,73 +363,73 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
   iter3 <- 1
   for(t in TT:1){
 
-  #
-  # Have C store the data, and get the loglik for beta=initial, frailty=0
-  #
-  storage.mode(y) <- storage.mode(weights) <-  "double"
-  storage.mode(xx) <- storage.mode(offset) <- "double"
-  if (andersen) coxfit <- .C(survival:::Cagfit5a,
-                             as.integer(n),
-                             as.integer(nvar),
-                             y,
-                             xx ,
-                             offset,
-                             weights,
-                             newstrat,
-                             sorted,
-                             means= double(nvar),
-                             coef= as.double(init),
-                             u = double(nvar),
-                             loglik=double(1),
-                             as.integer(method=='efron'),
-                             as.integer(ptype),
-                             as.integer(full.imat),
-                             as.integer(nfrail),
-                             as.integer(frailx),
-                             #R callback additions
-                             f.expr1,f.expr2,rho)
-  else       coxfit <- .C(survival:::Ccoxfit5a,as.integer(n),
-                          as.integer(nvar),
-                          y,
-                          xx,
-                          offset,
-                          weights,
-                          newstrat,
-                          sorted,
-                          means= double(nvar),
-                          coef= as.double(init),
-                          u = double(nvar),
-                          loglik=double(1),
-                          as.integer(method=='efron'),
-                          as.integer(ptype),
-                          as.integer(full.imat),
-                          as.integer(nfrail),
-                          as.integer(frailx),
-                          f.expr1,f.expr2,rho)
+    #
+    # Have C store the data, and get the loglik for beta=initial, frailty=0
+    #
+    storage.mode(y) <- storage.mode(weights) <-  "double"
+    storage.mode(xx) <- storage.mode(offset) <- "double"
+    if (andersen) coxfit <- .C(survival:::Cagfit5a,
+                               as.integer(n),
+                               as.integer(nvar),
+                               y,
+                               xx ,
+                               offset,
+                               weights,
+                               newstrat,
+                               sorted,
+                               means= double(nvar),
+                               coef= as.double(init),
+                               u = double(nvar),
+                               loglik=double(1),
+                               as.integer(method=='efron'),
+                               as.integer(ptype),
+                               as.integer(full.imat),
+                               as.integer(nfrail),
+                               as.integer(frailx),
+                               #R callback additions
+                               f.expr1,f.expr2,rho)
+    else       coxfit <- .C(survival:::Ccoxfit5a,as.integer(n),
+                            as.integer(nvar),
+                            y,
+                            xx,
+                            offset,
+                            weights,
+                            newstrat,
+                            sorted,
+                            means= double(nvar),
+                            coef= as.double(init),
+                            u = double(nvar),
+                            loglik=double(1),
+                            as.integer(method=='efron'),
+                            as.integer(ptype),
+                            as.integer(full.imat),
+                            as.integer(nfrail),
+                            as.integer(frailx),
+                            f.expr1,f.expr2,rho)
 
-  loglik0 <- coxfit$loglik
-  means   <- coxfit$means
+    loglik0 <- coxfit$loglik
+    means   <- coxfit$means
 
-   #
-  #  Now for the actual fit
-  #
-  iter <- 0
-  iter2 <- 0
-  iterfail <- NULL
-  final.history <- matrix(0, nrow=nlambda, ncol=9)
-  history <- NULL
+    #
+    #  Now for the actual fit
+    #
+    iter <- 0
+    iter2 <- 0
+    iterfail <- NULL
+    final.history <- matrix(0, nrow=nlambda, ncol=9)
+    history <- NULL
 
- # for (outer1 in 1:control$outer.max1) {
-#    betazero <- FALSE
-#    for(outer2 in 1:control$outer.max2) {
-#iter <- (outer1-1)*control$outer.max2 + outer2
+    # for (outer1 in 1:control$outer.max1) {
+    #    betazero <- FALSE
+    #    for(outer2 in 1:control$outer.max2) {
+    #iter <- (outer1-1)*control$outer.max2 + outer2
 
-  for (i in 1:m) {
-    lambdalist[[i]] <- 0
-  }
+    for (i in 1:m) {
+      lambdalist[[i]] <- 0
+    }
 
 
-  for(iter in 1:control$outer.max){
+    for(iter in 1:control$outer.max){
       if (andersen)  coxfit <- .C(survival:::Cagfit5b,
                                   iter=as.integer(control$iter.max),
                                   as.integer(n),
@@ -468,287 +468,228 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
                           f.expr1,f.expr2,rho)
 
 
-  if(iter==1) coef0 <- coxfit$coef
-  else coef0 <- cbind(coef0, coxfit$coef)
+      if(iter==1) coef0 <- coxfit$coef
+      else coef0 <- cbind(coef0, coxfit$coef)
 
-   temp <- rep(FALSE, nvar+nfrail)
-  if (nfrail>0) temp[1:nfrail] <- coxlist1$flag
-  if (ptype >1) temp[nfrail+ 1:nvar] <- coxlist2$flag
-  fdiag <- ifelse(temp, 0, coxfit$fdiag)
-
-
-  if (nfrail>0) temp1 <- coxlist1$second
-  else 	  temp1 <- 0
-  if (ptype>1)  temp2 <- coxlist2$second
-  else          temp2 <- 0
-
-  dftemp <- survival:::coxpenal.df(matrix(coxfit$hmat,ncol=nvar),
-                       matrix(coxfit$hinv,ncol=nvar),  fdiag,
-                       assign, ptype, nvar,
-                       temp1, temp2, pindex[sparse])
-  df <- dftemp$df
-  pdf <- df[pterms>0]	          # df's for penalized terms
-  trH <- dftemp$trH[pterms>0]   # trace H
-
-  if (nfrail >0)  penalty <- -coxlist1$penalty
-  else            penalty <- 0
-  if (ptype >1) penalty <- penalty - coxlist2$penalty
-  loglik1 <- coxfit$loglik + penalty  #C code returns PL - penalty
-  if (iter==1) penalty0 <- penalty
+      temp <- rep(FALSE, nvar+nfrail)
+      if (nfrail>0) temp[1:nfrail] <- coxlist1$flag
+      if (ptype >1) temp[nfrail+ 1:nvar] <- coxlist2$flag
+      fdiag <- ifelse(temp, 0, coxfit$fdiag)
 
 
-  done <- TRUE
-  for (i in 1:m) {
-    temp <- eval(calls[i])
-    if (sparse[i]) theta1 <- temp$theta
-    done <- done & temp$done
-    thetalist[[i]] <- temp$theta
-    iterlist[[i]] <- temp
-  }
+      if (nfrail>0) temp1 <- coxlist1$second
+      else 	  temp1 <- 0
+      if (ptype>1)  temp2 <- coxlist2$second
+      else          temp2 <- 0
 
-  }
+      dftemp <- survival:::coxpenal.df(matrix(coxfit$hmat,ncol=nvar),
+                                       matrix(coxfit$hinv,ncol=nvar),  fdiag,
+                                       assign, ptype, nvar,
+                                       temp1, temp2, pindex[sparse])
+      df <- dftemp$df
+      pdf <- df[pterms>0]	          # df's for penalized terms
+      trH <- dftemp$trH[pterms>0]   # trace H
 
-
-  for (i in 1:m) {
-    temp <- (cfun[[i]])(parmlist[[i]], iter=0)
-    if (sparse[i]) {
-      theta1 <- temp$theta
-      extra1 <- extralist[[i]]
-    }
-    thetalist[[i]] <- temp$theta
-    lambdalist[[i]] <- lambda[1]*XG$m[i]
-    iterlist[[i]] <- temp
-  }
+      if (nfrail >0)  penalty <- -coxlist1$penalty
+      else            penalty <- 0
+      if (ptype >1) penalty <- penalty - coxlist2$penalty
+      loglik1 <- coxfit$loglik + penalty  #C code returns PL - penalty
+      if (iter==1) penalty0 <- penalty
 
 
-  for(outer1 in 1:control$outer.max){
-    thetasave <- cbind(unlist(thetalist))
-    if (nvar>0)  init <- coef0[,outer1]
-    if (nfrail>0) finit<- fsave[,outer1]
-
-    for(outer2 in 1:nlambda){
+      done <- TRUE
       for (i in 1:m) {
-        lambdalist[[i]] <- lambda[outer2]*XG$m[i]
+        temp <- eval(calls[i])
+        if (sparse[i]) theta1 <- temp$theta
+        done <- done & temp$done
+        thetalist[[i]] <- temp$theta
+        iterlist[[i]] <- temp
       }
-      if (andersen)  coxfit <- .C(survival:::Cagfit5b,
-                                iter=as.integer(control$iter.max),
-                                as.integer(n),
-                                as.integer(nvar),
-                                as.integer(newstrat),
-                                coef = as.double(init),
-                                u    = double(nvar+nfrail),
-                                hmat = double(nvar*(nvar+nfrail)),
-                                hinv = double(nvar*(nvar+nfrail)),
-                                loglik = double(1),
-                                flag = integer(1),
-                                as.double(control$eps),
-                                as.double(control$toler.chol),
-                                as.integer(method=='efron'),
-                                as.integer(nfrail),
-                                fcoef = as.double(finit),
-                                fdiag = double(nfrail+nvar),
-                                f.expr1,f.expr2,rho)
-    else   coxfit <- .C(survival:::Ccoxfit5b,
-                        iter=as.integer(control$iter.max),
-                        as.integer(n),
-                        as.integer(nvar),
-                        as.integer(newstrat),
-                        coef = as.double(init),
-                        u    = double(nvar+nfrail),
-                        hmat = double(nvar*(nvar+nfrail)),
-                        hinv = double(nvar*(nvar+nfrail)),
-                        loglik = double(1),
-                        flag = integer(1),
-                        as.double(control$eps),
-                        as.double(control$toler.chol),
-                        as.integer(method=='efron'),
-                        as.integer(nfrail),
-                        fcoef = as.double(finit),
-                        fdiag = double(nfrail+nvar),
-                        f.expr1,f.expr2,rho)
 
-    var0 <- survival:::coxph.fit(xx, y, strata, offset, init=coxfit$coef, control=list(iter.max=0), weights, method, row.names(xx))$var
-    I0 <- solve(var0)
+    }
 
-    iter1 <- outer2
-    iter2 <- coxfit$iter
-    if (coxfit$iter >=control$iter.max) iterfail <- c(iterfail, iter)
+    theta.init <- vector('list', m)
+    for (i in 1:m)
+      theta.init[[i]] <- iterlist[[i]]$history[,1]
+  }
 
-    betaTRUE <- FALSE
-    coef <- coxfit$coef
     for (i in 1:m) {
-      if(sqrt(t(coef[pcols[[i]]])%*%W[[i]]%*%coef[pcols[[i]]]) < 1e-06){
-        coef[sparse.where[[i]]] <- 0
-        betaTRUE <- TRUE
+      temp <- (cfun[[i]])(parmlist[[i]], iter=0)
+      if (sparse[i]) {
+        theta1 <- temp$theta
+        extra1 <- extralist[[i]]
       }
-    }
-
-    print(coef)
-    print(betaTRUE)
-
-    # If any penalties were infinite, the C code has made fdiag=1 out
-    #  of self-preservation (0 divides).  But such coefs are guarranteed
-    #  zero so the variance should be too.)
-    temp <- rep(FALSE, nvar+nfrail)
-    if (nfrail>0) temp[1:nfrail] <- coxlist1$flag
-    if (ptype >1) temp[nfrail+ 1:nvar] <- coxlist2$flag
-    fdiag <- ifelse(temp, 0, coxfit$fdiag)
-
-    #get the penalty portion of the second derive matrix
-    if (nfrail>0) temp1 <- coxlist1$second
-    else 	  temp1 <- 0
-    if (ptype>1)  temp2 <- coxlist2$second
-    else          temp2 <- 0
-
-  ## Calculate df
-    nonzero <- coef != 0
-
-    hinv.full <- solve(-I0[nonzero, nonzero] - matrix(coxlist2$second,n.coef, n.coef)[nonzero, nonzero])
-    var <- hinv.full%*%(-I0[nonzero, nonzero])%*%hinv.full
-
-    if (length(assign)==1){
-       df=sum(diag( hinv.full%*%(-I0[nonzero, nonzero])) )
-       trH=sum(diag(hinv.full))
-    }else {
-      df <- trH <- NULL
-      d2 <- diag(hinv.full)
-      for (i in assign) {
-        temp <- coxph.wtest(hinv.full[i,i], var[i,i])$solve
-        if (is.matrix(temp)) df <- c(df, sum(diag(temp)))
-        else                 df <- c(df, sum(temp))
-        trH<- c(trH, sum(d2[i]))
-      }
-    }
-
-    pdf <- df[pterms>0]	          # df's for penalized terms
-    trH <- trH[pterms>0]   # trace H
-
-
-    if (nfrail >0)  penalty <- -coxlist1$penalty
-    else            penalty <- 0
-    if (ptype >1) penalty <- penalty - coxlist2$penalty
-    loglik1 <- coxfit$loglik + penalty  #C code returns PL - penalty
-    #
-    # Call the control function(s)
-    #
-
-       if(iter1==1) {
-     coefsave <- coef
-     fsave <- coxfit$fcoef
-     iter2save <- iter2
-   } else{
-     coefsave <- cbind(coefsave, coef)
-     fsave    <- cbind(fsave, coxfit$fcoef)
-     iter2save <- cbind(iter2save, iter2)
-   }
-
-    if (outer1 ==1 & iter1 == 1) {
-      history <- c(theta = unlist(thetalist), lambda = unlist(lambdalist), loglik = loglik1, df = df,
-                   aic = loglik1 - df, bic = loglik1 - log(n) * df, gcv = -loglik1/(n*(1-df/n)^2))
-    } else history <- rbind(history, c(theta = unlist(thetalist), lambda = unlist(lambdalist), loglik1, df, loglik1 -
-                                      df,   loglik1 - log(n) * df,  -loglik1/(n*(1-df/n)^2)))
-
-
-
-    # Choose starting estimates for the next iteration
-    #
-
-    if(betaTRUE) break
-
-     # temp = next guess for theta
-      # *save = prior thetas and the resultant fits
-      # choose as initial values the result for the closest old theta
-
-    }
-
-
-    iter <- outer1
-
-    if (outer1==1) {
-      coefsave2 <- coefsave
-      fsave2   <- fsave
-      iter2save2 <- iter2save
-     # if(done) iterlist[[i]]$history <- c(thetasave2, loglik1, df, loglik1 -   df, loglik1 - dfc, loglik1 - 2 * df,  loglik1 - log(n)*df,  -loglik1/(n*(1-df/n)^2))
-
-    }
-    else {
-      # the "as.vector" removes names, dodging a bug in Splus5.1
-      iter2save2 <- cbind(iter2save2, iter2save)
-      coefsave2 <- cbind(coefsave2, coefsave)
-      fsave2    <- cbind(fsave2, fsave)
-    }
-
-#   test <- sapply(1:length(cutoff[[i]]), function(i) all(coefsave[cutoff[[i]]:n.coef,]==0))
-
-#  if(all(test==1)) break
-
-    done <- TRUE
-    for (i in 1:length(cfun)) {
-      temp <- eval(calls[i])
-      if (sparse[i]) theta1 <- temp$theta
-      done <- done & temp$done
       thetalist[[i]] <- temp$theta
+      lambdalist[[i]] <- lambda[1]*XG$m[i]
       iterlist[[i]] <- temp
     }
 
-  }
+   stime <- y[ind, 1]
+   sstat <- y[ind, 2]
 
 
- # final.history <- as.data.frame(final.history)
-  history <- as.data.frame(history)
-  names(history) <- c("theta", "lambda", "loglik", "df", "aic",  "bic", "gcv")
-  niter <- nrow(history)
-  if(tuning.method == "AIC") which <- min((1:niter)[history$aic==max(history$aic)])
-  else if (tuning.method == "BIC") which <- min((1:niter)[history$bic==max(history$bic)])
-  else if (tuning.method == "GCV") which <- min((1:niter)[history$gcv==min(history$gcv)])
+
+   sparse.all <- unlist(sparse.where)
+
+   group <- rep(1, n.coef)
+   for(i in 1:m) group[pcols[[i]]] <- (i+1)
+   if(length(sparse.all)==0) group <- rep(1, n.coef)
+   else group[-sparse.all] <- 1
+   print(group)
+   ngroup <- length(table(group))
 
 
-  beta <- coefsave2[, which]
-  fbeta <- fsave2[, which]
-  ftheta <- history[which,2]
-  flambda <- history[which,1]
-  fiter2 <- iter2save2[, which]
+        kappa <- D <- vector('list', m)
 
-  print(history)
-  print(which)
-  print(history[which,])
-  print(beta)
+        for(i in 1:m){
+          kappa[[i]] <- theta.init[[i]]/(1-theta.init[[i]])
+          D[[i]] <- sm[[i]]$D*0.25
+        }
 
-  if(!any(beta==0)) break
+        print(init)
+        lp <- c(x %*% init) + offset - sum(init*colMeans(x))
+        score <- exp(lp[ind])
+        resid <- Score(n, as.integer(method=='efron'), stime, sstat, newstrat,   score, weights)
+        ss <- ii <- double(n)
+        ss[ind] <- resid$score
+        ii[ind] <- resid$infor
 
-  iter3 <- iter3 + 1
-  lbeta <- beta
-  lfbeta <- fbeta
-  lftheta <- ftheta
-  lflambda <- flambda
-  lfiter2 <- fiter2
-  lhistory <- history
-  lW <- W
-  lsparse.where <- sparse.where
+        K <- length(kappa[[1]])
+        tuning.par <- expand.grid(lambda, kappa[[1]])
 
 
-  if(t==1) break
+        if(sparse == "global" | !is.null(l)) TT <- 1
+        else TT <-  length(beta.basis[[i]]$params)+1
 
-  for (i in 1:m) {
-  cutoff[[i]] <- cutoff[[i]] - 1
+        iter3 <- 1
 
-  if (sparse.what == "tail"){
-    W[[i]] <- compute.W(cutoff[[i]], beta.basis[[i]])
-    W[[i]] <- as.matrix(Matrix::bdiag(matrix(0, cutoff[[i]]-1, cutoff[[i]]-1), W[[i]]))
-  }
-  sparse.where[[i]] <-  seq(pcols[[i]][1] + cutoff[[i]] -1, pcols[[i]][n.nonp])
- }
+        for(t in TT:1){
 
-  for (i in 1:m) {
-    temp <- (cfun[[i]])(parmlist[[i]], iter=0)
-    if (sparse[i]) {
-      theta1 <- temp$theta
-      extra1 <- extralist[[i]]
+
+        newbeta <- matrix(0, nrow = K*nlambda, ncol = n.coef)
+        gcv <- aic <- bic <- df <- loglik <- rep(0, K*nlambda)
+
+
+
+        for(k in 1:K){
+          newbeta[[k]] <- matrix(0, nrow=n.coef, ncol=nlambda)
+          DD <- lapply(1:m, function(l) sqrt(kappa[[l]][k])*D[[l]])
+          DD <- as.matrix(bdiag(diag(0, n.par), as.matrix(bdiag(DD))))
+
+          newz <- c(sqrt(ii)*(x%*%init + 1/ii*ss), rep(0, nrow(DD)))
+          newx <-  rbind(sqrt(ii)*x%*%as.matrix(bdiag(W0)), -DD)
+
+          if(ngroup == 1) nfactor <- 1
+          else nfactor <- c(0, rep(1, ngroup-1))
+
+          WW <- as.matrix(bdiag(W))
+          H <- as.numeric(sqrt(t(init)%*%WW%*%init))
+          print(H)
+          for(j in 1:nlambda){
+            print(scadderiv(H, alpha, lambda[j]))
+
+            if(scadderiv(H, alpha, lambda[j])>0){
+              xa <- newx[,-sparse.all]
+              xb <- newx[,sparse.all]
+
+              #Vb <- VV[,k:30]
+              #Va <- VV[,1:(k-1)]
+
+
+              xb <- xb*lambda[j]/scadderiv(H, alpha, lambda[j])
+              Ha <- xa%*%solve(t(xa)%*%xa)%*%t(xa)
+
+              zstar <- as.numeric(newz-Ha%*%newz)
+              xstarb <- xb - Ha%*%xb
+
+              print(dim(W0[[1]][sparse.all, sparse.all]))
+              print(dim(xstarb))
+              x2starb <- xstarb%*%W0[[1]][sparse.all, sparse.all]
+
+              xb <- xb%*%W0[[1]][sparse.all, sparse.all]
+              lasso <- gglasso:::gglasso(x=x2starb, y=zstar, group=rep(1,ncol(x2starb)), intercept=FALSE, lambda=lambda[j])# /sqrt(1+kappa))
+
+              newbetab <- lasso$beta
+              print(newbetab)
+              newbetaa <- solve(t(xa)%*%xa)%*%t(xa)%*%(newz - xb%*%newbetab)
+              newbeta[(k-1)*(nlambda) + j,] <- as.numeric(c(newbetaa, W0[[1]][sparse.all, sparse.all]%*%newbetab*lambda[j]/scadderiv(H, alpha, lambda[j]) ))#*sqrt(1+kappa)))
+              newbeta[(k-1)*(nlambda) + j,] <- newbeta[[k]][,j]
+              coxLik  <-  survival:::coxph.fit(x[ind,], y[ind,], strata, offset, newbeta[(k-1)*(nlambda) + j,] , list(iter.max=0), weights=weights,
+                                    method="breslow", row.names(x[ind,]))
+
+              Omega <- t(DD)%*%DD/2
+
+              H <- as.numeric(sqrt(t(newbeta[(k-1)*(nlambda) + j, ] )%*%WW%*%newbeta[(k-1)*(nlambda) + j, ] ))
+
+              if(H == 0)  Sigma <- matrix(0, n.coef, n.coef)
+              else Sigma <- n*WW/H/2
+              nonzero <- newbeta[(k-1)*(nlambda) + j,]  != 0
+
+              d2l <- solve(-coxLik$var)
+              df[(k-1)*(nlambda) + j] <- sum(diag( solve(d2l[nonzero, nonzero] - Omega[nonzero, nonzero] - Sigma[nonzero, nonzero])%*%d2l[nonzero, nonzero] ) )
+              loglik[(k-1)*(nlambda) + j] <- coxLik$loglik[1]
+
+              if(tuning.method == "GCV") gcv[(k-1)*(nlambda) + j] <- -coxLik$loglik[1]/(n*(1-df[(k-1)*(nlambda) + j]/n)^2)
+              else if (tuning.method == "AIC") aic[(k-1)*(nlambda) + j] <- -coxLik$loglik[1] + df[(k-1)*(nlambda) + j]
+              else if (tuning.method == "BIC") bic[(k-1)*(nlambda) + j] <- -coxLik$loglik[1] + log(n)*df[(k-1)*(nlambda) + j]
+            } else{
+              newbeta[(k-1)*(nlambda) + j,] <- init
+              coxLik  <-  survival:::coxph.fit(xx[ind,], y[ind,], strata, offset, init, list(iter.max=0), weights=weights,
+                                    method="breslow", row.names(x[ind,]))
+
+              Omega <- t(DD)%*%DD/2
+
+              d2l <- solve(-coxLik$var)
+              df[(k-1)*(nlambda) + j] <- sum(diag( solve(d2l - Omega)%*%d2l ) )
+              loglik[(k-1)*(nlambda) + j] <- coxLik$loglik[1]
+
+              if(tuning.method == "GCV") gcv[(k-1)*(nlambda) + j]  <- -coxLik$loglik[1]/n*(1-df[(k-1)*(nlambda) + j] /n)^2
+              else if (tuning.method == "AIC") aic[(k-1)*(nlambda) + j]  <- -coxLik$loglik[1] + df[(k-1)*(nlambda) + j]
+              else if (tuning.method == "BIC") bic[(k-1)*(nlambda) + j]  <- -coxLik$loglik[1] + log(n)*df[(k-1)*(nlambda) + j]
+            }
+
+
+            betaTRUE <- FALSE
+            for (i in 1:m) {
+              if(all(newbeta[(k-1)*(nlambda) + j, sparse.all] == 0)){
+                betaTRUE <- TRUE
+              }
+            }
+
+            if(betaTRUE) break
+          }
+        }
+
+        niter <- nrow(aic)
+        if(tuning.method == "AIC") which <- min((1:niter)[aic==min(aic)])
+        else if (tuning.method == "BIC") which <- min((1:niter)[bic==min(bic)])
+        else if (tuning.method == "GCV") which <- min((1:niter)[gcv==min(gcv)])
+
+
+        coef <- newbeta[which,]
+        ftheta <- tuning.par[which, 2]
+        flambda <- tuning.par[which, 1]
+
+        if(!any(coef==0)) break
+
+        lbeta <- coef
+        lftheta <- ftheta
+        lflambda <- flambda
+        lW <- W
+        lsparse.where <- sparse.where
+
+
+    if(t==1) break
+
+    for (i in 1:m) {
+      cutoff[[i]] <- cutoff[[i]] - 1
+
+      if (sparse.what == "tail"){
+        W[[i]] <- compute.W(cutoff[[i]], beta.basis[[i]])
+        W[[i]] <- as.matrix(Matrix::bdiag(matrix(0, cutoff[[i]]-1, cutoff[[i]]-1), W[[i]]))
+      }
+      sparse.where[[i]] <-  seq(pcols[[i]][1] + cutoff[[i]] -1, pcols[[i]][n.nonp])
     }
-    thetalist[[i]] <- temp$theta
-    lambdalist[[i]] <- lambda[1]*XG$m[i]
-    iterlist[[i]] <- temp
-  }
 
   }
 
@@ -756,10 +697,10 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
   ### at convergence
   if(iter3==1) {
     lbeta <- beta
-    lfbeta <- fbeta
+   #lfbeta <- fbeta
     lftheta <- ftheta
     lflambda <- flambda
-    lhistory <- history
+   # lhistory <- history
     lW <- W
     lsparse.where <- sparse.where
   }
@@ -810,7 +751,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
   fit <- survival:::coxph.fit(xx, y, strata, offset, init=coxfit$coef, control=list(iter.max=0), weights, method, row.names(xx))
 
-    if (nfrail >0) {
+  if (nfrail >0) {
     lp <- offset + coxfit$fcoef[frailx]
     if (nvar >0)    #sparse frailties and covariates
       lp <- lp + x[,-fcol,drop=FALSE] %*%coxfit$coef -
@@ -838,11 +779,11 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
   }
   names(resid) <- rownames
 
-    #get the penalty portion of the second derive matrix
-    if (nfrail>0) temp1 <- coxlist1$second
-    else 	      temp1 <- 0
-    if (ptype>1)  temp2 <- coxlist2$second
-    else          temp2 <- 0
+  #get the penalty portion of the second derive matrix
+  if (nfrail>0) temp1 <- coxlist1$second
+  else 	      temp1 <- 0
+  if (ptype>1)  temp2 <- coxlist2$second
+  else          temp2 <- 0
 
   ## Calculate df
   coef <- coxfit$coef
@@ -944,3 +885,5 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
          printfun= printfun)
   }
 }
+
+

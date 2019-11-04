@@ -284,7 +284,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
 
   } else if(sparse != "none"){
 
-    fit <- fcoxpenal.fit(X, Y, strats, offset, init=init,
+    fit <- ffcoxpenal.fit(X, Y, strats, offset, init=init,
                         control,
                         weights=weights, method=method,
                        row.names(mf), pcols, pattr, assign, npcols, tuning.method, sm, cutoff, alpha, theta, lambda, lambda.min, nlambda, penalty, sparse, argvals, group.multiplier)
