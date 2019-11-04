@@ -574,6 +574,7 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
 
         for(k in 1:K){
+          init <- coef0[,k]
           DD <- lapply(1:m, function(l) sqrt(kappa[[l]][k])*D[[l]])
           DD <- as.matrix(bdiag(diag(0, n.par), as.matrix(bdiag(DD))))
 
