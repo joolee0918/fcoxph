@@ -610,9 +610,9 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
               x2starb <- xstarb%*%W0[[1]][sparse.all, sparse.all]
 
               xb <- xb%*%W0[[1]][sparse.all, sparse.all]
-              lasso <- gglasso:::gglasso(x=x2starb, y=zstar, group=rep(1,ncol(x2starb)), intercept=FALSE, lambda=lambda[j], pf=1)# /sqrt(1+kappa))
-
-              newbetab <- lasso$beta
+              lasso <- gglasso:::gglasso(x=x2starb, y=zstar, group=rep(1,ncol(x2starb)), intercept=FALSE, pf=1)#, lambda=lambda[j], pf=1)# /sqrt(1+kappa))
+              print(lasso$lambda)
+              newbetab <- lasso$beta[,2]
               newbetaa <- solve(t(xa)%*%xa)%*%t(xa)%*%(newz - xb%*%newbetab)
               newbeta[(k-1)*(nlambda) + j,] <- as.numeric(c(newbetaa, W0[[1]][sparse.all, sparse.all]%*%newbetab*lambda[j]/scadderiv(H, alpha, lambda[j]) ))#*sqrt(1+kappa)))
               print(newbeta[(k-1)*(nlambda) + j,])
