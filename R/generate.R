@@ -72,8 +72,8 @@ data.generator <- function(nSimu, N, lam, alp, gamma1, gamma2, rangeval, probC, 
 
 inner.prod <- function(f,basis,j)
 {
-  rng <- getbasisrange(data.basis)
-  knots <- c(rng[1],data.basis$params,1)
+  rng <- getbasisrange(basis)
+  knots <- c(rng[1],basis$params,1)
   nbasis <- basis$nbasis
   norder <- basis$nbasis - length(knots) + 2
 
