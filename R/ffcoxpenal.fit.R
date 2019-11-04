@@ -277,6 +277,7 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
   penalty.where <- as.numeric(unlist(pcols))
   npenalty.where <- as.numeric(unlist(npcols))
+  n.par <- length(npenalty.where)
 
   group <- seq(1:n.coef)
   group[npenalty.where] <- 0
