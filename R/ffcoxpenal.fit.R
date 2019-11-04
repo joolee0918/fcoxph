@@ -359,12 +359,6 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
   ## need the current environment for callbacks
   rho<-environment()
 
-  if(sparse == "global" | !is.null(l)) TT <- 1
-  else TT <-  length(beta.basis[[i]]$params)+1
-
-  iter3 <- 1
-  for(t in TT:1){
-
     #
     # Have C store the data, and get the loglik for beta=initial, frailty=0
     #
@@ -424,6 +418,12 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
       lambdalist[[i]] <- 0
     }
 
+
+    if(sparse == "global" | !is.null(l)) TT <- 1
+    else TT <-  length(beta.basis[[i]]$params)+1
+
+    iter3 <- 1
+    for(t in TT:1){
 
     iter <- 0
     for(i in 1:control$outer.max){
@@ -507,7 +507,6 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
       if(done) break
 
     }
-
 
 
     theta.init <- vector('list', m)
