@@ -10,7 +10,7 @@ TWeiRandom.f <- function(tt,  lam, alp, tau) {
   return(term)
 }
 
-
+#' @export
 data.generator <- function(nSimu, N, lam, alp, gamma1, gamma2, rangeval, probC, tau)
 {
   nbasis=50+5-2
@@ -66,7 +66,7 @@ data.generator <- function(nSimu, N, lam, alp, gamma1, gamma2, rangeval, probC, 
 
   }
 
-  return(list(data, X=X))
+  return(list(data=data, X=X))
 }
 
 
@@ -121,7 +121,7 @@ rangeval <- c(0,1)
 #data <- data.generator(nSimu, n, lam, alp, gamma1, gamma2, rangeval, probC, tau)
 
 
-#data1 <- cbind(data$data, X=data$X)
+#data1 <- cbind(data[[1]], X=data$X)
 #m1 <- fcoxph(Surv(estop, estatus)~lf(X, k=30, bs="ps", integration="riemann"),  data=data1, sparse ="none")
 
 #data2 <- cbind(data$data, m1$pcox$smoothdata[[1]])
