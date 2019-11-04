@@ -418,13 +418,6 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
       lambdalist[[i]] <- 0
     }
 
-
-    if(sparse == "global" | !is.null(l)) TT <- 1
-    else TT <-  length(beta.basis[[i]]$params)+1
-
-    iter3 <- 1
-    for(t in TT:1){
-
     iter <- 0
     for(i in 1:control$outer.max){
       if (andersen)  coxfit <- .C(survival:::Cagfit5b,
@@ -512,7 +505,7 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
     theta.init <- vector('list', m)
     for (i in 1:m)
       theta.init[[i]] <- iterlist[[i]]$history[,1]
-  }
+
 
   print(coef0)
   print(theta.init)
