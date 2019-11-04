@@ -1,22 +1,15 @@
 #' @importFrom mgcv s smoothCon
 
-lf <- function (X, argvals = NULL, xind = NULL, integration = c("simpson","trapezoidal", "riemann"),
+fs <- function (X, argvals = NULL, xind = NULL, integration = c("simpson","trapezoidal", "riemann"),
                 L = NULL, presmooth = NULL, presmooth.opts = NULL, sparse = c("none", "global", "local", "tail"),
                 theta = NULL, lambda = NULL, penalty = c("Lasso", "SCAD", "MCP"),
           ...)
 {
   penalty <- match.arg(penalty)
+  sparse <- match.arg(sparse)
+  integration <- match.arg(integration)
   dots <- list(...)
   dots.unmatched <- names(dots)[!(names(dots) %in% names(formals(mgcv::s)))]
-  if (any(dots.unmatched %in% names(formals(refund::lf_old))) | is.logical(presmooth)) {
-    warning(paste0("The interface for lf() has changed, see ?lf for details. ",
-                   "This interface will not be supported in the next ",
-                   "refund release."))
-    call <- sys.call()
-    call[[1]] <- as.symbol("lf_old")
-    ret <- eval(call, envir = parent.frame())
-    return(ret)
-  }
 
   if (!is.null(xind)) {
     cat("Argument xind is placed by argvals. xind will not be supported in the next\n        version of refund.")
@@ -52,7 +45,7 @@ lf <- function (X, argvals = NULL, xind = NULL, integration = c("simpson","trape
     stopifnot(nrow(xind) == n)
   }
   if (!is.null(presmooth)) {
-    prep.func = refund::create.prep.func(X = X, argvals = xind[1,
+    prep.func = refund::create.prep.func(X, argvals = xind[1,
                                                        ], method = presmooth, options = presmooth.opts)
     X <- prep.func(newX = X)
   }
@@ -92,8 +85,9 @@ lf <- function (X, argvals = NULL, xind = NULL, integration = c("simpson","trape
     stop("We don't yet support terms with multiple smooth objects.")
   }
 
+  print(sparse)
  if(sparse == "none") X <- pterm(smooth[[1]], theta,  eps = 1e-06)
- else if (sparse %in% c("global", "local", "tail")) X <- pterm1(smooth[[1]], theta, lambda, penalty, eps = 1e-06)
+ else X <- pterm1(smooth[[1]], theta, lambda, penalty, eps = 1e-06)
 
  smooth[[1]]$X <- NULL
 

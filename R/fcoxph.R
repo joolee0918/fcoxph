@@ -13,17 +13,17 @@ fcoxph <- function (formula, data, weights, na.action, init, control, knots = NU
   call <- match.call()
   dots <- list(...)
 
-  tf <- terms.formula(formula, specials = c("s", "lf", "fpc"))
+  tf <- terms.formula(formula, specials = c("s", "fs", "fpc"))
   trmstrings <- attr(tf, "term.labels")
   terms <- sapply(trmstrings, function(trm) as.call(parse(text = trm))[[1]],
                   simplify = FALSE)
   frmlenv <- environment(formula)
   specials <- attr(tf, "specials")
   where.s <- specials$s - 1
-  where.lf <- specials$lf - 1
+  where.fs <- specials$fs - 1
   where.fp <- specials$fpc - 1
 
-  where.all <- c( where.s, where.lf, where.fp)
+  where.all <- c( where.s, where.fs, where.fp)
   if (length(trmstrings)) {
     where.par <- which(!(1:length(trmstrings) %in% where.all))
   }
@@ -55,18 +55,17 @@ fcoxph <- function (formula, data, weights, na.action, init, control, knots = NU
   assign("te", f_override, envir = parent.env(newfrmlenv))
   assign("t2", f_override, envir = parent.env(newfrmlenv))
 
-  where.refund <- c( where.lf,where.fp)
-
+  where.refund <- c( where.fs,where.fp)
    if (length(where.refund)) {
 
        fterms <- lapply(terms[where.refund], function(x) {
-         newx <- match.call(lf, call = x)
+         newx <- match.call(fs, call = x)
          newx$sparse <- sparse
          newx$theta <- theta
          newx$lambda <- lambda
          newx$penalty <- penalty
 
-      eval(newx, envir = evalenv, enclos = frmlenv)
+      eval(x, envir = evalenv, enclos = frmlenv)
     })
 
     newtrmstrings[where.refund] <- sapply(fterms, function(x) {
@@ -175,6 +174,8 @@ on.exit({
   newcall$formula <- newfrml
   newcall$fitter <- NULL
   newcall <- pryr::modify_call(newcall, dots)
+  newcall$data <- quote(pfrdata)
+  newcall$na.action <- na.omit_pcox
 
   if(length(trmstrings)) {
     newcall$eps <-  newcall$knots <- newcall$cutoff <- newcall$argvals <- newcall$penalty <- NULL
@@ -183,11 +184,9 @@ on.exit({
     newcall[[1]] <- as.symbol("coxph")
 
     }else{
-    newcall$na.action <- na.omit_pcox
     newcall$eps <-  newcall$knots <- NULL
     newcall$argvals <- argvals
     newcall$sm <- term.smooth
-    newcall$data <- quote(pfrdata)
     newcall[[1]] <- as.symbol("fcoxph.fit")
 }
   res <- eval(newcall)

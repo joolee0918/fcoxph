@@ -56,12 +56,15 @@ data.generator <- function(nSimu, N, lam, alp, gamma1, gamma2, rangeval, probC, 
 
     data.basis <- create.bspline.basis(rangeval=c(0, 1),norder=5,nbasis=nbasis)
     knots <- c(0,data.basis$params,1)
-    X <- cMat1%*%t(eval.basis(knots, data.basis))
+    X <- as.matrix(cMat1%*%t(eval.basis(knots, data.basis)))
+
     event <- lapply(1:N, function(i) getdata.f(id = i, W1 = W1[i], W2 = W2[i], Xbeta = Xbeta[i],
                                                tau = CC[i], lam = lam, alp = alp, gamma1 = gamma1, gamma2 = gamma2))
     data <- do.call(rbind, event)
 
-  return(list(data=data, X=X))
+    data1 <- list(data=data, X = X)
+
+  return(data1)
 }
 
 
@@ -114,10 +117,10 @@ rangeval <- c(0,1)
 
 
 #data <- data.generator(nSimu, n, lam, alp, gamma1, gamma2, rangeval, probC, tau)
+#data1 <- list(estop = data[[1]]$estop, estatus=data[[1]]$estatus, X = data$X)
 
-
-#data1 <- cbind(data[[1]], X=data$X)
-#m1 <- fcoxph(Surv(estop, estatus)~lf(X, k=30, bs="ps", integration="riemann"),  data=data1, sparse ="none")
+#data1 <- data.frame(data[[1]], X=data$X)
+#m1 <- fcoxph(Surv(estop, estatus)~fs(X, k=30, bs="ps", integration="riemann"),  data=data1, sparse ="none")
 
 #data2 <- cbind(data$data, m1$pcox$smoothdata[[1]])
 #m2 <-  gam(estop~s(X.smat,by=X.LX, k=30, bs="cr"),
