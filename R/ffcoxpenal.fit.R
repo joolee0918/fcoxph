@@ -261,6 +261,7 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
       W[[i]] <- as.matrix(Matrix::bdiag(matrix(0, cutoff[[i]]-1, cutoff[[i]]-1), W[[i]]))
     } else if (sparse.what == "tail"){
       W[[i]] <- compute.W(cutoff[[i]], beta.basis[[i]])
+      W0[[i]] <- as.matrix(bdiag(diag(1, cutoff[[i]]-1), solve(chol(W[[i]]))))
       W[[i]] <- as.matrix(Matrix::bdiag(matrix(0, cutoff[[i]]-1, cutoff[[i]]-1), W[[i]]))
     }
   }
@@ -572,7 +573,6 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
 
         for(k in 1:K){
-          newbeta[[k]] <- matrix(0, nrow=n.coef, ncol=nlambda)
           DD <- lapply(1:m, function(l) sqrt(kappa[[l]][k])*D[[l]])
           DD <- as.matrix(bdiag(diag(0, n.par), as.matrix(bdiag(DD))))
 
@@ -613,7 +613,6 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
               print(newbetab)
               newbetaa <- solve(t(xa)%*%xa)%*%t(xa)%*%(newz - xb%*%newbetab)
               newbeta[(k-1)*(nlambda) + j,] <- as.numeric(c(newbetaa, W0[[1]][sparse.all, sparse.all]%*%newbetab*lambda[j]/scadderiv(H, alpha, lambda[j]) ))#*sqrt(1+kappa)))
-              newbeta[(k-1)*(nlambda) + j,] <- newbeta[[k]][,j]
               coxLik  <-  survival:::coxph.fit(x[ind,], y[ind,], strata, offset, newbeta[(k-1)*(nlambda) + j,] , list(iter.max=0), weights=weights,
                                     method="breslow", row.names(x[ind,]))
 
@@ -686,6 +685,7 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
       if (sparse.what == "tail"){
         W[[i]] <- compute.W(cutoff[[i]], beta.basis[[i]])
+        W0[[i]] <- as.matrix(bdiag(diag(1, cutoff[[i]]-1), solve(chol(W[[i]]))))
         W[[i]] <- as.matrix(Matrix::bdiag(matrix(0, cutoff[[i]]-1, cutoff[[i]]-1), W[[i]]))
       }
       sparse.where[[i]] <-  seq(pcols[[i]][1] + cutoff[[i]] -1, pcols[[i]][n.nonp])
