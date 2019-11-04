@@ -566,6 +566,7 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
         for(t in TT:1){
 
 
+          print(sparse.all)
         newbeta <- matrix(0, nrow = K*nlambda, ncol = n.coef)
         gcv <- aic <- bic <- df <- loglik <- rep(0, K*nlambda)
 
@@ -736,6 +737,7 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
       }
       sparse.where[[i]] <-  seq(pcols[[i]][1] + cutoff[[i]] -1, pcols[[i]][n.nonp])
     }
+    sparse.all <- unlist(sparse.where)
 
   }
 
@@ -881,7 +883,7 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
            var    = var,
            var2   = var2,
            loglik = c(loglik0, loglik1),
-           iter   = c(iter, iter2),
+           iter   = c(iter, iter3),
            linear.predictors = as.vector(lp),
            residuals = resid,
            means = means,
@@ -897,7 +899,7 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
     }
     else {  #sparse frailties only
       list( loglik = c(loglik0, loglik1),
-            iter   = c(iter, iter2),
+            iter   = c(iter, iter3),
             linear.predictors = as.vector(lp),
             residuals = resid,
             means = means,
@@ -916,7 +918,7 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
          var    = var,
          var2   = var2,
          loglik = c(loglik0, loglik1),
-         iter   = c(iter, iter2),
+         iter   = c(iter, iter3),
          linear.predictors = lp,
          residuals = resid,
          means = means,
