@@ -661,7 +661,7 @@ ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
               Omega <- t(DD)%*%DD/2
 
               d2l <- solve(-coxLik$var)
-              df <- sum(diag( solve(d2l[nonzero, nonzero] - Omega[nonzero, nonzero] - Sigma[nonzero, nonzero])%*%d2l[nonzero, nonzero] ) )
+              df <- sum(diag( solve(d2l - Omega - Sigma)%*%d2l ) )
               loglik <- coxLik$loglik[1]
 
               gcv <- -coxLik$loglik[1]/(n*(1-df/n)^2)
