@@ -258,10 +258,10 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
       W[[i]] <- compute.W(1, beta.basis[[i]])
     } else if (sparse.what == "local"){
       W[[i]] <- compute.W(cutoff[[i]], beta.basis[[i]])
-      W[[i]] <- as.matrix(bdiag(matrix(0, cutoff[[i]]-1, cutoff[[i]]-1), W[[i]]))
+      W[[i]] <- as.matrix(Matrix::bdiag(matrix(0, cutoff[[i]]-1, cutoff[[i]]-1), W[[i]]))
     } else if (sparse.what == "tail"){
       W[[i]] <- compute.W(cutoff[[i]], beta.basis[[i]])
-      W[[i]] <- as.matrix(bdiag(matrix(0, cutoff[[i]]-1, cutoff[[i]]-1), W[[i]]))
+      W[[i]] <- as.matrix(Matrix::bdiag(matrix(0, cutoff[[i]]-1, cutoff[[i]]-1), W[[i]]))
     }
   }
 
@@ -289,7 +289,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
   for (i in 1:m) {
     tempW0[[i]] <- compute.W(1, beta.basis[[i]])
   }
-  Wb <- chol(as.matrix(bdiag(tempW0)))
+  Wb <- chol(as.matrix(Matrix::bdiag(tempW0)))
 
   ind <- order(y[,1])
   XG <- grpreg:::newXG(xx[ind,], group, group.multiplier, 1, FALSE)
@@ -644,7 +644,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
   if (sparse.what == "tail"){
     W[[i]] <- compute.W(cutoff[[i]], beta.basis[[i]])
-    W[[i]] <- as.matrix(bdiag(matrix(0, cutoff[[i]]-1, cutoff[[i]]-1), W[[i]]))
+    W[[i]] <- as.matrix(Matrix::bdiag(matrix(0, cutoff[[i]]-1, cutoff[[i]]-1), W[[i]]))
   }
   sparse.where[[i]] <-  seq(pcols[[i]][1] + cutoff[[i]] -1, pcols[[i]][n.nonp])
  }
