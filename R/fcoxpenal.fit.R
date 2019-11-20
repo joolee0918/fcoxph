@@ -261,8 +261,8 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
       W[[i]] <- as.matrix(Matrix::bdiag(matrix(0, cutoff[[i]]-1, cutoff[[i]]-1), W[[i]]))
     } else if (sparse.what == "tail"){
       W[[i]] <- compute.W(cutoff[[i]], beta.basis[[i]])
-      #D[[i]] <- as.matrix(Matrix::bdiag(D[[i]][1:(cutoff[[i]]-1), 1:(cutoff[[i]]-1)], D[[i]][(cutoff[[i]]:ncol(D[[i]])), (cutoff[[i]]:ncol(D[[i]]))]))
-      D[[i]] <- as.matrix(Matrix::bdiag(D[[i]][1:(cutoff[[i]]-1), 1:(cutoff[[i]]-1)], matrix(0, ncol(W[[i]]), ncol(W[[i]]))))
+      D[[i]] <- as.matrix(Matrix::bdiag(D[[i]][1:(cutoff[[i]]-1), 1:(cutoff[[i]]-1)], D[[i]][(cutoff[[i]]:ncol(D[[i]])), (cutoff[[i]]:ncol(D[[i]]))]))
+      #D[[i]] <- as.matrix(Matrix::bdiag(D[[i]][1:(cutoff[[i]]-1), 1:(cutoff[[i]]-1)], matrix(0, ncol(W[[i]]), ncol(W[[i]]))))
       W[[i]] <- as.matrix(Matrix::bdiag(matrix(0, cutoff[[i]]-1, cutoff[[i]]-1), W[[i]]))
     }
   }
@@ -736,8 +736,8 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
   if (sparse.what == "tail"){
     W[[i]] <- compute.W(cutoff[[i]], beta.basis[[i]])
-   # D[[i]] <- as.matrix(Matrix::bdiag(D[[i]][1:(cutoff[[i]]-1), 1:(cutoff[[i]]-1)], D[[i]][(cutoff[[i]]:ncol(D[[i]])), (cutoff[[i]]:ncol(D[[i]]))]))
-    D[[i]] <- as.matrix(Matrix::bdiag(D[[i]][1:(cutoff[[i]]-1), 1:(cutoff[[i]]-1)], matrix(0, ncol(W[[i]]), ncol(W[[i]]))))
+    D[[i]] <- as.matrix(Matrix::bdiag(D[[i]][1:(cutoff[[i]]-1), 1:(cutoff[[i]]-1)], D[[i]][(cutoff[[i]]:ncol(D[[i]])), (cutoff[[i]]:ncol(D[[i]]))]))
+    #D[[i]] <- as.matrix(Matrix::bdiag(D[[i]][1:(cutoff[[i]]-1), 1:(cutoff[[i]]-1)], matrix(0, ncol(W[[i]]), ncol(W[[i]]))))
      W[[i]] <- as.matrix(Matrix::bdiag(matrix(0, cutoff[[i]]-1, cutoff[[i]]-1), W[[i]]))
   }
   sparse.where[[i]] <-  seq(pcols[[i]][1] + cutoff[[i]] -1, pcols[[i]][n.nonp])
