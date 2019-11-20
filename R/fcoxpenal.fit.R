@@ -362,6 +362,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
   if(sparse == "global" | !is.null(l)) TT <- 1
   else TT <-  length(beta.basis[[i]]$params)+1
 
+  TT <- 1
   iter3 <- 1
   for(t in TT:1){
 
