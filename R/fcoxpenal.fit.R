@@ -170,9 +170,9 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
         coef <- coxlist2$coef[pen.col]
 
         if (is.null(extralist[[i]]))
-          temp <- ((pattr[[i]])$pfun)(coef, thetalist[[i]], lambdalist[[i]], W[[i]])
+          temp <- ((pattr[[i]])$pfun)(coef, thetalist[[i]], lambdalist[[i]], W[[i]], D[[i]])
         else    temp <- ((pattr[[i]])$pfun)(coef, thetalist[[i]], lambdalist[[i]],
-                                            W[[i]], extralist[[i]][[1]], n, extralist[[i]][[2]])
+                                            W[[i]], D[[i]], n, extralist[[i]][[1]])
         if (!is.null(temp$recenter))
           coxlist2$coef[pen.col] <- coxlist2$coef[pen.col]-
           temp$recenter
@@ -245,7 +245,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
   extralist<- lapply(pattr, function(x) x$pparm)
   iterlist <- thetalist <- lambdalist <- W <- cutoff <- sparse.where <- betazero <- vector('list', length(cfun))
   printfun  <- lapply(pattr, function(x) x$printfun)
-
+  D <- lapply(1:m, function(i) sm[[i]] $S[[1]])
 
 
   for (i in 1:m) {
@@ -261,6 +261,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
       W[[i]] <- as.matrix(Matrix::bdiag(matrix(0, cutoff[[i]]-1, cutoff[[i]]-1), W[[i]]))
     } else if (sparse.what == "tail"){
       W[[i]] <- compute.W(cutoff[[i]], beta.basis[[i]])
+      D[[i]] <- as.matrix(Matrix::bdiag(D[[i]][1:(cutoff[[i]]-1), 1:(cutoff[[i]]-1)], D[[i]][(cutoff[[i]]:ncol(D[[i]])), (cutoff[[i]]:ncol(D[[i]]))]))
       W[[i]] <- as.matrix(Matrix::bdiag(matrix(0, cutoff[[i]]-1, cutoff[[i]]-1), W[[i]]))
     }
   }
@@ -734,6 +735,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
   if (sparse.what == "tail"){
     W[[i]] <- compute.W(cutoff[[i]], beta.basis[[i]])
+    D[[i]] <- as.matrix(Matrix::bdiag(D[[i]][1:(cutoff[[i]]-1), 1:(cutoff[[i]]-1)], D[[i]][(cutoff[[i]]:ncol(D[[i]])), (cutoff[[i]]:ncol(D[[i]]))]))
     W[[i]] <- as.matrix(Matrix::bdiag(matrix(0, cutoff[[i]]-1, cutoff[[i]]-1), W[[i]]))
   }
   sparse.where[[i]] <-  seq(pcols[[i]][1] + cutoff[[i]] -1, pcols[[i]][n.nonp])

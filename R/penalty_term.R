@@ -165,7 +165,7 @@ pterm1 <- function (sm, theta, lambda, penalty, method = c("aic", "caic", "bic",
 
   method <- match.arg(method)
   X <- sm$X
-  D <- sm$S[[1]]
+  #D <- sm$S[[1]]
   n <- nrow(X)
 
   pfun.lFunc <- function(coef, theta, lambda, W, D, n, pen) {
@@ -212,21 +212,21 @@ pterm1 <- function (sm, theta, lambda, penalty, method = c("aic", "caic", "bic",
                                                      df, loglik - log(parms$n) * df,  -loglik/(parms$n*(1-df/parms$n)^2)))
 
                    list(theta = parms$theta[iter+1], done = done, history = history)
-                   }, diag = FALSE, pparm = list(D = D, pen = penalty), cparm = list(theta = theta, n = n),
+                   }, diag = FALSE, pparm = list(pen = penalty), cparm = list(theta = theta, n = n),
                    cargs = c("neff", "df", "plik"),
                   printfun = printfun),
 
                  df = list(pfun = pfun.lFunc, cfun = survival:::frailty.controldf,
-                           diag = FALSE, pparm = list(D = D), printfun = printfun),
+                           diag = FALSE,  printfun = printfun),
 
                  aic = list(pfun = pfun.lFunc,cfun = control.tuning, cparm =  list(eps = eps, init = c(0.5,0.95), lower = 0, upper = 1, type = "aic", n=n),
-                            diag = FALSE, pparm = list(D = D),  cargs = c("neff", "df", "plik"), printfun = printfun),
+                            diag = FALSE,   cargs = c("neff", "df", "plik"), printfun = printfun),
                  caic = list(pfun = pfun.lFunc, cfun = control.tuning, cparm =  list(eps = eps, init = c(0.5,0.95), lower = 0, upper = 1, type = "caic", n=n),
-                             diag = FALSE, pparm = list(D = D),  cargs = c("neff", "df","plik"), printfun = printfun),
+                             diag = FALSE,   cargs = c("neff", "df","plik"), printfun = printfun),
                  bic = list(pfun = pfun.lFunc, cfun =control.tuning, cparm =  list(eps = eps, init = c(0.5,0.95), lower = 0, upper = 1, type = "bic", n=n),
-                            diag = FALSE, pparm = list(D = D),  cargs = c("neff", "df","plik"), printfun = printfun),
+                            diag = FALSE,   cargs = c("neff", "df","plik"), printfun = printfun),
                  gcv = list(pfun = pfun.lFunc, cfun =control.tuning, cparm =  list(eps = eps, init = c(0.5,0.95), lower = 0, upper = 1, type = "gcv", n=n),
-                            diag = FALSE, pparm = list(D = D),  cargs = c("neff", "df","plik"), printfun = printfun)
+                            diag = FALSE,   cargs = c("neff", "df","plik"), printfun = printfun)
   )
 
 
