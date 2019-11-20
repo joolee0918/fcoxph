@@ -171,8 +171,8 @@ pterm1 <- function (sm, theta, lambda, penalty, method = c("aic", "caic", "bic",
   pfun.lFunc <- function(coef, theta, lambda, W, D, n, pen) {
 
     H <- sqrt(t(coef)%*%W%*%coef)
-    #theta <- 0
-    theta <- ifelse(theta <= 0, 0, theta/(1-theta))
+    theta <- 0
+    #theta <- ifelse(theta <= 0, 0, theta/(1-theta))
     #lambda <- 0
     lambda <- ifelse(lambda <=0, 0, lambda)
     if(H == 0) lampen <- 0
