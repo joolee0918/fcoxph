@@ -10,7 +10,7 @@ compute.W <- function(j, basis)
   norder <- L-M+1
   W <- fda::inprod(basis,basis,rng=c(rng[1],rng[2]))
 
-  W[j:ncol(W), j:ncol(W)]
+  #W[j:ncol(W), j:ncol(W)]
 }
 
 positivepart <- function(fx) {
