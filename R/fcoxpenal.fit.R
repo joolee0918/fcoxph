@@ -303,7 +303,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
   s <- weights*residuals(nullFit, type="martingale" )
   lambda.max <- .Call(grpreg:::maxgrad, XG$X%*%solve(Wb), s, K1, as.double(XG$m)) / n
-
+  lambda.max <- 5
   if (lambda.min==0) lambda <- c(exp(seq(log(.001*lambda.max),log(lambda.max), len=nlambda-1)),0)
   else lambda <- exp(seq(log(lambda.min*lambda.max),log(lambda.max), len=nlambda))
 
