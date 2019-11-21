@@ -260,6 +260,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
       W[[i]] <- compute.W(cutoff[[i]], beta.basis[[i]])
       W[[i]] <- as.matrix(Matrix::bdiag(matrix(0, cutoff[[i]]-1, cutoff[[i]]-1), W[[i]]))
     } else if (sparse.what == "tail"){
+      print(cutoff[[i]])
       W <- compute.W(cutoff[[i]], beta.basis[[i]])
       W1[[i]] <- W[[1]]
       W2[[i]] <- W[[2]]
