@@ -294,7 +294,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
   Wb <- chol(as.matrix(Matrix::bdiag(tempW0)))
 
   ind <- order(y[,1])
-  XG <- grpreg:::newXG(xx[ind,], group, group.multiplier, 1, FALSE)
+  XG <- grpreg:::newXG(xx[ind,], group, 1, 1, FALSE)
   K <- table(group)
   K1 <- as.integer(if (min(group)==0) cumsum(K) else c(0, cumsum(K)))
 
@@ -303,7 +303,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
   s <- weights*residuals(nullFit, type="martingale" )
   lambda.max <- .Call(grpreg:::maxgrad, XG$X%*%solve(Wb), s, K1, as.double(XG$m)) / n
-  lambda.max <- 5
+
   if (lambda.min==0) lambda <- c(exp(seq(log(.001*lambda.max),log(lambda.max), len=nlambda-1)),0)
   else lambda <- exp(seq(log(lambda.min*lambda.max),log(lambda.max), len=nlambda))
 
@@ -314,7 +314,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
       extra1 <- extralist[[i]]
     }
     thetalist[[i]] <- temp$theta
-    lambdalist[[i]] <- lambda[1]*XG$m[i]
+    lambdalist[[i]] <- lambda[1]
     iterlist[[i]] <- temp
   }
 
