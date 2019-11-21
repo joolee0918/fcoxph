@@ -168,22 +168,28 @@ pterm1 <- function (sm, theta, lambda, penalty, method = c("aic", "caic", "bic",
   #D <- sm$S[[1]]
   n <- nrow(X)
 
-  pfun.lFunc <- function(coef, theta, lambda, W, D, n, pen) {
+  pfun.lFunc <- function(coef, theta, lambda, W1, W2,  D, n, pen) {
 
-    H <- sqrt(t(coef)%*%W%*%coef)
+    H1 <- sqrt(t(coef)%*%W1%*%coef)
+    H2 <- sqrt(t(coef)%*%W2%*%coef)
     #theta <- 0
     theta <- ifelse(theta <= 0, 0, theta/(1-theta))
     #lambda <- 0
     lambda <- ifelse(lambda <=0, 0, lambda)
     if(H == 0) lampen <- 0
     else {
-      lampen <- switch(pen,
-                       Lasso = ifelse(lambda == 0, 0, lambda/H),
-                       SCAD = ifelse(lambda == 0, 0, scadderiv(H, 3.7, lambda)/H),
-                       MCP = ifelse(lambda == 0, 0, mcpderiv(H, 3.7, lambda)/H) )
+      lampen1 <- switch(pen,
+                       Lasso = ifelse(lambda == 0, 0, lambda/H1),
+                       SCAD = ifelse(lambda == 0, 0, scadderiv(H, 3.7, lambda)/H1),
+                       MCP = ifelse(lambda == 0, 0, mcpderiv(H, 3.7, lambda)/H1) )
+      lampen2 <- switch(pen,
+                        Lasso = ifelse(lambda == 0, 0, lambda/H2),
+                        SCAD = ifelse(lambda == 0, 0, scadderiv(H, 3.7, lambda)/H2),
+                        MCP = ifelse(lambda == 0, 0, mcpderiv(H, 3.7, lambda)/H2) )
+
     }
-    list(penalty = as.numeric(t(coef) %*% D %*% coef) * theta/2 + n*as.numeric(lampen)*as.numeric(t(coef)%*%W%*%coef)/2,
-         first = theta * D %*% coef + n*as.numeric(lampen)*W %*% coef, second = theta * D + n*as.numeric(lampen)*W,
+    list(penalty = as.numeric(t(coef) %*% D %*% coef) * theta/2 + n*as.numeric(lampen1)*as.numeric(t(coef)%*%W1%*%coef)/2 + n*as.numeric(lampen2)*as.numeric(t(coef)%*%W2%*%coef)/2,
+         first = theta * D %*% coef + n*as.numeric(lampen1)*W1 %*% coef + n*as.numeric(lampen2)*W2 %*% coef, second = theta * D + n*as.numeric(lampen1)*W1 +  n*as.numeric(lampen2)*W2,
          flag = FALSE)
   }
   printfun <- function(coef, var, var2, df, history, cbase) {

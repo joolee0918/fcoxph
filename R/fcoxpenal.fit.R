@@ -170,9 +170,9 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
         coef <- coxlist2$coef[pen.col]
 
         if (is.null(extralist[[i]]))
-          temp <- ((pattr[[i]])$pfun)(coef, thetalist[[i]], lambdalist[[i]], W[[i]], D[[i]])
+          temp <- ((pattr[[i]])$pfun)(coef, thetalist[[i]], lambdalist[[i]], W1[[i]], W2[[i]], D[[i]])
         else    temp <- ((pattr[[i]])$pfun)(coef, thetalist[[i]], lambdalist[[i]],
-                                            W[[i]], D[[i]], n, extralist[[i]][[1]])
+                                            W1[[i]], W2[[i]], D[[i]], n, extralist[[i]][[1]])
         if (!is.null(temp$recenter))
           coxlist2$coef[pen.col] <- coxlist2$coef[pen.col]-
           temp$recenter
@@ -243,7 +243,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
   beta.basis <- lapply(1:m, function(i) fda::create.bspline.basis(rangeval=c(argvals[[i]][1], argvals[[i]][length(argvals[[i]])]), nbasis=sm[[i]]$bs.dim))
   extralist<- lapply(pattr, function(x) x$pparm)
-  iterlist <- thetalist <- lambdalist <- W <- cutoff <- sparse.where <- betazero <- vector('list', length(cfun))
+  iterlist <- thetalist <- lambdalist <- W1 <- W2 <- cutoff <- sparse.where <- betazero <- vector('list', length(cfun))
   printfun  <- lapply(pattr, function(x) x$printfun)
   D <- lapply(1:m, function(i) sm[[i]]$S[[1]])
 
@@ -260,7 +260,9 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
       W[[i]] <- compute.W(cutoff[[i]], beta.basis[[i]])
       W[[i]] <- as.matrix(Matrix::bdiag(matrix(0, cutoff[[i]]-1, cutoff[[i]]-1), W[[i]]))
     } else if (sparse.what == "tail"){
-      W[[i]] <- compute.W(cutoff[[i]], beta.basis[[i]])
+      W <- compute.W(cutoff[[i]], beta.basis[[i]])
+      W1[[i]] <- W[[1]]
+      W2[[i]] <- W[[2]]
      # D[[i]] <- as.matrix(Matrix::bdiag(D[[i]][1:(cutoff[[i]]-1), 1:(cutoff[[i]]-1)], D[[i]][(cutoff[[i]]:ncol(D[[i]])), (cutoff[[i]]:ncol(D[[i]]))]))
       #D[[i]] <- as.matrix(Matrix::bdiag(D[[i]][1:(cutoff[[i]]-1), 1:(cutoff[[i]]-1)], matrix(0, ncol(W[[i]]), ncol(W[[i]]))))
       #W[[i]] <- as.matrix(Matrix::bdiag(matrix(0, cutoff[[i]]-1, cutoff[[i]]-1), W[[i]]))
@@ -736,7 +738,10 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
   cutoff[[i]] <- cutoff[[i]] - 1
 
   if (sparse.what == "tail"){
-    W[[i]] <- compute.W(cutoff[[i]], beta.basis[[i]])
+    W <- compute.W(cutoff[[i]], beta.basis[[i]])
+    W1[[i]] <- W[[1]]
+    W2[[i]] <- W[[2]]
+
     #D[[i]] <- as.matrix(Matrix::bdiag(D[[i]][1:(cutoff[[i]]-1), 1:(cutoff[[i]]-1)], D[[i]][(cutoff[[i]]:ncol(D[[i]])), (cutoff[[i]]:ncol(D[[i]]))]))
     #D[[i]] <- as.matrix(Matrix::bdiag(D[[i]][1:(cutoff[[i]]-1), 1:(cutoff[[i]]-1)], matrix(0, ncol(W[[i]]), ncol(W[[i]]))))
     #W[[i]] <- as.matrix(Matrix::bdiag(matrix(0, cutoff[[i]]-1, cutoff[[i]]-1), W[[i]]))
