@@ -176,7 +176,8 @@ pterm1 <- function (sm, theta, lambda, penalty, method = c("aic", "caic", "bic",
     theta <- ifelse(theta <= 0, 0, theta/(1-theta))
     #lambda <- 0
     lambda <- ifelse(lambda <=0, 0, lambda)
-    if(H == 0) lampen <- 0
+    if(H1 == 0) lampen1 <- 0
+    if(H2 == 0) lampen2 <- 0
     else {
       lampen1 <- switch(pen,
                        Lasso = ifelse(lambda == 0, 0, lambda/H1),
