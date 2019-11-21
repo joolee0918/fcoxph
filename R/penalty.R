@@ -8,8 +8,9 @@ compute.W <- function(j, basis)
   breaks <- c(rng[1],basis$params,rng[2])
   M <- length(breaks) - 1
   norder <- L-M+1
-  W <- fda::inprod(basis,basis,rng=c(breaks[j],rng[2]))
+  W <- fda::inprod(basis,basis,rng=c(rng[1],rng[2]))
 
+  #fda::inprod(basis,basis,rng=c(rng[1], breaks[j-1]))
   #W[j:ncol(W), j:ncol(W)]
 }
 
