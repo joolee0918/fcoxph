@@ -12,8 +12,8 @@ compute.W <- function(j, basis)
   #W2 <- fda::inprod(basis,basis,rng=c(rng[1], breaks[j]))
   w <- fda::inprod(basis,basis,rng=c(rng[1], rng[2]))
   W1 <- W2 <- matrix(0, L, L)
-  W1[1:(j-1), 1:(j-1)]  <- w[1:(j-1), 1:(j-1)]
-  W2[j:L, j:L] <- w[j:L, j:L]
+  W2[1:(j-1), 1:(j-1)]  <- w[1:(j-1), 1:(j-1)]
+  W1[j:L, j:L] <- w[j:L, j:L]
   W <- list(W1, W2)
   #fda::inprod(basis,basis,rng=c(rng[1], breaks[j-1]))
   #W[j:ncol(W), j:ncol(W)]
