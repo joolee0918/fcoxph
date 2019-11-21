@@ -9,7 +9,7 @@ compute.W <- function(j, basis)
   M <- length(breaks) - 1
   norder <- L-M+1
   W1 <- fda::inprod(basis,basis,rng=c(breaks[j],rng[2]))
-  W2 <- fda::inprod(basis,basis,rng=c(rng[1], breaks[j-1]))
+  W2 <- fda::inprod(basis,basis,rng=c(rng[1], breaks[j]))
 
   list(W1, W2)
   #fda::inprod(basis,basis,rng=c(rng[1], breaks[j-1]))
