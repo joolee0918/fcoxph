@@ -180,12 +180,12 @@ pterm1 <- function (sm, theta, lambda, penalty, method = c("aic", "caic", "bic",
     else {
       lampen1 <- switch(pen,
                        Lasso = ifelse(lambda == 0, 0, lambda/H1),
-                       SCAD = ifelse(lambda == 0, 0, scadderiv(H, 3.7, lambda)/H1),
-                       MCP = ifelse(lambda == 0, 0, mcpderiv(H, 3.7, lambda)/H1) )
+                       SCAD = ifelse(lambda == 0, 0, scadderiv(H1, 3.7, lambda)/H1),
+                       MCP = ifelse(lambda == 0, 0, mcpderiv(H1, 3.7, lambda)/H1) )
       lampen2 <- switch(pen,
                         Lasso = ifelse(lambda == 0, 0, lambda/H2),
-                        SCAD = ifelse(lambda == 0, 0, scadderiv(H, 3.7, lambda)/H2),
-                        MCP = ifelse(lambda == 0, 0, mcpderiv(H, 3.7, lambda)/H2) )
+                        SCAD = ifelse(lambda == 0, 0, scadderiv(H2, 3.7, lambda)/H2),
+                        MCP = ifelse(lambda == 0, 0, mcpderiv(H2, 3.7, lambda)/H2) )
 
     }
     list(penalty = as.numeric(t(coef) %*% D %*% coef) * theta/2 + n*as.numeric(lampen1)*as.numeric(t(coef)%*%W1%*%coef)/2 + n*as.numeric(lampen2)*as.numeric(t(coef)%*%W2%*%coef)/2,
