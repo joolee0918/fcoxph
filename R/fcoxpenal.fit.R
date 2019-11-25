@@ -292,7 +292,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
   tempW0 <- list()
   for (i in 1:m) {
-    tempW0[[i]] <- compute.W(1, beta.basis[[i]])
+    tempW0[[i]] <- compute.W(1, beta.basis[[i]])[[1]]
   }
   Wb <- chol(as.matrix(Matrix::bdiag(tempW0)))
 
