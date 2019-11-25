@@ -189,8 +189,8 @@ pterm1 <- function (sm, theta, lambda, penalty, method = c("aic", "caic", "bic",
                         MCP = ifelse(lambda == 0, 0, mcpderiv(H2, 3.7, lambda)/H2) )
 
     }
-    list(penalty = as.numeric(t(coef) %*% D %*% coef) * theta/2 + n*as.numeric(lampen1)*as.numeric(t(coef)%*%W1%*%coef)/2 + n*as.numeric(lampen2)*as.numeric(t(coef)%*%W2%*%coef)/2,
-         first = theta * D %*% coef + n*as.numeric(lampen1)*W1 %*% coef + n*as.numeric(lampen2)*W2 %*% coef, second = theta * D + n*as.numeric(lampen1)*W1 +  n*as.numeric(lampen2)*W2,
+    list(penalty = as.numeric(t(coef) %*% D %*% coef) * theta/2 + n*as.numeric(lampen1)*as.numeric(t(coef)%*%W1%*%coef)/2 ,
+         first = theta * D %*% coef + n*as.numeric(lampen1)*W1 %*% coef, second = theta * D + n*as.numeric(lampen1)*W1,
          flag = FALSE)
   }
   printfun <- function(coef, var, var2, df, history, cbase) {
