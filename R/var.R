@@ -1,6 +1,6 @@
 
 ## df / Variance
-if(var = TRUE){
+if(var == TRUE){
 
   for(i in 1:nlambda){
     nonzero <- fit.beta[,i] !=0
