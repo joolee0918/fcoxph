@@ -2,7 +2,7 @@
 cv.fcoxph <- function (fitobj, x, y, strats, cluster, weights, offset = NULL, control, init, lambda, nfolds, foldid,
             parallel = FALSE,  pcols, pattr, assign, npcols = npcols, tuning.method,
             sm, gamma, alpha, theta, nlambda, penalty, method,
-            sparse.what, argvals, group.multiplier, ncluster = 2)
+            sparse.what, argvals, group.multiplier, ncluster)
   {
    ###Next line is commented out so each call generates its own lambda sequence
     # lambda=fitobj$lambda

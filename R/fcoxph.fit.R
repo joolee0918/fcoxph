@@ -296,7 +296,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
 
     if(tuning.method == "cv"){
       sel <- cv.fcoxph(fit0, x = X, y = Y, strats = strats, cluster = cluster, init=init, weights = weights, offset = offset, control = control, lambda = lambda, nfolds = nfolds, foldid = foldid,
-                  method = method, parallel = FALSE,  pcols = pcols, pattr = pattr, assign = assign, npcols = npcols, tuning.method = tuning.method,
+                  method = method, parallel = FALSE, ncluster=ncluster, pcols = pcols, pattr = pattr, assign = assign, npcols = npcols, tuning.method = tuning.method,
                   sm = sm,  gamma = gamma, alpha = alpha, theta = theta, nlambda = nlambda, penalty = penalty,
                   sparse.what = sparse, argvals = argvals, group.multiplier = group.multiplier)
 
