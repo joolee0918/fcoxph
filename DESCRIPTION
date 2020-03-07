@@ -21,6 +21,8 @@ Imports:
     grpreg,
     gglasso,
     Rcpp,
+    parallel,
+    foreach,
     glmnet
 RoxygenNote: 6.1.1
 LinkingTo: 

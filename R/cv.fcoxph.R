@@ -1,4 +1,5 @@
-
+#' @importFrom parallel makeCluster registerDoParallel stop
+#' @importFrom foreach foreach
 cv.fcoxph <- function (fitobj, x, y, strats, cluster, weights, offset = NULL, control, init, lambda, nfolds, foldid,
             parallel = FALSE,  pcols, pattr, assign, npcols = npcols, tuning.method,
             sm, gamma, alpha, theta, nlambda, penalty, method,
@@ -30,7 +31,7 @@ cv.fcoxph <- function (fitobj, x, y, strats, cluster, weights, offset = NULL, co
       doParallel::registerDoParallel(cl)
 
       #  if (parallel && require(foreach)) {
-      cvraw = foreach(i = seq(nfolds), .packages = c("glmnet")) %dopar%
+      cvraw = foreach::foreach(i = seq(nfolds), .packages = c("glmnet")) %dopar%
       {
         if(length(cluster)) {
           which = (1:N)[foldid==i]
