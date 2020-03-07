@@ -6,7 +6,7 @@ Author: Who wrote it
 Maintainer: The package maintainer <yourself@somewhere.net>
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
-Depends: R (>= 3.5.0), survival, refund, grpreg
+Depends: R (>= 3.5.0), survival, refund, grpreg, ncpen
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
@@ -21,6 +21,7 @@ Imports:
     grpreg,
     gglasso,
     Rcpp
+    glmnet
 RoxygenNote: 6.1.1
 LinkingTo: 
     Rcpp

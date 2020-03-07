@@ -5,6 +5,7 @@
 #' @importFrom gglasso gglasso
 #' @importFrom fda create.bspline.basis
 #' @import grpreg
+#' @import glmnet glmnet
 fcoxpenal.fit <- function(x, y, strata, offset, init, control,
                           weights, method,
                           pcols, pattr, assign, npcols, tuning.method, sm, alpha, gamma, theta, lambda, nlambda = NULL,
