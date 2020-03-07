@@ -1,7 +1,7 @@
 
-cv.fcoxph <- function (fitobj, x, y, strats, cluster, weights, offset = NULL, lambda, nfolds, foldid,
-            parallel = FALSE,  pcols, pattr, assign = assign, npcols = npcols, tuning.method,
-            sm, gamma, alpha, theta, nlambda, penalty,
+cv.fcoxph <- function (fitobj, x, y, strats, cluster, weights, offset = NULL, control, init, lambda, nfolds, foldid,
+            parallel = FALSE,  pcols, pattr, assign, npcols = npcols, tuning.method,
+            sm, gamma, alpha, theta, nlambda, penalty, method,
             sparse.what, argvals, group.multiplier, ncluster = 2)
   {
    ###Next line is commented out so each call generates its own lambda sequence
@@ -52,7 +52,7 @@ cv.fcoxph <- function (fitobj, x, y, strats, cluster, weights, offset = NULL, la
                                      control = control, weights=weights_sub, method=method,
                                      pcols = pcols, pattr = pattr, assign = assign, npcols = npcols, tuning.method = tuning.method,
                                      sm = sm,  gamma = gamma, alpha = alpha, theta = theta, lambda = lambda, penalty = penalty,
-                                     sparse.what = sparse, argvals = argvals, group.multiplier = group.multiplier, cv.fit=TRUE)
+                                     sparse.what = sparse.what, argvals = argvals, group.multiplier = group.multiplier, cv.fit=TRUE)
 
         coefmat = out$beta
         if(ncol(y)==2){
@@ -95,7 +95,7 @@ cv.fcoxph <- function (fitobj, x, y, strats, cluster, weights, offset = NULL, la
                                      control = control, weights=weights_sub, method=method,
                                      pcols = pcols, pattr = pattr, assign = assign, npcols = npcols, tuning.method = tuning.method,
                                      sm = sm,  gamma = gamma, alpha = alpha, theta = theta, lambda = lambda, penalty = penalty,
-                                     sparse.what = sparse, argvals = argvals, group.multiplier = group.multiplier, cv.fit=TRUE)
+                                     sparse.what = sparse.what, argvals = argvals, group.multiplier = group.multiplier, cv.fit=TRUE)
 
         coefmat = out$beta
         if(ncol(y)==2){

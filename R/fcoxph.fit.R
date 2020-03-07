@@ -287,7 +287,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
                          row.names(mf), pcols, pattr, assign)
   }else if(sparse != "none"){
 
-    print(gamma)
+
     fit0 <- fcoxpenal.fit(x = X, y =Y, strata = strats,  offset = offset, init=init,
                            control = control, weights=weights, method=method,
                            pcols = pcols, pattr = pattr, assign = assign, npcols = npcols, tuning.method = tuning.method,
@@ -295,8 +295,8 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
                            sparse.what = sparse, argvals = argvals, group.multiplier = group.multiplier, cv.fit=FALSE)
 
     if(tuning.method == "cv"){
-      sel <- cv.fcoxph(fit0, x = X, y = Y, strats = strats, cluster = cluster, weights = weights, offset = offset, lambda = lambda, nfolds = nfolds, foldid = foldid,
-                  parallel = FALSE,  pcols = pcols, pattr = pattr, assign = assign, npcols = npcols, tuning.method = tuning.method,
+      sel <- cv.fcoxph(fit0, x = X, y = Y, strats = strats, cluster = cluster, init=init, weights = weights, offset = offset, control = control, lambda = lambda, nfolds = nfolds, foldid = foldid,
+                  method = method, parallel = FALSE,  pcols = pcols, pattr = pattr, assign = assign, npcols = npcols, tuning.method = tuning.method,
                   sm = sm,  gamma = gamma, alpha = alpha, theta = theta, nlambda = nlambda, penalty = penalty,
                   sparse.what = sparse, argvals = argvals, group.multiplier = group.multiplier)
 
