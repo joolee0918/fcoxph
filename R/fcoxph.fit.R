@@ -4,11 +4,13 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
                   init, control, ties= c("efron", "breslow", "exact"),
                   singular.ok =TRUE, robust=FALSE,
                   model=FALSE, x=FALSE, y=TRUE,  tt, method=ties,
-                  tuning.method, sm, cutoff, alpha, theta, lambda, lambda.min, nlambda, penalty, sparse, argvals, group.multiplier,
+                  tuning.method, nfolds, foldid, sm, alpha, gamma, theta, lambda, lambda.min, nlambda, penalty, L2penalty, sparse, argvals, group.multiplier,
+                  parallel, ncluster,
                   ...) {
 
   ties <- match.arg(ties)
   Call <- match.call()
+
 
   ## We want to pass any ... args to coxph.control, but not pass things
   ##  like "dats=mydata" where someone just made a typo.  The use of ...
@@ -40,6 +42,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     assign("tt", function(x) x, env=coxenv)
     environment(temp$formula) <- coxenv
   }
+
 
   mf <- eval(temp, parent.frame())
   if (nrow(mf) ==0) stop("No (non-missing) observations")
@@ -164,6 +167,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
   }
 
   cluster<- attr(Terms, "specials")$cluster
+  if(ncol(Y)==3 & length(cluster)==0) stop("subject ID must be given as cluster for time-dependent covariate")
   if (length(cluster)) {
     robust <- TRUE  #flag to later compute a robust variance
     tempc <- untangle.specials(Terms, 'cluster', 1:10)
@@ -238,6 +242,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
       stop("initial values lead to overflow or underflow of the exp function")
   }
 
+
   ncoef <- ncol(X)
 
   if (sum(Y[, ncol(Y)]) == 0) {
@@ -263,7 +268,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
   }
 
 
-  pterms <- sapply(mf, inherits, 'coxph.penalty')
+  pterms <- sapply(mf, inherits, 'fcoxph.penalty')
   if (any(pterms)) {
     pattr <- lapply(mf[pterms], attributes)
     pname <- names(pterms)[pterms]
@@ -274,22 +279,48 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     pcols <- assign[match(pname, names(assign))]
     npcols <- assign[!match(pname, names(assign))]
 
-   if(sparse == "none"){
+ if(sparse == "none"){
+
     fit <- survival:::coxpenal.fit(X, Y, strats, offset, init=init,
                          control,
                          weights=weights, method=method,
                          row.names(mf), pcols, pattr, assign)
+  }else if(sparse != "none"){
+
+    print(gamma)
+    fit0 <- f2coxpenal.fit(x = X, y =Y, strata = strata, offset = offset, init=init,
+                           control = control, weights=weights, method=method,
+                           pcols = pcols, pattr = pattr, assign = assign, npcols = npcols, tuning.method = tuning.method,
+                           sm = sm,  gamma = gamma, alpha = alpha, theta = theta, lambda = lambda,  nlambda = nlambda, penalty = penalty,
+                           sparse.what = sparse, argvals = argvals, group.multiplier = group.multiplier, cv.fit=FALSE)
+
+    if(tuning.method == "cv"){
+      sel <- cv.fcoxph(fit0, x = X, y = Y, strats = strats, cluster = cluster, weights = weights, offset = offset, lambda = lambda, nfolds = nfolds, foldid = foldid,
+                  parallel = FALSE,  pcols = pcols, pattr = pattr, assign = assign, npcols = npcols, tuning.method = tuning.method,
+                  sm = sm,  gamma = gamma, alpha = alpha, theta = theta, nlambda = nlambda, penalty = penalty,
+                  sparse.what = sparse, argvals = argvals, group.multiplier = group.multiplier)
+
+    } else if (tuning.method == "aic") {
+      sel <- which.max(fit0$loglik - fit0$df)
+    }else if (tuning.method == "bic") {
+      sel <- which.max(fit0$loglik - log(data.n)*fit0$df)
+    }else if(tuning.method == "gcv") {
+      sel <- which.min(-fit0$loglik/(data.n*(1-fit0$df/data.n)^2) )
+    }
+
+    lambda <- fit0$lambda
+    theta <- fit0$theta
 
 
-
-  } else if(sparse != "none"){
-
-    fit <- fcoxpenal.fit(X, Y, strats, offset, init=init,
-                        control,
-                        weights=weights, method=method,
-                       row.names(mf), pcols, pattr, assign, npcols, tuning.method, sm, cutoff, alpha, theta, lambda, lambda.min, nlambda, penalty, sparse, argvals, group.multiplier)
-
-
+    fit <- list()
+    fit$coefficients <- fit0$beta[, sel]
+    fit$var <- fit0$var[[sel]]
+    fit$loglik <- fit0$loglik[sel]
+    fit$p.loglik <- fit0$loglik[sel]
+    fit$loglik0 <- fit0$loglik0
+    fit$penalty.par <- c(theta = theta[ceiling(sel/length(lambda))], lambda = lambda[sel%%length(lambda)])
+    fit$df[sel]
+    fit$pterms
   }
 
   }
@@ -300,8 +331,6 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
   fit$assign <- assign
   class(fit) <- fit$class
   fit$class <- NULL
-
-
 
   return(fit)
 }

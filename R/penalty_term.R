@@ -1,9 +1,9 @@
 #' @importFrom mgcv s smoothCon
 
 #' @export
-fspline <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapezoidal", "riemann"),
-                L = NULL, presmooth = NULL, presmooth.opts = NULL, sparse = c("none", "global", "local", "tail"),
-                theta = NULL, lambda = NULL, penalty = c("Lasso", "SCAD", "MCP"),
+fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapezoidal", "riemann"),
+                L = NULL, presmooth = NULL, presmooth.opts = NULL, sparse = c("none", "global", "local"), tuning.method="aic",
+                theta = NULL, lambda = NULL, penalty = c("lasso", "alasso", "scad", "mcp"),
           ...)
 {
   dots <- list(...)
@@ -83,9 +83,11 @@ fspline <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","t
     stop("We don't yet support terms with multiple smooth objects.")
   }
 
- if(sparse == "none") X <- pterm(smooth[[1]], theta,  eps = 1e-06)
- else X <- pterm1(smooth[[1]], theta, lambda, penalty, eps = 1e-06)
 
+ if(sparse == "none") X <- pterm(smooth[[1]], theta,  method = tuning.method, eps = 1e-06)
+ else X <- pterm1(smooth[[1]], theta, lambda, penalty)
+
+#  X <- pterm(smooth[[1]], theta,  method = tuning.method, eps = 1e-06)
  smooth[[1]]$X <- NULL
 
  names <- paste0(basistype, "(", tindname,  ", ", "by = ", LXname, ")")
@@ -93,9 +95,6 @@ fspline <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","t
  res <- list(names=names, X=X, sm = smooth[[1]], argvals = argvals)
   return(res)
 }
-
-
-
 
 
 
@@ -144,104 +143,69 @@ pterm <- function (sm, theta, method = c("aic", "caic", "epic", "df", "fixed"),
   gcv = list(pfun = pfun.lFunc, cfun =control.tuning, cparm =  list(eps = eps, init = c(0.5,0.95), lower = 0, upper = 1, type = "gcv", n=n),
              diag = FALSE, pparm = list(D = D),  cargs = c("neff", "df","plik"), printfun = printfun))
 
-  class(W) <- "coxph.penalty"
+  class(W) <- "fcoxph.penalty"
   attributes(W) <- c(attributes(W), temp)
   W
 }
 
 
+pterm1 <- function (sm, theta, lambda, penalty)
+{
 
 
-pterm1 <- function (sm, theta, lambda, penalty, method = c("aic", "caic", "bic", "gcv", "fixed"),
-                   eps = 1e-06){
-  method <- match.arg(method)
+  if(is.null(theta)) theta <- rev(c(0.5, 0.725 ,0.95, 0.99, 0.995, 0.999, 0.9995, 0.9999, 0.99995, 0.99999))
+  #theta <- 0
+  W <- sm$X
+  D <- sm$S[[1]]
 
-  if(is.null(theta)) theta <- rev(c(0.5, 0.7250000,0.95,  0.995 ,0.997, 0.999, 0.9995, 0.9999, 0.99995, 0.99999))
-  #if (!is.null(theta)) {
-  method <- 'fixed'
-  if (theta <=0 || theta >=1) stop("Invalid value for theta")
-  #}
+  pfun.lFunc <- function(coef, theta, lambda,  penalty.f, init, ny, penalty, D) {
 
+    kappa <- ifelse(theta <= 0, 0, theta/(1 - theta))
 
-  method <- match.arg(method)
-  X <- sm$X
-  #D <- sm$S[[1]]
-  n <- nrow(X)
+    nvar <- length(coef)
 
-  pfun.lFunc <- function(coef, theta, lambda, W1, W2,  D, n, pen) {
-
-    H1 <- sqrt(t(coef)%*%W1%*%coef)
-    H2 <- sqrt(t(coef)%*%W2%*%coef)
-    #theta <- 0
-    theta <- ifelse(theta <= 0, 0, theta/(1-theta))
-    lambda <- 0
-    #lambda <- ifelse(lambda <=0, 0, lambda)
-    if(H1 == 0) lampen1 <- 0
-    if(H2 == 0) lampen2 <- 0
+    H <- ifelse(coef==0, 0, abs(coef))
+    if(lambda == 0) sparse.penalty <- sparse.first <- sparse.second <- lampen <- 0
     else {
-      lampen1 <- switch(pen,
-                       Lasso = ifelse(lambda == 0, 0, lambda/H1),
-                       SCAD = ifelse(lambda == 0, 0, scadderiv(H1, 3.7, lambda)/H1),
-                       MCP = ifelse(lambda == 0, 0, mcpderiv(H1, 3.7, lambda)/H1) )
-      lampen2 <- switch(pen,
-                        Lasso = ifelse(lambda == 0, 0, lambda/H2),
-                        SCAD = ifelse(lambda == 0, 0, scadderiv(H2, 3.7, lambda)/H2),
-                        MCP = ifelse(lambda == 0, 0, mcpderiv(H2, 3.7, lambda)/H2) )
+      lampen <- switch(penalty,
+                       lasso =  lambda*penalty.f,
+                       alasso = lambda*penalty.f,
+                       scad = scadderiv(H, alpha, lambda*penalty.f),
+                       mcp = mcpderiv(H, alpha, lambda*penalty.f))
 
+      sparse.penalty <- switch(penalty,
+                               lasso = ny*sum(as.numeric(lampen)*coef^2/H/2),
+                               alasso = ny*sum(as.numeric(lampen)*coef^2/H/abs(init))/2,
+                               scad = ny*sum(as.numeric(lampen)*coef^2/H/2),
+                               mcp = ny*sum(as.numeric(lampen)*coef^2/H/2))
+
+      sparse.first <- switch(penalty,
+                             lasso = ny*as.numeric(lampen)*coef/H,
+                             alasso = ny*as.numeric(lampen)*(coef/H/abs(init)),
+                             scad = ny*as.numeric(lampen)*coef/H,
+                             mcp = ny*as.numeric(lampen)*coef/H)
+
+      sparse.second <- switch(penalty,
+                              lasso = diag(ny*lampen/H, ncol=nvar, nrow=nvar),
+                              alasso = diag(ny*lampen/H/abs(init), ncol=nvar, nrow=nvar),
+                              scad = diag(ny*lampen/H,  ncol=nvar, nrow=nvar),
+                              mcp = diag(ny*lampen/H,  ncol=nvar, nrow=nvar))
     }
-    list(penalty = as.numeric(t(coef) %*% D %*% coef) * theta/2 + n*as.numeric(lampen1)*as.numeric(t(coef)%*%W1%*%coef)/2 ,
-         first = theta * D %*% coef + n*as.numeric(lampen1)*W1 %*% coef, second = theta * D + n*as.numeric(lampen1)*W1,
+
+
+    list(penalty = as.numeric(t(coef) %*% D %*% coef) * kappa/2 + sparse.penalty ,
+         first = kappa * D %*% coef + sparse.first , second = kappa * D + sparse.second,
          flag = FALSE)
   }
-  printfun <- function(coef, var, var2, df, history, cbase) {
-    cmat <- matrix(c(NA, NA, NA, NA, df, NA), nrow = 1)
-    nn <- nrow(history$history)
-    theta <- ifelse(length(nn), history$history[nn, 1], history$theta)
-    lambda <- ifelse(length(nn), history$history[nn, 1], history$lambda)
 
-    list(coef = cmat, history = paste("Theta:", format(theta), "Lambda:", format(lambda)))
-  }
+  temp <-  list(pfun = pfun.lFunc,
+                diag = FALSE, cparm = list(theta = theta),
+                pparm = D)
 
-  temp <- switch(method,
-
-                 fixed = list(pfun = pfun.lFunc, cfun = function(parms, iter, old, n, df, loglik) {
-                   if (iter == 0) {
-                     theta <- parms$theta[1]
-                     return(list(theta = theta, done = FALSE))
-                   }
-
-                   done  <- (iter  == length(parms$theta))
-                    if (iter == 1) {
-                     history <- c(theta = old$theta, loglik = loglik, df = df,
-                                  aic = loglik - df,  bic = loglik - log(parms$n) * df, gcv = -loglik/(parms$n*(1-df/parms$n)^2))
-                   }
-                   history <- rbind(old$history, c(old$theta, loglik, df, loglik -
-                                                     df, loglik - log(parms$n) * df,  -loglik/(parms$n*(1-df/parms$n)^2)))
-
-                   list(theta = parms$theta[iter+1], done = done, history = history)
-                   }, diag = FALSE, pparm = list(pen = penalty), cparm = list(theta = theta, n = n),
-                   cargs = c("neff", "df", "plik"),
-                  printfun = printfun),
-
-                 df = list(pfun = pfun.lFunc, cfun = survival:::frailty.controldf,
-                           diag = FALSE,  printfun = printfun),
-
-                 aic = list(pfun = pfun.lFunc,cfun = control.tuning, cparm =  list(eps = eps, init = c(0.5,0.95), lower = 0, upper = 1, type = "aic", n=n),
-                            diag = FALSE,   cargs = c("neff", "df", "plik"), printfun = printfun),
-                 caic = list(pfun = pfun.lFunc, cfun = control.tuning, cparm =  list(eps = eps, init = c(0.5,0.95), lower = 0, upper = 1, type = "caic", n=n),
-                             diag = FALSE,   cargs = c("neff", "df","plik"), printfun = printfun),
-                 bic = list(pfun = pfun.lFunc, cfun =control.tuning, cparm =  list(eps = eps, init = c(0.5,0.95), lower = 0, upper = 1, type = "bic", n=n),
-                            diag = FALSE,   cargs = c("neff", "df","plik"), printfun = printfun),
-                 gcv = list(pfun = pfun.lFunc, cfun =control.tuning, cparm =  list(eps = eps, init = c(0.5,0.95), lower = 0, upper = 1, type = "gcv", n=n),
-                            diag = FALSE,   cargs = c("neff", "df","plik"), printfun = printfun)
-  )
-
-
-  class(X) <- "coxph.penalty"
-  attributes(X) <- c(attributes(X), temp)
-  X
+  class(W) <- "fcoxph.penalty"
+  attributes(W) <- c(attributes(W), temp)
+  W
 }
-
 
 
 
@@ -343,3 +307,38 @@ control.tuning<- function (parms, iter, old, n, df, loglik)
 }
 
 
+
+penalty.v <- function(init, coef, theta, lambda, alpha, ny, D, penalty, I) {
+
+  H <- abs(coef)
+  if(lambda == 0) lampen <- 0
+  else
+  lampen <- switch(penalty,
+                   lasso =  lambda,
+                   alasso = lambda,
+                   scad = scadderiv(H, alpha, lambda)/H,
+                   mcp = mcpderiv(H, alpha, lambda)/H)
+
+ # sparse.penalty <- switch(penalty,
+##                           Lasso = ny*as.numeric(lampen)*sum(H),
+#                           ALasso = ny*as.numeric(lampen)*sum(H/abs(init)),
+#                           SCAD = ny*as.numeric(lampen)*sum(coef^2),
+#                           MCP = ny*as.numeric(lampen)*sum(coef^2))
+  sparse.second <- switch(penalty,
+                          lasso = ny*lampen*1/abs(coef),
+                          alasso = ny*lampen*1/abs(coef)/abs(init),
+                          scad = ny*lampen,
+                          mcp = ny*lampen)
+
+  kappa <- ifelse(theta <= 0, 0, theta/(1 - theta))
+ # pp <- as.numeric(t(coef) %*% D %*% coef) * kappa/2 + sparse.penalty
+  second <- kappa * D + diag(sparse.second)
+  df <- sum(diag(solve(I + second)%*%I))
+
+  list(second = second, df = df)
+}
+
+
+tuning.summary <- function(tuning.method, loglik, df, n){
+c(aic = loglik -  df, bic =loglik - log(n)*df,  gcv = -loglik/(n*(1-df/n)^2))
+}

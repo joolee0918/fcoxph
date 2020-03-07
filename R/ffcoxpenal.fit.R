@@ -5,7 +5,7 @@
 #' @importFrom gglasso gglasso
 #' @importFrom fda create.bspline.basis
 #' @import grpreg
-ffcoxpenal.fit <- function(x, y, strata, offset, init, control,
+ffcoxpenal.fit2 <- function(x, y, strata, offset, init, control,
                           weights, method, rownames,
                           pcols, pattr, assign, npcols, tuning.method, sm, l, alpha, theta, lambda, lambda.min, nlambda, penalty, sparse.what, argvals, group.multiplier) {
   eps <- control$eps

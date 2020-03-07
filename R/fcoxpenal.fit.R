@@ -4,7 +4,7 @@
 
 #' @importFrom fda create.bspline.basis
 #' @import grpreg
-fcoxpenal.fit <- function(x, y, strata, offset, init, control,
+fcoxpenal.fit3 <- function(x, y, strata, offset, init, control,
                          weights, method, rownames,
                          pcols, pattr, assign, npcols, tuning.method, sm, l, alpha, theta, lambda, lambda.min, nlambda, penalty, sparse.what, argvals, group.multiplier) {
   eps <- control$eps

@@ -1,5 +1,6 @@
 
 #' @importFrom fda getbasisrange inprod
+#' @importFrom Matrix bandSparse
 #'
 compute.W <- function(j, basis)
 {
@@ -32,10 +33,27 @@ mcpderiv <- function(ftheta, fa, flambda) {
   return( ifelse(abs(ftheta) < fa*flambda, (flambda - abs(ftheta)/fa)*sign(ftheta), 0))
 }
 
+mu = function(b, gamma, tau, M, d)
+{
+  mu <- rep(0, M)
+  for(j in 1:(M+1)){
+    mu[j] <- ((1/gamma-1)/tau)^gamma*(sum(abs(b)[j:(j+d-1)]))^gamma
+  }
+  return(mu)
+}
+
+g.pf = function(mu, gamma, k, M, d)
+{
+
+  A <- as.matrix(Matrix::bandSparse(M+1, M+d, rep(list(rep(1, M+1)), d), k=seq(0, d-1)))
+  as.vector(t(ifelse(mu==0, 1e10, mu^(1-1/gamma)))%*%A)
+}
+
 
 list2df <- function (l)
 {
   nrows <- sapply(l, function(x) nrow(as.matrix(x)))
+  print(nrows)
   stopifnot(length(unique(nrows)) == 1)
   ret <- data.frame(rep(NA, nrows[1]))
   for (i in 1:length(l)) ret[[i]] <- l[[i]]

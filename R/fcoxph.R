@@ -5,38 +5,43 @@
 #' @importFrom Matrix bdiag
 
 #' @export
-fcoxph <- function (formula, data, weights, na.action, init, control, knots = NULL, cutoff = NULL, penalty = c("Lasso", "SCAD", "MCP"),
-                    theta = NULL, lambda = NULL, lambda.min = 0.001, nlambda = 20, alpha = switch(penalty, SCAD = 3.7, MCP = 3),
-                    sparse = "none",  group.multiplier, tuning.method = c("GCV", "AIC", "BIC"),
-                    method = "breslow", x = TRUE, model = FALSE, y = TRUE, ...)
+fcoxph <- function (formula, data, weights, na.action, init, control, knots = NULL, penalty = c("lasso", "alasso", "scad", "mcp", "lasso", "gBridge"),
+                    L2penalty = c("none", "ridge", "smooth"), theta = switch(L2penalty, none = 0, ridge = NULL, smooth = NULL), gamma = 0.5, lambda = NULL, lambda.min = 0.001, nlambda = NULL, alpha = switch(penalty, scad = 3.7, mcp = 3),
+                    sparse = c("none", "global", "local"),  group.multiplier=NULL, tuning.method = c("cv", "aic", "bic", "gcv"), nfolds = 10, foldid = NULL,
+                    method = "breslow", parallel = FALSE, ncluster = NULL, x = TRUE, model = FALSE, y = TRUE, ...)
 {
 
   call <- match.call()
   dots <- list(...)
   penalty <- match.arg(penalty)
+  allVars <- all.vars(formula)
 
-  tf <- terms.formula(formula, specials = c("s", "fspline", "fpc"))
+  tf <- terms.formula(formula, specials = c("s", "fs", "fpc"))
   trmstrings <- attr(tf, "term.labels")
   terms <- sapply(trmstrings, function(trm) as.call(parse(text = trm))[[1]],
                   simplify = FALSE)
   frmlenv <- environment(formula)
   specials <- attr(tf, "specials")
   where.s <- specials$s - 1
-  where.fs <- specials$fspline - 1
+  where.fs <- specials$fs - 1
   where.fp <- specials$fpc - 1
 
   where.all <- c( where.s, where.fs, where.fp)
   if (length(trmstrings)) {
     where.par <- which(!(1:length(trmstrings) %in% where.all))
+  }else {
+    where.par <- numeric(0)
   }
-  else where.par <- numeric(0)
   responsename <- attr(tf, "variables")[2][[1]]
+  #yNme <- as.character(responsename)[-1]
+  #xNms <- allVars[!allVars %in% yNm]
 
   newfrml <- paste(refund:::safeDeparse(responsename), "~", sep = "")
   newfrmlenv <- new.env()
   evalenv <- if ("data" %in% names(call))
     eval.parent(call$data)
   else NULL
+
   surv <- eval(responsename, envir = evalenv)
   nobs <- nrow(surv)
   if (is.call(responsename)) {
@@ -59,15 +64,14 @@ fcoxph <- function (formula, data, weights, na.action, init, control, knots = NU
 
   where.refund <- c( where.fs,where.fp)
    if (length(where.refund)) {
-
        fterms <- lapply(terms[where.refund], function(x) {
-         newx <- match.call(fspline, call = x)
+         newx <- match.call(fs, call = x)
          newx$sparse <- sparse
          newx$theta <- theta
          newx$lambda <- lambda
          newx$penalty <- penalty
 
-      eval(newx, envir = evalenv, enclos = frmlenv)
+      eval(newx, envir = evalenv)
     })
 
     newtrmstrings[where.refund] <- sapply(fterms, function(x) {
@@ -181,9 +185,9 @@ on.exit({
 
 
   if(length(trmstrings)==0) {
-    newcall$eps <-  newcall$knots <- newcall$cutoff <- newcall$argvals <- newcall$penalty <- NULL
+    newcall$eps <-  newcall$knots <- newcall$argvals <- newcall$penalty <- newcall$nfolds <- newcall$foldid <-  newcall$L2penalty <- NULL
     newcall$theta <- newcall$lambda <- newcall$lambda.min <- newcall$nlambda <- newcall$alpha <- NULL
-    newcall$sparse <- newcall$group.multiplier <- newcall$tuning.method <- NULL
+    newcall$sparse <- newcall$group.multiplier <- newcall$tuning.method  <- newcall$parallel <- newcall$ncluster  <- NULL
     newcall[[1]] <- as.symbol("coxph")
 
     }else{

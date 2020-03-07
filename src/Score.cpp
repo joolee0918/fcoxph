@@ -3,7 +3,6 @@ using namespace Rcpp;
 
 #include <stdio.h>
 #include <float.h>
-#include <Rmath.h>
 #include <iostream>
 
 //[[Rcpp::export()]]

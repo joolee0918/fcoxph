@@ -56,7 +56,7 @@ data.generator <- function(N, lam, alp, gamma1, gamma2, rangeval, probC, tau)
 
     data.basis <- fda::create.bspline.basis(rangeval=c(0, 1),norder=5,nbasis=nbasis)
     knots <- c(0,data.basis$params,1)
-    X <- as.matrix(cMat1%*%t(fda::eval.basis(knots, data.basis)))
+    X <- cMat1%*%t(fda::eval.basis(knots, data.basis))
 
     event <- lapply(1:N, function(i) getdata.f(id = i, W1 = W1[i], W2 = W2[i], Xbeta = Xbeta[i],
                                                tau = CC[i], lam = lam, alp = alp, gamma1 = gamma1, gamma2 = gamma2))
