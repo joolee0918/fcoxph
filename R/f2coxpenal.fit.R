@@ -432,9 +432,9 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
         Ystar <- c(Y, rep(0, Dnrow))
         Vstar <- rbind(V, Dstar)%*% diag(1/penalty.f)
         #ifelse(penalty=="alasso", "lasso", penalty)
-        p.fit1 <- ncpen1(Ystar, Vstar, family = "gaussian", penalty=ifelse(n.penalty=="alasso", "lasso", n.penalty),  lambda =ifelse(penalty=="gBridge", n/nystar, p.lambda[i]*n/nystar) , x.standardize = FALSE,  intercept=FALSE)
+        #p.fit1 <- ncpen1(Ystar, Vstar, family = "gaussian", penalty=ifelse(n.penalty=="alasso", "lasso", n.penalty),  lambda =ifelse(penalty=="gBridge", n/nystar, p.lambda[i]*n/nystar) , x.standardize = FALSE,  intercept=FALSE)
 
-        #p.fit1 <- glmnet(Vstar, Ystar, family = "gaussian",  lambda = n/nystar, standardize = FALSE,  intercept=FALSE)
+        p.fit1 <- glmnet(Vstar, Ystar, family = "gaussian",  lambda = n/nystar, standardize = FALSE,  intercept=FALSE)
         newbeta <- as.vector(p.fit1$beta)/penalty.f
 
         error.r = rep(0, length(newbeta))
