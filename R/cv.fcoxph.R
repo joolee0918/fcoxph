@@ -1,4 +1,4 @@
-#' @importFrom parallel makeCluster stop
+#' @importFrom parallel makeCluster stopCluster
 #'@importFrom doParallel registerDoParallel
 #' @importFrom foreach foreach
 cv.fcoxph <- function (fitobj, x, y, strats, cluster, weights, offset = NULL, control, init, lambda, nfolds, foldid,
