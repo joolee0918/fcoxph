@@ -20,7 +20,7 @@ Imports:
     fda,
     grpreg,
     gglasso,
-    Rcpp
+    Rcpp,
     glmnet
 RoxygenNote: 6.1.1
 LinkingTo: 
