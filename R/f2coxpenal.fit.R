@@ -241,7 +241,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
   if(is.null(lambda)) {
     nlambda <- ifelse(is.null(nlambda), 20, nlambda)
-    p.lambda <- glmnet(xx, y, family="cox",  nlambda=nlambda, standardize=FALSE, thresh=1)$lambda*5
+    p.lambda <- glmnet(xx, y, family="cox",  nlambda=nlambda, standardize=FALSE, thresh=1)$lambda*10
   }else {
     p.lambda <- lambda
   }
