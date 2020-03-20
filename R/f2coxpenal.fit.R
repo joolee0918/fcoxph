@@ -241,7 +241,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
   if(is.null(lambda)) {
     nlambda <- ifelse(is.null(nlambda), 20, nlambda)
-    p.lambda <- glmnet(xx, y, family="cox",  nlambda=nlambda, standardize=FALSE, thresh=1)$lambda*4
+    p.lambda <- glmnet(xx, y, family="cox",  nlambda=nlambda, standardize=FALSE, thresh=1)$lambda*5*(n.nonpar)
   }else {
     p.lambda <- lambda
   }
@@ -422,7 +422,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
         if(penalty == "alasso"){
           penalty.f[penalty.where] <- 1/abs(oldbeta)
         }else if(penalty == "gBridge") {
-          tau0 <- p.lambda[i]^(1/(1-gamma))*gamma^(gamma/(1-gamma))*(1-gamma)
+          tau0 <- (p.lambda[i])^(1/(1-gamma))*gamma^(gamma/(1-gamma))*(1-gamma)
           M <- sm[[1]]$bs.dim - 4
           mu0 <- mu(oldbeta, gamma, tau0, M, 4)
           penalty.f[penalty.where] <- g.pf(mu0, gamma, k, M, 4)
@@ -535,7 +535,8 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
           A[penalty.where & abs(newbeta) > 0] <- w[abs(newbeta)>0]/abs(newbeta[abs(newbeta) > 0])
           A[penalty.where & newbeta == 0]  <- 0.0
           G[penalty.where, penalty.where] <- sm[[1]]$S[[1]]*thetalist[[1]]/(1-thetalist[[1]])
-          H <- I + diag(A) + G
+          H <- I + n*diag(A) + G
+          H2 <- I +  G
           var[[(iter-1)*nlambda + i]] <- (solve(H)%*%I%*%solve(H))[anonzero, anonzero]
 
     #        keep.extra[[j]]  <- extralist[[j]][nonzero[[j]], nonzero[[j]]]
@@ -547,7 +548,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
     #      var[[(iter-1)*nlambda + i]] <- solve(I.nonzero)
     #      df[(iter-1)*nlambda + i] <- sum(diag((solve(I.nonzero)%*%I0)))
 
-          df[(iter-1)*nlambda + i]  <- sum( diag((solve(H[anonzero, anonzero])%*%I[anonzero, anonzero])))
+          df[(iter-1)*nlambda + i]  <- sum( diag((solve(H2[anonzero, anonzero])%*%I[anonzero, anonzero])))
           loglik[(iter-1)*nlambda + i] <- coxfit$loglik[2]
     #      p.loglik[(iter-1)*nlambda + i] <- coxfit$loglik[2] + pen.tot
           coef[, (iter-1)*nlambda + i] <- fit.beta[,i]
