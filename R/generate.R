@@ -93,4 +93,3 @@ inner.prod <- function(f,basis,j)
 }
 
 
-

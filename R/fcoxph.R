@@ -70,6 +70,7 @@ fcoxph <- function (formula, data, weights, na.action, init, control, knots = NU
          newx$theta <- theta
          newx$lambda <- lambda
          newx$penalty <- penalty
+         newx$tuning.method <- tuning.method
 
       eval(newx, envir = evalenv)
     })

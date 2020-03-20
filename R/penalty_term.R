@@ -2,7 +2,7 @@
 
 #' @export
 fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapezoidal", "riemann"),
-                L = NULL, presmooth = NULL, presmooth.opts = NULL, sparse = c("none", "global", "local"), tuning.method="aic",
+                L = NULL, presmooth = NULL, presmooth.opts = NULL, sparse = c("none", "global", "local"), tuning.method=c("aic", "bic", "gcv"),
                 theta = NULL, lambda = NULL, penalty = c("lasso", "alasso", "scad", "mcp"),
           ...)
 {
@@ -84,7 +84,7 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
   }
 
 
- if(sparse == "none") X <- pterm(smooth[[1]], theta,  method = tuning.method, eps = 1e-06)
+ if(sparse == "none") X <- pterm(smooth[[1]], theta,  method = tuning.method, eps = 1e-06, n=n)
  else X <- pterm1(smooth[[1]], theta, lambda, penalty)
 
 #  X <- pterm(smooth[[1]], theta,  method = tuning.method, eps = 1e-06)
@@ -98,18 +98,19 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
 
 
 
-pterm <- function (sm, theta, method = c("aic", "caic", "epic", "df", "fixed"),
-                   eps = 1e-06)
+pterm <- function (sm, theta, method = c("aic", "bic", "gcv", "fixed"),
+                   eps = 1e-06, n)
 {
 
   method <- match.arg(method)
+
   if (!is.null(theta) ) {
     method <- 'fixed'
     if (theta <=0 || theta >=1) stop("Invalid value for theta")
   }
 
   W <- sm$X
-  D <- sm$S[[1]]
+  D <- as.matrix(sm$S[[1]])
 
   pfun.lFunc <- function(coef, theta, nevent, D) {
     lambda <- ifelse(theta <= 0, 0, theta/(1 - theta))
@@ -128,20 +129,13 @@ pterm <- function (sm, theta, method = c("aic", "caic", "epic", "df", "fixed"),
     list(theta = parms$theta, done = TRUE)
   }, diag = FALSE, pparm = D, cparm = list(theta = theta),
   printfun = printfun),
-  df = list(pfun = pfun.lFunc, cfun = survival:::frailty.controldf,
-            diag = FALSE, pparm = D, printfun = printfun),
-
   aic = list(pfun = pfun.lFunc,cfun = control.tuning, cparm = list(eps = eps, init = c(0.5,0.95), lower = 0, upper = 1, type = "aic", n=n),
              diag = FALSE, pparm = D, cargs = c("neff", "df", "plik"), printfun = printfun),
 
-  caic = list(pfun = pfun.lFunc, cfun = control.tuning, cparm = list(eps = eps,
-                                                                  init = c(0.5, 0.95), lower = 0, upper = 1, type = "caic", n=n),
-              diag = FALSE, pparm = D, cargs = c("neff", "df",
-                                                 "plik"), printfun = printfun),
   bic = list(pfun = pfun.lFunc, cfun =control.tuning, cparm =  list(eps = eps, init = c(0.5,0.95), lower = 0, upper = 1, type = "bic", n=n),
-             diag = FALSE, pparm = list(D = D),  cargs = c("neff", "df","plik"), printfun = printfun),
+             diag = FALSE, pparm = D,  cargs = c("neff", "df","plik"), printfun = printfun),
   gcv = list(pfun = pfun.lFunc, cfun =control.tuning, cparm =  list(eps = eps, init = c(0.5,0.95), lower = 0, upper = 1, type = "gcv", n=n),
-             diag = FALSE, pparm = list(D = D),  cargs = c("neff", "df","plik"), printfun = printfun))
+             diag = FALSE, pparm = D,  cargs = c("neff", "df","plik"), printfun = printfun))
 
   class(W) <- "fcoxph.penalty"
   attributes(W) <- c(attributes(W), temp)
@@ -261,8 +255,7 @@ control.tuning<- function (parms, iter, old, n, df, loglik)
   else dfc <- -1 + (df + 1)/(1 - ((df + 2)/n))
   if (iter == 1) {
     history <- c(theta = old$theta, loglik = loglik, df = df,
-                 aic = loglik - df, aicc = loglik - dfc, epic = loglik -
-                   2 * df,  bic = loglik - log(parms$n)*df, gcv = -loglik/(parms$n*(1-df/parms$n)^2))
+                 aic = loglik - df, bic = loglik - log(parms$n)*df, gcv = -loglik/(parms$n*(1-df/parms$n)^2))
     if (length(parms$init) < 2)
       theta <- 1
     else theta <- parms$init[2]
@@ -270,7 +263,7 @@ control.tuning<- function (parms, iter, old, n, df, loglik)
     return(temp)
   }
   history <- rbind(old$history, c(old$theta, loglik, df, loglik -
-                                    df, loglik - dfc, loglik - 2 * df,  loglik - log(parms$n)*df,  -loglik/(parms$n*(1-df/parms$n)^2)))
+                                    df,  loglik - log(parms$n)*df,  -loglik/(parms$n*(1-df/parms$n)^2)))
   if (is.null(parms$trace))
     trace <- FALSE
   else trace <- parms$trace
@@ -279,17 +272,11 @@ control.tuning<- function (parms, iter, old, n, df, loglik)
     return(list(theta = theta, done = FALSE, history = history,
                 tst = 4))
   }
-  if (type == "caic") {
+  else if (type == "bic"){
     aic <- history[, 5]
   }
-  else if (type == "epic") {
-    aic <- history[, 6]
-  }
-  else if (type == "bic"){
-    aic <- history[, 7]
-  }
   else if (type == "gcv"){
-    aic <- history[, 8]
+    aic <- history[, 6]
   } else{
     aic <- history[, 4]
   }

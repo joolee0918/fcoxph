@@ -108,6 +108,9 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
   f.expr1<-function(coef) NULL
   f.expr2<-function(coef) NULL
 
+  ## normalize xx
+  #sd.x <- sqrt(apply(x,2,var)*(n-1))
+  #xx <- apply(x, 2, normalize)
   xx <- x
   frailx <- 0
   nfrail <- 0
@@ -238,7 +241,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
   if(is.null(lambda)) {
     nlambda <- ifelse(is.null(nlambda), 20, nlambda)
-    p.lambda <- glmnet(xx, y, family="cox",  nlambda=nlambda, standardize=FALSE, thresh=1)$lambda/0.5
+    p.lambda <- glmnet(xx, y, family="cox",  nlambda=nlambda, standardize=FALSE, thresh=1)$lambda*4
   }else {
     p.lambda <- lambda
   }
@@ -284,8 +287,8 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
                           as.integer(frailx),
                           f.expr1,f.expr2,rho)
 
-  loglik0 <- coxfit$loglik
-  means   <- coxfit$means
+  #loglik0 <- coxfit$loglik
+  #means   <- coxfit$means
 
   #
   #  Now for the actual fit
@@ -417,7 +420,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
         penalty.f <- rep(0, nvar)
         if(penalty == "alasso"){
-          penalty.f[penalty.where] <- 1/abs(init)
+          penalty.f[penalty.where] <- 1/abs(oldbeta)
         }else if(penalty == "gBridge") {
           tau0 <- p.lambda[i]^(1/(1-gamma))*gamma^(gamma/(1-gamma))*(1-gamma)
           M <- sm[[1]]$bs.dim - 4
@@ -430,19 +433,20 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
 
         Ystar <- c(Y, rep(0, Dnrow))
-        Vstar <- rbind(V, Dstar)%*% diag(1/penalty.f)
+        Vstar <- rbind(V, Dstar)# %*% diag(1/penalty.f)
+
+        newbeta <- wshoot(nvar, Vstar, Ystar,init, 1, penalty.f, control$iter.max, control$eps, n)
         #ifelse(penalty=="alasso", "lasso", penalty)
         #p.fit1 <- ncpen1(Ystar, Vstar, family = "gaussian", penalty=ifelse(n.penalty=="alasso", "lasso", n.penalty),  lambda =ifelse(penalty=="gBridge", n/nystar, p.lambda[i]*n/nystar) , x.standardize = FALSE,  intercept=FALSE)
 
-        p.fit1 <- glmnet(Vstar, Ystar, family = "gaussian",  lambda = n/nystar, standardize = FALSE,  intercept=FALSE)
-        newbeta <- as.vector(p.fit1$beta)/penalty.f
+        #p.fit1 <- glmnet(Vstar, Ystar, family = "gaussian",  lambda = n/nystar, standardize = FALSE,  intercept=FALSE)
+        #newbeta <- as.vector(p.fit1$beta)/penalty.f
 
         error.r = rep(0, length(newbeta))
         idx0 = which((newbeta- oldbeta) == 0)
         if(length(idx0) == 0){
           error.r <- (newbeta - oldbeta)/oldbeta
-        }
-        else {
+        }else {
           error.r[-idx0] <- (newbeta[-idx0] - oldbeta[-idx0])/oldbeta[-idx0]
         }
         error <- max(abs(error.r))
@@ -454,19 +458,18 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
 
       fit.beta[,i] <- newbeta
-
       if(cv.fit) {
         coef[, (iter-1)*nlambda + i] <- fit.beta[,i]
       } else{
 
-        p.beta.nonzero <- nonzero <- vector('list', m)
-        n.nonzero <- rep(0, m)
-        for(j in 1:m){
-          nonzero[[j]] <- fit.beta[,i][pcols[[j]]] !=0
-          n.nonzero[j] <- sum(nonzero[[j]])
-          tmp <- fit.beta[pcols[[j]], i]
-          p.beta.nonzero[[j]] <- tmp[tmp!=0]
-        }
+    #    p.beta.nonzero <- nonzero <- vector('list', m)
+    #    n.nonzero <- rep(0, m)
+    #    for(j in 1:m){
+    #      nonzero[[j]] <- fit.beta[,i][pcols[[j]]] !=0
+    #      n.nonzero[j] <- sum(nonzero[[j]])
+    #      tmp <- fit.beta[pcols[[j]], i]
+    #      p.beta.nonzero[[j]] <- tmp[tmp!=0]
+    #    }
 
         anonzero <- fit.beta[,i] !=0
         an.nonzero <- sum(anonzero)
@@ -478,16 +481,16 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
           p.loglik[(iter-1)*nlambda + i] <- NA
           coef[, (iter-1)*nlambda + i] <- fit.beta[,i]
         } else {
-          newxx <- as.matrix(xx[, anonzero])
-          beta.nonzero <- fit.beta[anonzero,i]
+      #    newxx <- as.matrix(xx[, anonzero])
+      #    beta.nonzero <- fit.beta[anonzero,i]
 
 
           #lambda <- p.lambda[i]*n/nystar
 
           if (andersen) {coxfit <- .Call(survival:::Cagfit4,
-                                         y, newxx, cox.newstrat, weights,
+                                         y, xx, cox.newstrat, weights,
                                          offset,
-                                         as.double(beta.nonzero),
+                                         as.double(newbeta),
                                          sort.start, sort.end,
                                          as.integer(method=="efron"),
                                          as.integer(0),
@@ -499,30 +502,52 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
                                  as.integer(0),
                                  stime,
                                  sstat,
-                                 newxx[sorted,],
+                                 xx[sorted,],
                                  as.double(offset[sorted]),
                                  weights[sorted],
                                  cox.newstrat,
                                  as.integer(method=="efron"),
                                  as.double(control$eps),
                                  as.double(control$toler.chol),
-                                 as.vector(beta.nonzero),
+                                 as.vector(newbeta),
                                  as.integer(1))
           }
+          I <- solve(matrix(coxfit$imat, nvar, nvar))
 
      #     I.nonzero <- matrix(0, nvar, nvar)
     #      I.nonzero[anonzero, anonzero] <- I0 <- solve(matrix(coxfit$imat, an.nonzero, an.nonzero))
     #      pen.tot <- 0
 
-          for(j in 1:m){
+          w <- rep(0, nvar)
+          if(penalty == "alasso"){
+            w[penalty.where] <- 1/abs(newbeta)
+          }else if(penalty == "gBridge") {
+            tau0 <- p.lambda[i]^(1/(1-gamma))*gamma^(gamma/(1-gamma))*(1-gamma)
+            M <- sm[[1]]$bs.dim - 4
+            mu0 <- mu(newbeta, gamma, tau0, M, 4)
+            w[penalty.where] <- g.pf2(mu0, gamma, k, M, 4)
+          }else {
+            w[penalty.where] <- 1
+          }
+
+          A <- numeric(nvar)
+          G <- matrix(0, nvar, nvar)
+          A[penalty.where & abs(newbeta) > 0] <- w[abs(newbeta)>0]/abs(newbeta[abs(newbeta) > 0])
+          A[penalty.where & newbeta == 0]  <- 0.0
+          G[penalty.where, penalty.where] <- sm[[1]]$S[[1]]*thetalist[[1]]/(1-thetalist[[1]])
+          H <- I + diag(A) + G
+          var[[(iter-1)*nlambda + i]] <- solve(H)%*%I%*%solve(H)
+
     #        keep.extra[[j]]  <- extralist[[j]][nonzero[[j]], nonzero[[j]]]
     #        temp <- ((pattr[[j]])$pfun)(p.beta.nonzero[[j]], thetalist[[j]], p.lambda[i]*n/nystar, penalty.f[pcols[[j]]][nonzero[[j]]], init[pcols[[j]]][nonzero[[j]]], nystar, penalty, keep.extra[[j]])
     #        I.nonzero[pcols[[j]], pcols[[j]]][nonzero[[j]], nonzero[[j]]] <- I.nonzero[pcols[[j]], pcols[[j]]][nonzero[[j]], nonzero[[j]]] + temp$second
     #        pen.tot <- pen.tot - temp$penalty
-          }
+    #      }
     #      I.nonzero <- I.nonzero[anonzero, anonzero]
     #      var[[(iter-1)*nlambda + i]] <- solve(I.nonzero)
     #      df[(iter-1)*nlambda + i] <- sum(diag((solve(I.nonzero)%*%I0)))
+
+          df[(iter-1)*nlambda + i]  <- sum( diag((solve(H[anonzero, anonzero])%*%I[anonzero, anonzero])))
           loglik[(iter-1)*nlambda + i] <- coxfit$loglik[2]
     #      p.loglik[(iter-1)*nlambda + i] <- coxfit$loglik[2] + pen.tot
           coef[, (iter-1)*nlambda + i] <- fit.beta[,i]

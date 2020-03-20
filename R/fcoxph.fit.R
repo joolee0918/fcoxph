@@ -287,7 +287,6 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
                          row.names(mf), pcols, pattr, assign)
   }else if(sparse != "none"){
 
-
     fit0 <- fcoxpenal.fit(x = X, y =Y, strata = strats,  offset = offset, init=init,
                            control = control, weights=weights, method=method,
                            pcols = pcols, pattr = pattr, assign = assign, npcols = npcols, tuning.method = tuning.method,
@@ -308,18 +307,27 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
       sel <- which.min(-fit0$loglik/(data.n*(1-fit0$df/data.n)^2) )
     }
 
+
     lambda <- fit0$lambda
     theta <- fit0$theta
 
 
+
     fit <- list()
     fit$coefficients <- fit0$beta[, sel]
-    fit$var <- fit0$var[[sel]]
+    nonzero <- fit$coefficients!=0
+    fit$var <- fit0$var[[sel]][nonzero, nonzero]
     fit$loglik <- fit0$loglik[sel]
     fit$p.loglik <- fit0$loglik[sel]
     fit$loglik0 <- fit0$loglik0
     fit$penalty.par <- c(theta = theta[ceiling(sel/length(lambda))], lambda = lambda[sel%%length(lambda)])
-    fit$df[sel]
+    fit$df <- fit0$df
+    fit$loglik0.history <- fit0$loglik
+    fit$gcv.history <- -fit0$loglik/(data.n*(1-fit0$df/data.n)^2)
+    fit$history <- fit0$beta
+    fit$lambda <- fit0$lambda
+    fit$theta <- fit0$theta
+    fit$sel <- sel
     fit$pterms
   }
 

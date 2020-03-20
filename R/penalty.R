@@ -49,6 +49,13 @@ g.pf = function(mu, gamma, k, M, d)
   as.vector(t(ifelse(mu==0, 1e10, mu^(1-1/gamma)))%*%A)
 }
 
+g.pf2 = function(mu, gamma, k, M, d)
+{
+
+  A <- as.matrix(Matrix::bandSparse(M+1, M+d, rep(list(rep(1, M+1)), d), k=seq(0, d-1)))
+  as.vector(t(ifelse(mu==0, 0, mu^(1-1/gamma)))%*%A)
+}
+
 
 list2df <- function (l)
 {
