@@ -287,7 +287,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
                           as.integer(frailx),
                           f.expr1,f.expr2,rho)
 
-  #loglik0 <- coxfit$loglik
+  loglik0 <- coxfit$loglik
   #means   <- coxfit$means
 
   #
@@ -374,7 +374,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
                           f.expr1,f.expr2,rho)
     }
     init <- coxfit0$coef
-
+    loglik0 <- coxfit$loglik[1]
 
     n.penalty <- ifelse(penalty == "gBridge", "lasso", penalty)
 
