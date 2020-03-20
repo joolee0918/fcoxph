@@ -300,9 +300,9 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
                   sparse.what = sparse, argvals = argvals, group.multiplier = group.multiplier)
 
     } else if (tuning.method == "aic") {
-      sel <- which.max(fit0$loglik - fit0$df)
+      sel <- which.min(-2*fit0$loglik + 2*fit0$df)
     }else if (tuning.method == "bic") {
-      sel <- which.max(fit0$loglik - log(data.n)*fit0$df)
+      sel <- which.min(-2*fit0$loglik + log(data.n)*fit0$df + 0.5*fit0$df*log(length(pcols)))
     }else if(tuning.method == "gcv") {
       sel <- which.min(-fit0$loglik/(data.n*(1-fit0$df/data.n)^2) )
     }
@@ -315,7 +315,8 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
 
     fit <- list()
     fit$coefficients <- fit0$beta[, sel]
-    fit$var <- fit0$var[[sel]]
+    if(is.na(fit0$var[[sel]])) fit$var <- NULL
+    else fit$var <- fit0$var[[sel]]
     fit$loglik <- fit0$loglik[sel]
     fit$p.loglik <- fit0$loglik[sel]
     fit$loglik0 <- fit0$loglik0
@@ -325,6 +326,8 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     fit$penalty.par <- c(theta = theta[ceiling(sel/length(lambda))], lambda = lambda[lambda.where])
     fit$df <- fit0$df
     fit$loglik0.history <- fit0$loglik
+    fit$aic.history <- -2*fit0$loglik + 2*fit0$df
+    fit$bic.history <- -2*fit0$loglik + log(data.n)*fit0$dfa
     fit$gcv.history <- -fit0$loglik/(data.n*(1-fit0$df/data.n)^2)
     fit$history <- fit0$beta
     fit$lambda <- fit0$lambda

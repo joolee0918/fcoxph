@@ -147,7 +147,7 @@ pterm1 <- function (sm, theta, lambda, penalty)
 {
 
 
-  if(is.null(theta)) theta <- rev(c(0.5, 0.725 ,0.95, 0.99, 0.995, 0.999, 0.9995, 0.9999, 0.99995, 0.99999))
+  if(is.null(theta)) theta <- rev(c(0.25, 0.3, 0.4, 0.5, 0.725 ,0.95, 0.99, 0.995, 0.999, 0.9995))
   #theta <- 0
   W <- sm$X
   D <- sm$S[[1]]
