@@ -536,7 +536,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
           A[penalty.where & newbeta == 0]  <- 0.0
           G[penalty.where, penalty.where] <- sm[[1]]$S[[1]]*thetalist[[1]]/(1-thetalist[[1]])
           H <- I + diag(A) + G
-          var[[(iter-1)*nlambda + i]] <- solve(H)%*%I%*%solve(H)
+          var[[(iter-1)*nlambda + i]] <- (solve(H)%*%I%*%solve(H))[anonzero, anonzero]
 
     #        keep.extra[[j]]  <- extralist[[j]][nonzero[[j]], nonzero[[j]]]
     #        temp <- ((pattr[[j]])$pfun)(p.beta.nonzero[[j]], thetalist[[j]], p.lambda[i]*n/nystar, penalty.f[pcols[[j]]][nonzero[[j]]], init[pcols[[j]]][nonzero[[j]]], nystar, penalty, keep.extra[[j]])
