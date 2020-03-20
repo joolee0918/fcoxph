@@ -241,7 +241,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
   if(is.null(lambda)) {
     nlambda <- ifelse(is.null(nlambda), 20, nlambda)
-    p.lambda <- glmnet(xx, y, family="cox",  nlambda=nlambda, standardize=FALSE, thresh=1)$lambda*5*(n.nonpar)
+    p.lambda <- glmnet(xx, y, family="cox",  nlambda=nlambda, standardize=FALSE, thresh=1)$lambda*5
   }else {
     p.lambda <- lambda
   }
@@ -433,14 +433,14 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
 
         Ystar <- c(Y, rep(0, Dnrow))
-        Vstar <- rbind(V, Dstar)# %*% diag(1/penalty.f)
+        Vstar <- rbind(V, Dstar) %*% diag(1/penalty.f)
 
         newbeta <- wshoot(nvar, Vstar, Ystar,init, 1, penalty.f, control$iter.max, control$eps, n)
         #ifelse(penalty=="alasso", "lasso", penalty)
         #p.fit1 <- ncpen1(Ystar, Vstar, family = "gaussian", penalty=ifelse(n.penalty=="alasso", "lasso", n.penalty),  lambda =ifelse(penalty=="gBridge", n/nystar, p.lambda[i]*n/nystar) , x.standardize = FALSE,  intercept=FALSE)
 
-        #p.fit1 <- glmnet(Vstar, Ystar, family = "gaussian",  lambda = n/nystar, standardize = FALSE,  intercept=FALSE)
-        #newbeta <- as.vector(p.fit1$beta)/penalty.f
+        p.fit1 <- glmnet(Vstar, Ystar, family = "gaussian",  lambda = n/nystar, standardize = FALSE,  intercept=FALSE)
+        newbeta <- as.vector(p.fit1$beta)/penalty.f
 
         error.r = rep(0, length(newbeta))
         idx0 = which((newbeta- oldbeta) == 0)
