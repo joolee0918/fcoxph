@@ -239,13 +239,46 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
   ## calculate lambda
 
+
+  if (andersen) {coxfit <- .Call(survival:::Cagfit4,
+                                 y, xx, cox.newstrat, weights,
+                                 offset,
+                                 as.double(oldbeta),
+                                 sort.start, sort.end,
+                                 as.integer(method=="efron"),
+                                 as.integer(0),
+                                 as.double(control$eps),
+                                 as.double(control$toler.chol),
+                                 as.integer(1))
+
+  }else{ coxfit <- .Call(survival:::Ccoxfit6,
+                         as.integer(0),
+                         stime,
+                         sstat,
+                         xx[sorted,],
+                         as.double(offset[sorted]),
+                         weights[sorted],
+                         cox.newstrat,
+                         as.integer(method=="efron"),
+                         as.double(control$eps),
+                         as.double(control$toler.chol),
+                         as.vector(oldbeta),
+                         as.integer(1))
+  }
+  S <- coxfit$u
+  I <- solve(matrix(coxfit$imat, nvar, nvar))
+  V <- chol(I)
+  Y <- solve(t(V))%*%(I%*%oldbeta + S)
+
   if(is.null(lambda)) {
     nlambda <- ifelse(is.null(nlambda), 20, nlambda)
     p.lambda <- glmnet(xx, y, family="cox",  nlambda=nlambda, standardize=FALSE, thresh=1)$lambda*50
+    p.lambda <- max(t(V)%*%Y)/n*50
   }else {
     p.lambda <- lambda
   }
   nlambda <- length(p.lambda)
+
 
   ## Fit without sparse penalty
 
@@ -409,7 +442,6 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
     df[((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)]  <- fit$df
     loglik[((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)] <- fit$loglik
     var[, ((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)] <- fit$var
-    #      p.loglik[(iter-1)*nlambda + i] <- coxfit$loglik[2] + pen.tot
     coef[, ((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)] <- fit$beta
 
 
