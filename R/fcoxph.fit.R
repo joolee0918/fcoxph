@@ -313,8 +313,9 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
 
 
     fit <- list()
+
     fit$coefficients <- fit0$beta[, sel]
-    print(fit$coefficients)
+    nvar <- length(fit$coefficients)
     fit$var <- matrix(fit0$var[,sel], nvar, nvar)
     fit$loglik <- fit0$loglik[sel]
     fit$penalty <- fit$penalty
