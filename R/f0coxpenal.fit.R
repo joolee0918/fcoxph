@@ -268,7 +268,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
   S <- coxfit$u
   I <- solve(matrix(coxfit$imat, nvar, nvar))
   V <- chol(I)
-  Y <- solve(t(V))%*%(I%*%oldbeta + S)
+  Y <- solve(t(V))%*%(S)
 
   if(is.null(lambda)) {
     nlambda <- ifelse(is.null(nlambda), 20, nlambda)
