@@ -243,7 +243,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
   if (andersen) {coxfit <- .Call(survival:::Cagfit4,
                                  y, xx, cox.newstrat, weights,
                                  offset,
-                                 as.double(oldbeta),
+                                 as.double(rep(0, nvar)),
                                  sort.start, sort.end,
                                  as.integer(method=="efron"),
                                  as.integer(0),
@@ -262,7 +262,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
                          as.integer(method=="efron"),
                          as.double(control$eps),
                          as.double(control$toler.chol),
-                         as.vector(oldbeta),
+                         as.vector(rep(0, nvar)),
                          as.integer(1))
   }
   S <- coxfit$u
