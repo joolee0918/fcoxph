@@ -534,7 +534,7 @@ f22coxpenal.fit <- function(x, y, strata, offset, init, control,
             tau0 <- p.lambda[i]^(1/(1-gamma))*gamma^(gamma/(1-gamma))*(1-gamma)
             M <- sm[[1]]$bs.dim - 4
             mu0 <- mu(newbeta, gamma, tau0, M, 4)
-            w[penalty.where] <- g.pf2(mu0, gamma, k, M, 4)
+            w[penalty.where] <- g.pf2(mu0, gamma, M, 4)
           }else {
             w[penalty.where] <- 1
           }
