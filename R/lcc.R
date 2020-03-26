@@ -1,17 +1,16 @@
-wshoot <- function(p,x,y,init,weight,lambda,maxiter,tol,n)
+wshoot1 <- function(p,x,y,init,weight,lambda,maxiter,tol,n)
 {
   Q = t(x)%*%x
   B = t(x)%*%y
   i=0
   status = 0
-
   lams =lambda*weight
   oldbeta <- init
   tmpbeta <- oldbeta
 
   while (i<maxiter && status==0){
     for (j in 1:p){
-      s<-ss2(j,tmpbeta,Q,B,n)
+      s<-ss(j,tmpbeta,Q,B,n)
       if (s > lams[j])
         tmpbeta[j]<-(lams[j]-s)/(1/n*Q[j,j])
       else if (s < (-lams[j]) )
@@ -28,10 +27,27 @@ wshoot <- function(p,x,y,init,weight,lambda,maxiter,tol,n)
   tmpbeta
 }
 
-ss2 <- function(j,tmpb,Q,B, n)
+ss <- function(j,tmpb,Q,B, n)
 {
   a <- sum(tmpb*Q[,j])-tmpb[j]*Q[j,j]
   s <- 1/n*(a-B[j])
   return(s)
 }
 
+
+df.f <- function(beta, dA, G, I){
+  nvar <- length(beta)
+  H <- I + G
+  H0 <- I + dA + G
+  nzero <- (beta!=0)
+  var <- matrix(0, nvar, nvar)
+  if(sum(nzero) == 0) {
+    df = 0
+    var = rep(0, nvar*nvar)
+  }else{
+    df  <- sum( diag((solve(H[nzero, nzero])%*%I[nzero, nzero])))
+    var[nzero, nzero] <-  (solve(H[nzero, nzero])%*%I[nzero, nzero]%*%solve(H[nzero, nzero]))
+  }
+   res <- list(df=df, var=as.vector(var))
+  return(res)
+}

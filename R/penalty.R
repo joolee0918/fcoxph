@@ -42,14 +42,16 @@ mu = function(b, gamma, tau, M, d)
   return(mu)
 }
 
-g.pf = function(mu, gamma, k, M, d)
+
+g.pf = function(mu, gamma, M, d)
 {
 
   A <- as.matrix(Matrix::bandSparse(M+1, M+d, rep(list(rep(1, M+1)), d), k=seq(0, d-1)))
-  as.vector(t(ifelse(mu==0, 1e10, mu^(1-1/gamma)))%*%A)
+  theta <- ifelse(mu==0, 1e10, mu^(1-1/gamma))
+  as.vector(t(theta%*%A))
 }
 
-g.pf2 = function(mu, gamma, k, M, d)
+g.pf2 = function(mu, gamma, M, d)
 {
 
   A <- as.matrix(Matrix::bandSparse(M+1, M+d, rep(list(rep(1, M+1)), d), k=seq(0, d-1)))
