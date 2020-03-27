@@ -241,7 +241,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
 
   if (andersen) {coxfit <- .Call(survival:::Cagfit4,
-                                 y, xx, cox.newstrat, weights,
+                                 y, xx, newstrat, weights,
                                  offset,
                                  as.double(rep(0, nvar)),
                                  sort.start, sort.end,
@@ -271,16 +271,17 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
   Y <- solve(t(V))%*%(S)
 
   if(is.null(lambda)) {
-    nlambda <- ifelse(is.null(nlambda), 20, nlambda)
-    p.lambda <- glmnet(xx, y, family="cox",  nlambda=nlambda, standardize=FALSE, thresh=1)$lambda*50
-    p.lambda <- max(t(V)%*%Y)/n*50
+    lambda.max <- max(t(V)%*%Y)
+    lambda <-  exp(seq(log(lambda.max),log(lambda.min*lambda.max),len=nlambda))
+    if(penalty=="gBridge") lambda <- lambda*30
   }else {
     p.lambda <- lambda
   }
+
   nlambda <- length(p.lambda)
 
 
-  ## Fit without sparse penalty
+  ## Fit without sparse penalty for initial parameter
 
   if (andersen) {
     coxfit <- .C(survival:::Cagfit5a,
@@ -324,16 +325,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
                  f.expr1,f.expr2,rho)
   }
   loglik0 <- coxfit$loglik
-  #means   <- coxfit$means
 
-  #
-  #  Now for the actual fit
-  #
-
-  # for (i in 1:m) {
-  #    D[[i]] <- sm[[i]]$D/4
-  #  }
-  #print(D)
 
   ## Broup band matrix
   d <- 4
@@ -372,10 +364,6 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
       }
 
     }
-
-    #    BB <- rep(1, nvar)
-    #    BB[penalty.where] <- B
-
 
     ### initial values estimated without sparse penalty
     if (andersen) { coxfit0 <- .C(survival:::Cagfit5b,
@@ -417,24 +405,25 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
     }
     init <- coxfit0$coef
 
-    n.penalty <- ifelse(penalty == "gBridge", "lasso", penalty)
-
     fit.beta <- matrix(0, nvar, nlambda)
     if(!is.null(Dstar)) Dstar[,penalty.where] <- as.matrix(bdiag(lapply(1:m, function(i) D[[i]]*sqrt(thetalist[[i]]/(1-thetalist[[i]])) )))
 
 
     if(andersen){
-      fit <- fcoxfit_cpp(stime,   sstat, xx[sorted,],
-                         as.double(offset[sorted]), weights[sorted],
-                         as.integer(cox.newstrat), as.integer(100), as.double(control$eps),
-                         H, Dstar, as.integer(method=="efron"), init,  p.lambda,
-                         gamma,  M, d, n.nonpar,  Dnrow, penalty.where, as.integer(0), chol)
+      fit <- fagfit_cpp(y, xx, newstrat, weights,
+                         offset, as.double(init),
+                         sort.start, sort.end,
+                         as.integer(method=="efron"),
+                         as.integer(control$iter.max),
+                         as.double(control$eps),
+                        H, Dstar, G, as.integer(method=="efron"), init,  p.lambda,
+                        gamma,  M, d, n.nonpar,  Dnrow, penalty.where, as.integer(0), chol, df.f)
 
     } else{
 
      fit <- fcoxfit_cpp(stime,   sstat, xx[sorted,],
                        as.double(offset[sorted]), weights[sorted],
-                       as.integer(cox.newstrat), as.integer(100), as.double(control$eps),
+                       as.integer(cox.newstrat), as.integer(control$iter.max), as.double(control$eps),
                        H, Dstar, G, as.integer(method=="efron"), init,  p.lambda,
                        gamma,  M, d, n.nonpar,  Dnrow, penalty.where, as.integer(0), chol, df.f)
     }

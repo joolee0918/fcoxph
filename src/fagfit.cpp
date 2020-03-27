@@ -7,8 +7,8 @@
 #include <float.h>
 #include <iostream>
 using namespace Rcpp;
-using namespace arma;
 
+#include "optimize.h"
 
 //[[Rcpp::export()]]
 List fagfit_cpp(NumericMatrix surv2,
@@ -31,7 +31,7 @@ List fagfit_cpp(NumericMatrix surv2,
   int rank, rank2;
 
   int nlambda = lambda.size();
-  nused = offset.size();
+  nused = covar2.nrow();
   nvar  = covar2.ncol();
   int n = time.size();
   int n_pvar = nvar - n_npvar;
@@ -54,6 +54,11 @@ List fagfit_cpp(NumericMatrix surv2,
   IntegerVector strata = clone(strata2);
 
 
+  NumericVector start = y(_, 0);
+  NumericVector tstop = y(_, 1);
+  NumericVector event = y(_, 2);
+
+  int nstrat = strata.size();
   /*
   ** Subtract the mean from each covar, as this makes the regression
   **  much more stable.
@@ -97,7 +102,7 @@ List fagfit_cpp(NumericMatrix surv2,
     }
     p = sort2[person];
     keep[p] = - deaths;
-    if (event[p]) {
+    if (event[p]==1) {
       dtime = tstop[p];
       for(person =person+1; person < strata[istrat]; person++) {
         /* walk forward over any tied times */
@@ -224,7 +229,6 @@ List fagfit_cpp(NumericMatrix surv2,
               *   data sets.
               */
               if (fabs(etasum/nrisk) > 200) {
-                flag[1]++;  /* a count, for debugging/profiling purposes */
               temp = etasum/nrisk;
               for (i=0; i<nused; i++) eta[i] -= temp;
               temp = exp(-temp);
@@ -264,7 +268,7 @@ List fagfit_cpp(NumericMatrix surv2,
                 deaths++;
                 denom2 += risk*event[p];
                 meanwt += weights[p];
-                newlk += weights[p]* eta[p];
+                loglik += weights[p]* eta[p];
                 for (i=0; i<nvar; i++) {
                   u[i] += weights[p] * covar(p, i);
                   a2[i]+= risk*covar(p, i);
@@ -327,8 +331,7 @@ List fagfit_cpp(NumericMatrix surv2,
               *   data sets.
               */
               if (fabs(etasum/nrisk) > 200) {
-                flag[1]++;  /* a count, for debugging/profiling purposes */
-              temp = etasum/nrisk;
+               temp = etasum/nrisk;
               for (i=0; i<nused; i++) eta[i] -= temp;
               temp = exp(-temp);
               denom *= temp;
