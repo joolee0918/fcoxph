@@ -415,7 +415,7 @@ List fagfit_cpp(NumericMatrix surv2,
     for(i=0; i<nvar; i++) fit_beta(i,ilam) = newbeta[i];
 
     dA.fill(0);
-    for(i=0; i<nvar; i++) if(newbeta[i]!=0) dA[i] = n*penalty_f[i]/fabs(newbeta[i]);
+    for(i=0; i<nvar; i++) if(newbeta[i]!=0) dA[i] = nused*penalty_f[i]/fabs(newbeta[i]);
 
     List df_var = df_f(newbeta, dA, G, imat);
     df[ilam] = df_var["df"];
