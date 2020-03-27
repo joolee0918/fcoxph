@@ -27,8 +27,8 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
   # Get the list of sort indices, but don't sort the data itself
   if (ncol(y) ==3) {
     if (length(strata) ==0) {
-      sort.end  <- order(strata, -y[,2]) -1L
-      sort.start<- order(strata, -y[,1]) -1L
+      sort.end  <- order(-y[,2]) -1L
+      sort.start<- order(-y[,1]) -1L
 
       sort <- cbind(order(-y[,2], y[,3]),
                     order(-y[,1])) -1L
