@@ -18,8 +18,8 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
   else if (length(x)==0) stop("Must have an X variable")
   else nvar <-1
 
-  if (missing(offset) || is.null(offset)) offset <- rep(0,n)
-  if (missing(weights)|| is.null(weights))weights<- rep(1,n)
+  if (missing(offset) || is.null(offset)) offset <- rep(0.0,n)
+  if (missing(weights)|| is.null(weights))weights<- rep(1.0,n)
   else {
     if (any(weights<=0)) stop("Invalid weights, must be >0")
   }
@@ -68,6 +68,24 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
     andersen <- FALSE
   }
 
+
+
+  if (is.null(nvar) || nvar==0) {
+    # A special case: Null model.  Just return obvious stuff
+    #  To keep the C code to a small set, we call the usual routines, but
+    #  with a dummy X matrix and 0 iterations
+    nvar <- 1
+    x <- matrix(as.double(1:n), ncol=1)  #keep the .C call happy
+    nullmodel <- TRUE
+    if (length(init) !=0) stop("Wrong length for inital values")
+    init <- 0.0  #dummy value to keep a .C call happy (doesn't like 0 length)
+  }
+  else {
+    nullmodel <- FALSE
+
+    if (is.null(init)) init <- rep(0., nvar)
+    if (length(init) != nvar) stop("Wrong length for inital values")
+  }
 
 
   #
@@ -236,6 +254,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
   ### Score, Hessian
   storage.mode(y) <- storage.mode(weights) <-  "double"
   storage.mode(xx) <- storage.mode(offset) <- "double"
+  storage.mode(newstrat) <- "integer"
 
   ## calculate lambda
 
