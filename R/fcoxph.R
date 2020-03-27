@@ -6,7 +6,7 @@
 
 #' @export
 fcoxph <- function (formula, data, weights, na.action, init, control, knots = NULL, penalty = c("lasso", "alasso", "scad", "mcp", "lasso", "gBridge"),
-                    L2penalty = c("none", "ridge", "smooth"), theta = switch(L2penalty, none = 0, ridge = NULL, smooth = NULL), gamma = 0.5, lambda = NULL, lambda.min = 0.001, nlambda = NULL, alpha = switch(penalty, scad = 3.7, mcp = 3),
+                    L2penalty = c("none", "ridge", "smooth"), theta = switch(L2penalty, none = 0, ridge = NULL, smooth = NULL), gamma = 0.5, lambda = NULL, lambda.min.ratio = 0.001, nlambda = NULL, alpha = switch(penalty, scad = 3.7, mcp = 3),
                     sparse = c("none", "global", "local"),  group.multiplier=NULL, tuning.method = c("cv", "aic", "bic", "gcv"), nfolds = 10, foldid = NULL,
                     method = "breslow", parallel = FALSE, ncluster = NULL, x = TRUE, model = FALSE, y = TRUE, ...)
 {

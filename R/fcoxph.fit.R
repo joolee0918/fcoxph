@@ -4,7 +4,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
                   init, control, ties= c("efron", "breslow", "exact"),
                   singular.ok =TRUE, robust=FALSE,
                   model=FALSE, x=FALSE, y=TRUE,  tt, method=ties,
-                  tuning.method, nfolds, foldid, sm, alpha, gamma, theta, lambda, lambda.min, nlambda, penalty, L2penalty, sparse, argvals, group.multiplier,
+                  tuning.method, nfolds, foldid, sm, alpha, gamma, theta, lambda, lambda.min.ratio, nlambda, penalty, L2penalty, sparse, argvals, group.multiplier,
                   parallel, ncluster,
                   ...) {
 
@@ -289,11 +289,11 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     fit0 <- fcoxpenal.fit(x = X, y =Y, strata = strats,  offset = offset, init=init,
                            control = control, weights=weights, method=method,
                            pcols = pcols, pattr = pattr, assign = assign, npcols = npcols, tuning.method = tuning.method,
-                           sm = sm,  gamma = gamma, alpha = alpha, theta = theta, lambda = lambda,  nlambda = nlambda, penalty = penalty,
+                           sm = sm,  gamma = gamma, alpha = alpha, theta = theta, lambda = lambda, lambda.min.ratio = lambda.min.ratio, nlambda = nlambda, penalty = penalty,
                            sparse.what = sparse, argvals = argvals, group.multiplier = group.multiplier, cv.fit=FALSE)
 
     if(tuning.method == "cv"){
-      sel <- cv.fcoxph(fit0, x = X, y = Y, strats = strats, cluster = cluster, init=init, weights = weights, offset = offset, control = control, lambda = lambda, nfolds = nfolds, foldid = foldid,
+      sel <- cv.fcoxph(fit0, x = X, y = Y, strats = strats, cluster = cluster, init=init, weights = weights, offset = offset, control = control, lambda = lambda, lambda.min.ratio = lambda.min.ratio,nfolds = nfolds, foldid = foldid,
                   method = method, parallel = FALSE, ncluster=ncluster, pcols = pcols, pattr = pattr, assign = assign, npcols = npcols, tuning.method = tuning.method,
                   sm = sm,  gamma = gamma, alpha = alpha, theta = theta, nlambda = nlambda, penalty = penalty,
                   sparse.what = sparse, argvals = argvals, group.multiplier = group.multiplier)

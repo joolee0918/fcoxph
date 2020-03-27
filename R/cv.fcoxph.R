@@ -1,7 +1,7 @@
 #' @importFrom parallel makeCluster stopCluster
 #'@importFrom doParallel registerDoParallel
 #' @importFrom foreach foreach
-cv.fcoxph <- function (fitobj, x, y, strats, cluster, weights, offset = NULL, control, init, lambda, nfolds, foldid,
+cv.fcoxph <- function (fitobj, x, y, strats, cluster, weights, offset = NULL, control, init, lambda, lambda.min.ratio, nfolds, foldid,
             parallel = FALSE,  pcols, pattr, assign, npcols = npcols, tuning.method,
             sm, gamma, alpha, theta, nlambda, penalty, method,
             sparse.what, argvals, group.multiplier, ncluster)
@@ -53,7 +53,7 @@ cv.fcoxph <- function (fitobj, x, y, strats, cluster, weights, offset = NULL, co
         out = fcoxpenal.fit(x = x[!which, , drop=FALSE], y =y_sub, strata = strats_sub, offset = offset_sub, init=init,
                                      control = control, weights=weights_sub, method=method,
                                      pcols = pcols, pattr = pattr, assign = assign, npcols = npcols, tuning.method = tuning.method,
-                                     sm = sm,  gamma = gamma, alpha = alpha, theta = theta, lambda = lambda, penalty = penalty,
+                                     sm = sm,  gamma = gamma, alpha = alpha, theta = theta, lambda = lambda, lambda.min.ratio = lambda.min.ratio, penalty = penalty,
                                      sparse.what = sparse.what, argvals = argvals, group.multiplier = group.multiplier, cv.fit=TRUE)
 
         coefmat = out$beta
@@ -96,7 +96,7 @@ cv.fcoxph <- function (fitobj, x, y, strats, cluster, weights, offset = NULL, co
         out = fcoxpenal.fit(x = x[!which, , drop=FALSE], y =y_sub, strata = strats_sub, offset = offset_sub, init=init,
                                      control = control, weights=weights_sub, method=method,
                                      pcols = pcols, pattr = pattr, assign = assign, npcols = npcols, tuning.method = tuning.method,
-                                     sm = sm,  gamma = gamma, alpha = alpha, theta = theta, lambda = lambda, penalty = penalty,
+                                     sm = sm,  gamma = gamma, alpha = alpha, theta = theta, lambda = lambda,lambda.min.ratio = lambda.min.ratio, penalty = penalty,
                                      sparse.what = sparse.what, argvals = argvals, group.multiplier = group.multiplier, cv.fit=TRUE)
 
         coefmat = out$beta

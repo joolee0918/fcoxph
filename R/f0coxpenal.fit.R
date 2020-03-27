@@ -8,7 +8,7 @@
 #' @import glmnet glmnet
 fcoxpenal.fit <- function(x, y, strata, offset, init, control,
                           weights, method,
-                          pcols, pattr, assign, npcols, tuning.method, sm, alpha, gamma, theta, lambda, nlambda = NULL,
+                          pcols, pattr, assign, npcols, tuning.method, sm, alpha, gamma, theta, lambda, lambda.min.ratio, nlambda = NULL,
                           penalty, sparse.what, argvals, group.multiplier,
                           cv.fit = FALSE)
 {
@@ -272,7 +272,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
   if(is.null(lambda)) {
     lambda.max <- max(t(V)%*%Y)
-    lambda <-  exp(seq(log(lambda.max),log(lambda.min*lambda.max),len=nlambda))
+    lambda <-  exp(seq(log(lambda.max),log(lambda.min.ratio*lambda.max),len=nlambda))
     if(penalty=="gBridge") lambda <- lambda*30
   }else {
     p.lambda <- lambda

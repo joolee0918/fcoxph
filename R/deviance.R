@@ -62,18 +62,6 @@ cox.deviance <- function(x, y, strata, offset, init, control,
                  as.double(control$toler.chol),
                  as.vector(beta),
                  as.integer(1))$loglik[1]  # internally rescale
-
-  # loglik<- loglik_coxfit(
-  #                stime,
-  #                sstat,
-  #                x[sorted,],
-  #                as.double(offset[sorted]),
-  #                weights,
-  #                newstrat,
-  #                as.integer(method=="efron"),
-  #                as.vector(init),
-  #                as.integer(1))  # internally rescale
-
   }
   return(-2*loglik)
 }
