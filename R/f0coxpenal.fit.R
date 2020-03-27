@@ -249,7 +249,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
                                  as.integer(0),
                                  as.double(control$eps),
                                  as.double(control$toler.chol),
-                                 as.integer(1))
+                                 as.integer(0))
 
   }else{ coxfit <- .Call(survival:::Ccoxfit6,
                          as.integer(0),
@@ -263,7 +263,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
                          as.double(control$eps),
                          as.double(control$toler.chol),
                          as.vector(rep(0, nvar)),
-                         as.integer(1))
+                         as.integer(0))
   }
   S <- coxfit$u
   print(mean(S))
