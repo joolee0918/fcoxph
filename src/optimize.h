@@ -13,3 +13,5 @@ double ss2(int j, NumericVector tmpb, arma::mat Q, arma::vec B, int n);
 NumericVector wshoot (arma::mat x, arma::vec y, NumericVector init, NumericVector weight, double lambda, int maxiter, double tol, int n);
 NumericVector muf(NumericVector b, double gamma, double lambda, int M, int d);
 
+#endif
+
