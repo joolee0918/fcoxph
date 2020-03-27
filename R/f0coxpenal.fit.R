@@ -266,7 +266,9 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
                          as.integer(1))
   }
   S <- coxfit$u
+  print(mean(S))
   I <- solve(matrix(coxfit$imat, nvar, nvar))
+  print(diag(I))
   V <- chol(I)
   Y <- solve(t(V))%*%(S)
 
