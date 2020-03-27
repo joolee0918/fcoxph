@@ -33,10 +33,9 @@ List fagfit_cpp(NumericMatrix surv2,
   int nlambda = lambda.size();
   nused = covar2.nrow();
   nvar  = covar2.ncol();
-  int n = time.size();
   int n_pvar = nvar - n_npvar;
 
-  NumericVector eta(n), keep(n);
+  NumericVector eta(nused), keep(nused);
   NumericVector beta(nvar), newbeta(nvar), means(nvar), scale(nvar), pbeta(n_npvar);
   NumericVector penalty_f(nvar);
   NumericVector a(nvar), a2(nvar), u(nvar), u2(nvar);
@@ -54,9 +53,9 @@ List fagfit_cpp(NumericMatrix surv2,
   IntegerVector strata = clone(strata2);
 
 
-  NumericVector start = y(_, 0);
-  NumericVector tstop = y(_, 1);
-  NumericVector event = y(_, 2);
+  NumericVector start = surv2(_, 0);
+  NumericVector tstop = surv2(_, 1);
+  NumericVector event = surv2(_, 2);
 
   int nstrat = strata.size();
   /*
@@ -407,7 +406,7 @@ List fagfit_cpp(NumericMatrix surv2,
 
 
 
-      newbeta = wshoot(Vstar, Ystar, beta, penalty_f, lambda[ilam], maxiter, eps, n);
+      newbeta = wshoot(Vstar, Ystar, beta, penalty_f, lambda[ilam], maxiter, eps, nused);
 
       error = max(abs(newbeta - beta));
       for(i=0; i<nvar; i++) beta[i] = newbeta[i];
