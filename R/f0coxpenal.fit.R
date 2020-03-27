@@ -416,7 +416,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
                          as.integer(method=="efron"),
                          as.integer(control$iter.max),
                          as.double(control$eps),
-                        H, Dstar, G, as.integer(method=="efron"), init,  p.lambda,
+                        H, Dstar, G,  p.lambda,
                         gamma,  M, d, n.nonpar,  Dnrow, penalty.where, as.integer(0), chol, df.f)
 
     } else{
