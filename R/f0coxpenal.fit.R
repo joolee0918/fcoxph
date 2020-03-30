@@ -258,16 +258,14 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
   ## calculate lambda
 
 
-  if (andersen) {coxfit <- .Call(survival:::Cagfit4,
-                                 y, xx, newstrat, weights,
-                                 offset,
-                                 as.double(rep(0, nvar)),
-                                 sort.start, sort.end,
-                                 as.integer(method=="efron"),
-                                 as.integer(0),
-                                 as.double(control$eps),
-                                 as.double(control$toler.chol),
-                                 as.integer(0))
+  if (andersen) {coxfit <-  fagfit_init(y, xx, newstrat, weights,
+                                       offset, as.vector(rep(0, nvar)),
+                                       sort.start, sort.end,
+                                       as.integer(method=="efron"),
+                                       as.integer(0),
+                                       as.double(control$eps),
+                                       H, Dstar, G,  p.lambda,
+                                       gamma,  M, d, n.nonpar,  Dnrow, penalty.where, as.integer(0), chol, df.f)
 
   }else{ coxfit <- .Call(survival:::Ccoxfit6,
                          as.integer(0),
