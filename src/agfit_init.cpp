@@ -36,7 +36,6 @@ List fagfit_init(NumericMatrix surv2,
   NumericVector beta(nvar), newbeta(nvar), means(nvar), scale(nvar);
   NumericVector a(nvar), a2(nvar), u(nvar), u2(nvar);
   NumericMatrix imat(nvar, nvar), cmat(nvar, nvar), cmat2(nvar, nvar);
-  arma::vec yy(nvar);
 
   NumericMatrix covar = clone(covar2);
   IntegerVector strata = clone(strata2);
