@@ -29,25 +29,15 @@ List fagfit_init(NumericMatrix surv2,
   int ndead, nrisk, deaths;
   int rank, rank2;
 
-  int nlambda = lambda.size();
   nused = covar2.nrow();
   nvar  = covar2.ncol();
-  int n_pvar = nvar - n_npvar;
 
   NumericVector eta(nused), keep(nused);
-  NumericVector beta(nvar), newbeta(nvar), means(nvar), scale(nvar), pbeta(n_npvar);
-  NumericVector penalty_f(nvar);
+  NumericVector beta(nvar), newbeta(nvar), means(nvar), scale(nvar);
   NumericVector a(nvar), a2(nvar), u(nvar), u2(nvar);
-  NumericMatrix imat(nvar, nvar), cmat(nvar, nvar), cmat2(nvar, nvar), V(nvar, nvar);
+  NumericMatrix imat(nvar, nvar), cmat(nvar, nvar), cmat2(nvar, nvar);
   arma::vec yy(nvar);
-  arma::vec Ystar(nvar + Dnrow);
-  arma::mat Vstar(nvar + Dnrow, nvar);
 
-  NumericVector mu(M+1), theta(M+1);
-  NumericMatrix fit_beta(nvar, nlambda);
-  NumericVector df(nlambda), logl(nlambda);
-  NumericMatrix var(nvar*nvar, nlambda);
-  NumericVector dA(nvar);
   NumericMatrix covar = clone(covar2);
   IntegerVector strata = clone(strata2);
 
@@ -348,7 +338,7 @@ List fagfit_init(NumericMatrix surv2,
           }
 
 
-          Rcpp::List res = List::create(Named("loglik")= logl,
+          Rcpp::List res = List::create(Named("loglik")= loglik,
                                         Named("u") = u,
                                         Named("imat")=imat);
 
