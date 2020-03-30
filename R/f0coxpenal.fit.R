@@ -283,6 +283,13 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
                          as.vector(rep(0, nvar)),
                          as.integer(0))
   }
+  print(apply(y, 2, mean))
+  print(mean(xx))
+  print(mean(newstrat))
+  print(mean(weights))
+  print(mean(offset))
+  print(mean(sort.start))
+  print(mean(sort.end))
   S <- coxfit$u
   print(S)
   I <- solve(matrix(coxfit$imat, nvar, nvar))
