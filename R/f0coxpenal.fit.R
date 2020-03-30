@@ -264,8 +264,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
                                        as.integer(method=="efron"),
                                        as.integer(0),
                                        as.double(control$eps),
-                                       H, Dstar, G,  p.lambda,
-                                       gamma,  M, d, n.nonpar,  Dnrow, penalty.where, as.integer(0), chol, df.f)
+                                       as.integer(0))
 
   }else{ coxfit <- .Call(survival:::Ccoxfit6,
                          as.integer(0),

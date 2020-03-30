@@ -14,8 +14,7 @@ using namespace Rcpp;
 List fagfit_init(NumericMatrix surv2,
                  NumericMatrix covar2,   IntegerVector strata2, NumericVector weights, NumericVector offset,
                  NumericVector ibeta, IntegerVector sort1, IntegerVector sort2, int method, int maxiter, double eps,
-                 NumericMatrix H, NumericMatrix Dstar, NumericMatrix G,  NumericVector lambda,
-                 double gamma, int M, int d, int n_npvar,  int Dnrow, IntegerVector penalty_where, int doscale, Function f, Function df_f) {
+                 int doscale) {
 
 
   double temp, temp2, zbeta, risk;
