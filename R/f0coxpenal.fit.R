@@ -79,8 +79,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
     nullmodel <- TRUE
     if (length(init) !=0) stop("Wrong length for inital values")
     init <- 0.0  #dummy value to keep a .C call happy (doesn't like 0 length)
-  }
-  else {
+  } else {
     nullmodel <- FALSE
 
     if (is.null(init)) init <- rep(0., nvar)

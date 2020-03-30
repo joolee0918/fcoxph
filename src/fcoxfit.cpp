@@ -39,7 +39,7 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
   NumericVector penalty_f(nvar);
   NumericVector a(nvar), a2(nvar), u(nvar), u2(nvar);
   NumericMatrix imat(nvar, nvar), cmat(nvar, nvar), cmat2(nvar, nvar), V(nvar, nvar);
-  arma::vec y(nvar);
+  arma::vec yy(nvar);
   arma::vec Ystar(nvar + Dnrow);
   arma::mat Vstar(nvar + Dnrow, nvar);
 
@@ -210,7 +210,7 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
 
       for(i=0; i<nvar; i++) u0(i) = u2[i] + u[i];
       for(j=0; j<nvar; j++){
-        y = arma::solve(Vt, u0);
+        yy = arma::solve(Vt, u0);
       }
 
 
@@ -231,7 +231,7 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
       }
 
       Ystar.fill(0);
-      for(i=0; i<nvar; i++) Ystar(i) = y(i);
+      for(i=0; i<nvar; i++) Ystar(i) = yy(i);
 
       for(j=0; j<nvar; j++){
         for(i=0; i<nvar; i++){
