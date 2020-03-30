@@ -283,6 +283,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
                          as.vector(rep(0, nvar)),
                          as.integer(0))
   }
+  print(andersen)
   print(apply(y, 2, mean))
   print(mean(xx))
   print(mean(newstrat))
@@ -290,6 +291,8 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
   print(mean(offset))
   print(mean(sort.start))
   print(mean(sort.end))
+  print(coxfit$sctest)
+  print(coxfit$loglik)
   S <- coxfit$u
   print(S)
   I <- solve(matrix(coxfit$imat, nvar, nvar))
