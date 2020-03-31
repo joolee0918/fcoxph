@@ -51,7 +51,7 @@ cox.deviance <- function(x, y, strata, offset, init, control,
     storage.mode(beta) <- "double"
     loglik[i] <- fcoxfit_loglik(stime,   sstat, x[sorted,],
                               as.double(offset[sorted]), weights[sorted],
-                              as.integer(newstrat), as.double(control$eps),
+                              as.integer(newstrat), as.double(control$eps), as.integer(method=="efron"),
                               beta)
   }
   return(-2*loglik)
