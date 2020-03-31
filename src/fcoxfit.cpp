@@ -260,12 +260,16 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
       Rcout<<9<<"\n";
       error = max(abs(newbeta - beta));
       for(i=0; i<nvar; i++) beta[i] = newbeta[i];
+
+      Rcout<<10<<"\n";
     }
 
     for(i=0; i<nvar; i++) fit_beta(i,ilam) = newbeta[i];
 
+    Rcout<<11<<"\n";
     dA.fill(0);
     for(i=0; i<nvar; i++) if(newbeta[i]!=0) dA[i] = n*penalty_f[i]/fabs(newbeta[i]);
+    Rcout<<12<<"\n";
 
     List df_var = df_f(newbeta, dA, G, imat);
     df[ilam] = df_var["df"];
