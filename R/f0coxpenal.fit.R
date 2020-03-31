@@ -480,7 +480,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
     coef[, ((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)] <- fit$beta
 
 
-   for(i in 1:nlambda)  penalty[((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)] <- as.numeric(t(fit$beta[penalty.where,i])%*%G%*%fit$beta[penalty.where,i]/2)+ sum(as.numeric(n*p.lambda[i]*sqrt(H%*%abs(fit$beta[penalty.where,,i]))))
+   for(i in 1:nlambda)  penalty[((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)] <- as.numeric(t(fit$beta[penalty.where,i])%*%G%*%fit$beta[penalty.where,i]/2)+ sum(as.numeric(n*p.lambda[i]*sqrt(H%*%abs(fit$beta[penalty.where,i]))))
 
 
     }
