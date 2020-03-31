@@ -46,9 +46,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// fcoxfit_cpp
-List fcoxfit_cpp(NumericVector time, IntegerVector status, NumericMatrix covar2, NumericVector offset, NumericVector weights, IntegerVector strata2, double eps, NumericVector ibeta);
-RcppExport SEXP _fcoxph_fcoxfit_cpp(SEXP timeSEXP, SEXP statusSEXP, SEXP covar2SEXP, SEXP offsetSEXP, SEXP weightsSEXP, SEXP strata2SEXP, SEXP epsSEXP, SEXP ibetaSEXP) {
+// fcoxfit_init
+List fcoxfit_init(NumericVector time, IntegerVector status, NumericMatrix covar2, NumericVector offset, NumericVector weights, IntegerVector strata2, double eps, int method, NumericVector ibeta);
+RcppExport SEXP _fcoxph_fcoxfit_init(SEXP timeSEXP, SEXP statusSEXP, SEXP covar2SEXP, SEXP offsetSEXP, SEXP weightsSEXP, SEXP strata2SEXP, SEXP epsSEXP, SEXP methodSEXP, SEXP ibetaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -59,14 +59,15 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type weights(weightsSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type strata2(strata2SEXP);
     Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
+    Rcpp::traits::input_parameter< int >::type method(methodSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type ibeta(ibetaSEXP);
-    rcpp_result_gen = Rcpp::wrap(fcoxfit_cpp(time, status, covar2, offset, weights, strata2, eps, ibeta));
+    rcpp_result_gen = Rcpp::wrap(fcoxfit_init(time, status, covar2, offset, weights, strata2, eps, method, ibeta));
     return rcpp_result_gen;
 END_RCPP
 }
 // fcoxfit_loglik
-double fcoxfit_loglik(NumericVector time, IntegerVector status, NumericMatrix covar2, NumericVector offset, NumericVector weights, IntegerVector strata2, double eps, NumericVector ibeta);
-RcppExport SEXP _fcoxph_fcoxfit_loglik(SEXP timeSEXP, SEXP statusSEXP, SEXP covar2SEXP, SEXP offsetSEXP, SEXP weightsSEXP, SEXP strata2SEXP, SEXP epsSEXP, SEXP ibetaSEXP) {
+double fcoxfit_loglik(NumericVector time, IntegerVector status, NumericMatrix covar2, NumericVector offset, NumericVector weights, IntegerVector strata2, double eps, int method, NumericVector ibeta);
+RcppExport SEXP _fcoxph_fcoxfit_loglik(SEXP timeSEXP, SEXP statusSEXP, SEXP covar2SEXP, SEXP offsetSEXP, SEXP weightsSEXP, SEXP strata2SEXP, SEXP epsSEXP, SEXP methodSEXP, SEXP ibetaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -77,8 +78,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type weights(weightsSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type strata2(strata2SEXP);
     Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
+    Rcpp::traits::input_parameter< int >::type method(methodSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type ibeta(ibetaSEXP);
-    rcpp_result_gen = Rcpp::wrap(fcoxfit_loglik(time, status, covar2, offset, weights, strata2, eps, ibeta));
+    rcpp_result_gen = Rcpp::wrap(fcoxfit_loglik(time, status, covar2, offset, weights, strata2, eps, method, ibeta));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -116,9 +118,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// fcoxfit_init
-List fcoxfit_init(NumericVector time, IntegerVector status, NumericMatrix covar2, NumericVector offset, NumericVector weights, IntegerVector strata2, int maxiter, double eps, NumericMatrix H, NumericMatrix Dstar, NumericMatrix G, int method, NumericVector ibeta, NumericVector lambda, double gamma, int M, int d, int n_npvar, int Dnrow, IntegerVector penalty_where, int doscale, Function f, Function df_f);
-RcppExport SEXP _fcoxph_fcoxfit_init(SEXP timeSEXP, SEXP statusSEXP, SEXP covar2SEXP, SEXP offsetSEXP, SEXP weightsSEXP, SEXP strata2SEXP, SEXP maxiterSEXP, SEXP epsSEXP, SEXP HSEXP, SEXP DstarSEXP, SEXP GSEXP, SEXP methodSEXP, SEXP ibetaSEXP, SEXP lambdaSEXP, SEXP gammaSEXP, SEXP MSEXP, SEXP dSEXP, SEXP n_npvarSEXP, SEXP DnrowSEXP, SEXP penalty_whereSEXP, SEXP doscaleSEXP, SEXP fSEXP, SEXP df_fSEXP) {
+// fcoxfit_cpp
+List fcoxfit_cpp(NumericVector time, IntegerVector status, NumericMatrix covar2, NumericVector offset, NumericVector weights, IntegerVector strata2, int maxiter, double eps, NumericMatrix H, NumericMatrix Dstar, NumericMatrix G, int method, NumericVector ibeta, NumericVector lambda, double gamma, int M, int d, int n_npvar, int Dnrow, IntegerVector penalty_where, int doscale, Function f, Function df_f);
+RcppExport SEXP _fcoxph_fcoxfit_cpp(SEXP timeSEXP, SEXP statusSEXP, SEXP covar2SEXP, SEXP offsetSEXP, SEXP weightsSEXP, SEXP strata2SEXP, SEXP maxiterSEXP, SEXP epsSEXP, SEXP HSEXP, SEXP DstarSEXP, SEXP GSEXP, SEXP methodSEXP, SEXP ibetaSEXP, SEXP lambdaSEXP, SEXP gammaSEXP, SEXP MSEXP, SEXP dSEXP, SEXP n_npvarSEXP, SEXP DnrowSEXP, SEXP penalty_whereSEXP, SEXP doscaleSEXP, SEXP fSEXP, SEXP df_fSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -145,7 +147,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type doscale(doscaleSEXP);
     Rcpp::traits::input_parameter< Function >::type f(fSEXP);
     Rcpp::traits::input_parameter< Function >::type df_f(df_fSEXP);
-    rcpp_result_gen = Rcpp::wrap(fcoxfit_init(time, status, covar2, offset, weights, strata2, maxiter, eps, H, Dstar, G, method, ibeta, lambda, gamma, M, d, n_npvar, Dnrow, penalty_where, doscale, f, df_f));
+    rcpp_result_gen = Rcpp::wrap(fcoxfit_cpp(time, status, covar2, offset, weights, strata2, maxiter, eps, H, Dstar, G, method, ibeta, lambda, gamma, M, d, n_npvar, Dnrow, penalty_where, doscale, f, df_f));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -153,10 +155,10 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_fcoxph_fagfit_init", (DL_FUNC) &_fcoxph_fagfit_init, 10},
     {"_fcoxph_fagfit_loglik", (DL_FUNC) &_fcoxph_fagfit_loglik, 10},
-    {"_fcoxph_fcoxfit_cpp", (DL_FUNC) &_fcoxph_fcoxfit_cpp, 8},
-    {"_fcoxph_fcoxfit_loglik", (DL_FUNC) &_fcoxph_fcoxfit_loglik, 8},
+    {"_fcoxph_fcoxfit_init", (DL_FUNC) &_fcoxph_fcoxfit_init, 9},
+    {"_fcoxph_fcoxfit_loglik", (DL_FUNC) &_fcoxph_fcoxfit_loglik, 9},
     {"_fcoxph_fagfit_cpp", (DL_FUNC) &_fcoxph_fagfit_cpp, 24},
-    {"_fcoxph_fcoxfit_init", (DL_FUNC) &_fcoxph_fcoxfit_init, 23},
+    {"_fcoxph_fcoxfit_cpp", (DL_FUNC) &_fcoxph_fcoxfit_cpp, 23},
     {NULL, NULL, 0}
 };
 

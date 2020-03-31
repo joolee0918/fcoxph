@@ -9,19 +9,19 @@ fagfit_loglik <- function(surv2, covar2, strata2, weights, offset, ibeta, sort1,
     .Call(`_fcoxph_fagfit_loglik`, surv2, covar2, strata2, weights, offset, ibeta, sort1, sort2, method, eps)
 }
 
-fcoxfit_cpp <- function(time, status, covar2, offset, weights, strata2, eps, ibeta) {
-    .Call(`_fcoxph_fcoxfit_cpp`, time, status, covar2, offset, weights, strata2, eps, ibeta)
+fcoxfit_init <- function(time, status, covar2, offset, weights, strata2, eps, method, ibeta) {
+    .Call(`_fcoxph_fcoxfit_init`, time, status, covar2, offset, weights, strata2, eps, method, ibeta)
 }
 
-fcoxfit_loglik <- function(time, status, covar2, offset, weights, strata2, eps, ibeta) {
-    .Call(`_fcoxph_fcoxfit_loglik`, time, status, covar2, offset, weights, strata2, eps, ibeta)
+fcoxfit_loglik <- function(time, status, covar2, offset, weights, strata2, eps, method, ibeta) {
+    .Call(`_fcoxph_fcoxfit_loglik`, time, status, covar2, offset, weights, strata2, eps, method, ibeta)
 }
 
 fagfit_cpp <- function(surv2, covar2, strata2, weights, offset, ibeta, sort1, sort2, method, maxiter, eps, H, Dstar, G, lambda, gamma, M, d, n_npvar, Dnrow, penalty_where, doscale, f, df_f) {
     .Call(`_fcoxph_fagfit_cpp`, surv2, covar2, strata2, weights, offset, ibeta, sort1, sort2, method, maxiter, eps, H, Dstar, G, lambda, gamma, M, d, n_npvar, Dnrow, penalty_where, doscale, f, df_f)
 }
 
-fcoxfit_init <- function(time, status, covar2, offset, weights, strata2, maxiter, eps, H, Dstar, G, method, ibeta, lambda, gamma, M, d, n_npvar, Dnrow, penalty_where, doscale, f, df_f) {
-    .Call(`_fcoxph_fcoxfit_init`, time, status, covar2, offset, weights, strata2, maxiter, eps, H, Dstar, G, method, ibeta, lambda, gamma, M, d, n_npvar, Dnrow, penalty_where, doscale, f, df_f)
+fcoxfit_cpp <- function(time, status, covar2, offset, weights, strata2, maxiter, eps, H, Dstar, G, method, ibeta, lambda, gamma, M, d, n_npvar, Dnrow, penalty_where, doscale, f, df_f) {
+    .Call(`_fcoxph_fcoxfit_cpp`, time, status, covar2, offset, weights, strata2, maxiter, eps, H, Dstar, G, method, ibeta, lambda, gamma, M, d, n_npvar, Dnrow, penalty_where, doscale, f, df_f)
 }
 

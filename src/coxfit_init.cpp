@@ -12,7 +12,7 @@ using namespace Rcpp;
 
 
 //[[Rcpp::export()]]
-List fcoxfit_cpp(NumericVector time,   IntegerVector status,
+List fcoxfit_init(NumericVector time,   IntegerVector status,
                  NumericMatrix covar2,    NumericVector offset, NumericVector weights,
                  IntegerVector strata2,  double eps,  int method, NumericVector ibeta) {
 
@@ -20,7 +20,6 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
   double tdeath, temp, temp2, zbeta, risk;
   double denom, dtime, deadwt, denom2, wtave;
   double loglik;
-  double error;
 
 
   int i, j, k, person, ilam, iter;
@@ -61,8 +60,7 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
 
   strata[nused-1] =1;
 
-     error = 1;
-    for(i=0; i<nvar; i++) beta[i] = ibeta[i];
+  for(i=0; i<nvar; i++) beta[i] = ibeta[i];
 
         loglik =0;
 
@@ -208,7 +206,6 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
 
     NumericVector beta(nvar), newbeta(nvar), means(nvar);
 
-    NumericMatrix fit_beta(nvar, nlambda);
     NumericMatrix covar = clone(covar2);
     IntegerVector strata = clone(strata2);
 
@@ -234,7 +231,6 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
 
     strata[nused-1] =1;
 
-    error = 1;
     for(i=0; i<nvar; i++) beta[i] = ibeta[i];
 
     loglik =0;

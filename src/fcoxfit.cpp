@@ -12,7 +12,7 @@ using namespace Rcpp;
 
 
 //[[Rcpp::export()]]
-List fcoxfit_init(NumericVector time,   IntegerVector status,
+List fcoxfit_cpp(NumericVector time,   IntegerVector status,
                  NumericMatrix covar2,    NumericVector offset, NumericVector weights,
                  IntegerVector strata2, int maxiter, double eps,
                  NumericMatrix H, NumericMatrix Dstar, NumericMatrix G, int method, NumericVector ibeta,  NumericVector lambda,
