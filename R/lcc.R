@@ -40,8 +40,8 @@ df.f <- function(beta, penalty.where, dA, G, I){
   H <- I
   H[penalty.where, penalty.where] <- H[penalty.where, penalty.where] + G
 
-  H0 <- I
-  H0[penalty.where, penalty.where] <- H0[penalty.where, penalty.where]+ dA + G
+  H0 <- I + dA
+  H0[penalty.where, penalty.where] <- H0[penalty.where, penalty.where] + G
 
   nzero <- (beta!=0)
   var <- matrix(0, nvar, nvar)
