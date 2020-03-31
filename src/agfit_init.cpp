@@ -32,7 +32,7 @@ List fagfit_init(NumericMatrix surv2,
   nvar  = covar2.ncol();
 
   NumericVector eta(nused), keep(nused);
-  NumericVector beta(nvar), newbeta(nvar), means(nvar), scale(nvar);
+  NumericVector beta(nvar), newbeta(nvar), means(nvar);
   NumericVector a(nvar), a2(nvar), u(nvar), u2(nvar);
   NumericMatrix imat(nvar, nvar), cmat(nvar, nvar), cmat2(nvar, nvar);
 
@@ -49,7 +49,6 @@ List fagfit_init(NumericMatrix surv2,
   ** Subtract the mean from each covar, as this makes the regression
   **  much more stable.
   */
-  if (nvar==1) doscale =0;  /* scaling has no impact, so skip it */
   for (i=0; i<nvar; i++) {
     person=0;
     for (istrat=0; istrat<nstrat; istrat++) {
@@ -68,8 +67,6 @@ List fagfit_init(NumericMatrix surv2,
     }
   }
 
-
-  for (i=0; i<nvar; i++) scale[i] = 1.0;
 
 
   indx1 =0;
@@ -368,7 +365,7 @@ double fagfit_loglik(NumericMatrix surv2,
   nvar  = covar2.ncol();
 
   NumericVector eta(nused), keep(nused);
-  NumericVector beta(nvar), newbeta(nvar), means(nvar), scale(nvar);
+  NumericVector beta(nvar), newbeta(nvar), means(nvar);
 
   NumericMatrix covar = clone(covar2);
   IntegerVector strata = clone(strata2);
@@ -383,7 +380,7 @@ double fagfit_loglik(NumericMatrix surv2,
   ** Subtract the mean from each covar, as this makes the regression
   **  much more stable.
   */
-  if (nvar==1) doscale =0;  /* scaling has no impact, so skip it */
+
   for (i=0; i<nvar; i++) {
     person=0;
     for (istrat=0; istrat<nstrat; istrat++) {
@@ -401,9 +398,6 @@ double fagfit_loglik(NumericMatrix surv2,
   }
     }
   }
-
-
-  for (i=0; i<nvar; i++) scale[i] = 1.0;
 
 
   indx1 =0;
@@ -577,6 +571,7 @@ double fagfit_loglik(NumericMatrix surv2,
             }
           }
     }
+  }
 
 
   return(loglik);
