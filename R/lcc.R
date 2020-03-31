@@ -35,10 +35,14 @@ ss <- function(j,tmpb,Q,B, n)
 }
 
 
-df.f <- function(beta, dA, G, I){
+df.f <- function(beta, penalty.where, dA, G, I){
   nvar <- length(beta)
-  H <- I + G
-  H0 <- I + dA + G
+  H <- I
+  H[penalty.where, penalty.where] <- H[penalty.where, penalty.where] + G
+
+  H0 <- I
+  H0[penalty.where, penalty.where] <- H0[penalty.where, penalty.where]+ dA + G
+
   nzero <- (beta!=0)
   var <- matrix(0, nvar, nvar)
   if(sum(nzero) == 0) {

@@ -271,7 +271,10 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
     for(i=0; i<nvar; i++) if(newbeta[i]!=0) dA[i] = n*penalty_f[i]/fabs(newbeta[i]);
     Rcout<<12<<"\n";
 
-    List df_var = df_f(newbeta, dA, G, imat);
+    Rcout<<newbeta<<"\n";
+    List df_var = df_f(newbeta, penalty_where, dA, G, imat);
+    Rcout<<13<<"\n";
+
     df[ilam] = df_var["df"];
     NumericVector tmpvar = df_var["var"];
     var(_, ilam) = tmpvar;
