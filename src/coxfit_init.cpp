@@ -14,7 +14,7 @@ using namespace Rcpp;
 //[[Rcpp::export()]]
 List fcoxfit_cpp(NumericVector time,   IntegerVector status,
                  NumericMatrix covar2,    NumericVector offset, NumericVector weights,
-                 IntegerVector strata2,  double eps,  NumericVector ibeta) {
+                 IntegerVector strata2,  double eps,  int method, NumericVector ibeta) {
 
 
   double tdeath, temp, temp2, zbeta, risk;
@@ -35,7 +35,6 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
   NumericVector a(nvar), a2(nvar), u(nvar), u2(nvar);
   NumericMatrix imat(nvar, nvar), cmat(nvar, nvar), cmat2(nvar, nvar);
 
-  NumericMatrix fit_beta(nvar, nlambda);
   NumericMatrix covar = clone(covar2);
   IntegerVector strata = clone(strata2);
 
@@ -189,7 +188,7 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
   //[[Rcpp::export()]]
   double fcoxfit_loglik(NumericVector time,   IntegerVector status,
                    NumericMatrix covar2,    NumericVector offset, NumericVector weights,
-                   IntegerVector strata2, double eps,  NumericVector ibeta) {
+                   IntegerVector strata2, double eps, int method, NumericVector ibeta) {
 
 
     double tdeath, temp, temp2, zbeta, risk;

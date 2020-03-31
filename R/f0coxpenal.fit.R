@@ -266,8 +266,8 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
     }else{ coxfit <- fcoxfit_init(stime,   sstat, xx[sorted,],
                                   as.double(offset[sorted]), weights[sorted],
-                                  as.integer(cox.newstrat), as.double(control$eps),
-                                  init)
+                                  as.integer(cox.newstrat), as.double(control$eps),as.integer(method=="efron"),
+                                  as.vector(rep(0, nvar)))
 
   }
     }else{
@@ -308,7 +308,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
     }else{ coxfit <- fcoxfit_init(stime,   sstat, xx[sorted,],
                                   as.double(offset[sorted]), weights[sorted],
-                                  as.integer(cox.newstrat), as.double(control$eps),
+                                  as.integer(cox.newstrat), as.double(control$eps),as.integer(method=="efron"),
                                   tmpinit)
     }
     }
