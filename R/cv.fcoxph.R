@@ -66,9 +66,9 @@ cv.fcoxph <- function (fitobj, x, y, strats, cluster, weights, offset = NULL, co
 
         } else if(ncol(y)==3){
           plfull = ag.deviance(x = x, y = y, offset = offset, strata = strats,
-                               weights = weights, init = coefmat, method = method)
+                               weights = weights, init = coefmat, method = method, control=control)
           plminusk = ag.deviance(x = x[!which, ], y = y_sub, strata = strats_sub, offset = offset_sub, weights = weights_sub,
-                                 init = coefmat, method = method)
+                                 init = coefmat, method = method, control=control)
           plfull - plminusk
 
         }
@@ -109,9 +109,9 @@ cv.fcoxph <- function (fitobj, x, y, strats, cluster, weights, offset = NULL, co
 
         } else if(ncol(y)==3){
           plfull = ag.deviance(x = x, y = y, offset = offset, strata = strats,
-                                weights = weights, init = coefmat, method = method)
+                                weights = weights, init = coefmat, method = method, control=control)
           plminusk = ag.deviance(x = x[!which, ], y = y_sub, strata = strats_sub, offset = offset_sub, weights = weights_sub,
-                                  init = coefmat, method = method)
+                                  init = coefmat, method = method, control=control)
           cvraw[i, seq(along = plfull)] = plfull - plminusk
 
         }
