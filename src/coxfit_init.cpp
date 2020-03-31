@@ -162,6 +162,8 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
       for (j=0; j<nvar; j++) cmat2(i, j)=0;
     }
 
+  }
+      }
 
 
 
@@ -289,6 +291,8 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
           loglik -= wtave* log(denom);
         }
       }
+    }
+    }
 
 
       return(loglik);
