@@ -192,7 +192,6 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
       if( sum(abs(beta))==0) break;
       if(error < eps) break;
 
-      Rcout<<1<<"\n";
 
       V = f(imat);
       arma::mat V0 = as<arma::mat>(V);
@@ -204,7 +203,6 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
         }
       }
 
-      Rcout<<2<<"\n";
 
 
       arma::mat Vt = V0.t();
@@ -215,30 +213,26 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
         yy = arma::solve(Vt, u0);
       }
 
-      Rcout<<3<<"\n";
 
       for(i=0; i<n_npvar; i++){
         pbeta[i] = beta(penalty_where[i]-1);
       }
 
-      Rcout<<4<<"\n";
+
       mu= muf(pbeta, gamma, lambda[ilam], M, d);
 
-      Rcout<<5<<"\n";
 
       for(j=0; j<(M+1); j++){
         if(mu[j] == 0) theta[j] = 1e10;
         else theta[j] = pow(mu[j], 1-1/gamma);
       }
 
-      Rcout<<6<<"\n";
 
       penalty_f.fill(0);
       for(k=0; k<H.ncol(); k++){
         for(j=0; j<(M+1); j++) penalty_f[penalty_where[k]-1] += theta[j]*H(j, k);
       }
 
-      Rcout<<7<<"\n";
 
       Ystar.fill(0);
       for(i=0; i<nvar; i++) Ystar(i) = yy(i);
@@ -254,26 +248,20 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
 
 
 
-      Rcout<<8<<"\n";
       newbeta = wshoot(Vstar, Ystar, beta, penalty_f, lambda[ilam], maxiter, eps, n);
 
-      Rcout<<9<<"\n";
       error = max(abs(newbeta - beta));
       for(i=0; i<nvar; i++) beta[i] = newbeta[i];
 
-      Rcout<<10<<"\n";
     }
 
     for(i=0; i<nvar; i++) fit_beta(i,ilam) = newbeta[i];
 
-    Rcout<<11<<"\n";
+
     dA.fill(0);
     for(i=0; i<nvar; i++) if(newbeta[i]!=0) dA[i] = n*penalty_f[i]/fabs(newbeta[i]);
-    Rcout<<12<<"\n";
 
-    Rcout<<newbeta<<"\n";
     List df_var = df_f(newbeta, penalty_where, dA, G, imat);
-    Rcout<<13<<"\n";
 
     df[ilam] = df_var["df"];
     NumericVector tmpvar = df_var["var"];
