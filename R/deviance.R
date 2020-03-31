@@ -49,10 +49,10 @@ cox.deviance <- function(x, y, strata, offset, init, control,
   for(i in 1:ncol(init)){
     beta <- init[,i]
     storage.mode(beta) <- "double"
-    loglik[i] <- fcoxfit_loglik(stime,   sstat, xx[sorted,],
+    loglik[i] <- fcoxfit_loglik(stime,   sstat, x[sorted,],
                               as.double(offset[sorted]), weights[sorted],
                               as.integer(cox.newstrat), as.double(control$eps),
-                              init)# internally rescale
+                              init)
   }
   return(-2*loglik)
 }
