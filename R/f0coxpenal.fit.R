@@ -317,7 +317,6 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
   if(is.null(lambda)) {
     lambda.max <- max(S[penalty.where])/n
-    print(lambda.max)
     p.lambda <-  exp(seq(log(lambda.max),log(lambda.min.ratio*lambda.max),len=nlambda))
     if(penalty=="gBridge") p.lambda <- p.lambda*30
   }else {
