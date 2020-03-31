@@ -31,7 +31,7 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
   nvar  = covar2.ncol();
   int n = time.size();
 
-  NumericVector beta(nvar), newbeta(nvar), means(nvar), scale(nvar);
+  NumericVector beta(nvar), newbeta(nvar), means(nvar);
   NumericVector a(nvar), a2(nvar), u(nvar), u2(nvar);
   NumericMatrix imat(nvar, nvar), cmat(nvar, nvar), cmat2(nvar, nvar);
 
@@ -59,7 +59,6 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
   }
 
 
-  for (i=0; i<nvar; i++) scale[i] = 1.0;
 
   strata[nused-1] =1;
 
@@ -206,7 +205,7 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
     nvar  = covar2.ncol();
     int n = time.size();
 
-    NumericVector beta(nvar), newbeta(nvar), means(nvar), scale(nvar);
+    NumericVector beta(nvar), newbeta(nvar), means(nvar);
 
     NumericMatrix fit_beta(nvar, nlambda);
     NumericMatrix covar = clone(covar2);
@@ -231,8 +230,6 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
       for (person=0; person<nused; person++) covar(person, i) -=temp;
     }
 
-
-    for (i=0; i<nvar; i++) scale[i] = 1.0;
 
     strata[nused-1] =1;
 
