@@ -144,8 +144,8 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
         coef <- coxlist2$coef[pen.col]
 
         if (is.null(extralist[[i]]))
-          temp <- ((pattr[[i]])$pfun)(coef, thetalist[[i]], lambdalist[[i]], 1, init, nystar, penalty)  #init, nystar, penalty)
-        else    temp <- ((pattr[[i]])$pfun)(coef, thetalist[[i]], lambdalist[[i]], 1, init, nystar, penalty, extralist[[i]])# init, nystar, penalty, extralist[[i]])
+          temp <- ((pattr[[i]])$pfun)(coef, thetalist[[i]], lambdalist[[i]], 1, init, penalty)
+        else    temp <- ((pattr[[i]])$pfun)(coef, thetalist[[i]], lambdalist[[i]], 1, init, penalty, extralist[[i]])
         if (!is.null(temp$recenter))
           coxlist2$coef[pen.col] <- coxlist2$coef[pen.col]-
           temp$recenter
@@ -257,47 +257,66 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
   ## calculate lambda
 
+  if (nvar==n.nonpar) {
+    if (andersen) {coxfit <-  fagfit_init(y, xx, newstrat, weights,
+                                          offset, as.vector(rep(0, nvar)),
+                                          sort.start, sort.end,
+                                          as.integer(method=="efron"),
+                                          as.double(control$eps))
 
-  if (andersen) {coxfit <-  fagfit_init(y, xx, newstrat, weights,
-                                       offset, as.vector(rep(0, nvar)),
-                                       sort.start, sort.end,
-                                       as.integer(method=="efron"),
-                                       as.integer(0),
-                                       as.double(control$eps),
-                                       as.integer(0))
+    }else{ coxfit <- fcoxfit_init(stime,   sstat, xx[sorted,],
+                                  as.double(offset[sorted]), weights[sorted],
+                                  as.integer(cox.newstrat), as.double(control$eps),
+                                  init)
 
-  }else{ coxfit <- .Call(survival:::Ccoxfit6,
-                         as.integer(0),
-                         stime,
-                         sstat,
-                         xx[sorted,],
-                         as.double(offset[sorted]),
-                         weights[sorted],
-                         cox.newstrat,
-                         as.integer(method=="efron"),
-                         as.double(control$eps),
-                         as.double(control$toler.chol),
-                         as.vector(rep(0, nvar)),
-                         as.integer(0))
   }
-  print(andersen)
-  print(apply(y, 2, mean))
-  print(mean(xx))
-  print(mean(newstrat))
-  print(mean(weights))
-  print(mean(offset))
-  print(mean(sort.start))
-  print(mean(sort.end))
-  print(coxfit$loglik)
-  S <- coxfit$u
-  print(S)
-  I <- matrix(coxfit$imat, nvar, nvar)
-  print(diag(I))
-  V <- chol(I)
-  Y <- solve(t(V))%*%(S)
+    }else{
+    if (andersen) {coxfit0 <- .Call(survival:::Cagfit4,
+                                   y, xx[, npenalty.where], newstrat, weights,
+                                   offset,
+                                   as.double(init[npenalty.where]),
+                                   sort.start, sort.end,
+                                   as.integer(method=="efron"),
+                                   as.integer(control$iter.max),
+                                   as.double(control$eps),
+                                   as.double(control$toler.chol),
+                                   as.integer(1))
+
+    }else{ coxfit0 <- .Call(survival:::Ccoxfit6,
+                           as.integer(control$iter.max),
+                           stime,
+                           sstat,
+                           xx[sorted, npenalty.where],
+                           as.double(offset[sorted]),
+                           weights[sorted],
+                           cox.newstrat,
+                           as.integer(method=="efron"),
+                           as.double(control$eps),
+                           as.double(control$toler.chol),
+                           as.vector(init[npenalty.where]),
+                           as.integer(1))
+    }
+
+    tmpinit <- rep(0, nvar)
+    tmpinit[npenalty.where] <- coxfit0$coef
+
+    if (andersen) {coxfit <-  fagfit_init(y, xx, newstrat, weights,
+                                          offset, as.vector(tmpinit),
+                                          sort.start, sort.end,
+                                          as.integer(method=="efron"),
+                                          as.double(control$eps))
+
+    }else{ coxfit <- fcoxfit_init(stime,   sstat, xx[sorted,],
+                                  as.double(offset[sorted]), weights[sorted],
+                                  as.integer(cox.newstrat), as.double(control$eps),
+                                  tmpinit)
+    }
+    }
+
+  S <-coxfit$u
 
   if(is.null(lambda)) {
-    lambda.max <- max(t(V)%*%Y)/n
+    lambda.max <- max(S[penalty.where])/n
     print(lambda.max)
     p.lambda <-  exp(seq(log(lambda.max),log(lambda.min.ratio*lambda.max),len=nlambda))
     if(penalty=="gBridge") p.lambda <- p.lambda*30

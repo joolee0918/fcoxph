@@ -12,11 +12,9 @@ using namespace Rcpp;
 
 
 //[[Rcpp::export()]]
-List fcoxfit_init(NumericVector time,   IntegerVector status,
+List fcoxfit_cpp(NumericVector time,   IntegerVector status,
                  NumericMatrix covar2,    NumericVector offset, NumericVector weights,
-                 IntegerVector strata2, int maxiter, double eps,
-                 NumericMatrix H, NumericMatrix Dstar, NumericMatrix G, int method, NumericVector ibeta,  NumericVector lambda,
-                 double gamma, int M, int d, int n_npvar,  int Dnrow, IntegerVector penalty_where, int doscale, Function f, Function df_f) {
+                 IntegerVector strata2,  double eps,  NumericVector ibeta) {
 
 
   double tdeath, temp, temp2, zbeta, risk;
@@ -29,25 +27,15 @@ List fcoxfit_init(NumericVector time,   IntegerVector status,
   int nused, nvar;
   int ndead, nrisk;
 
-  int nlambda = lambda.size();
   nused = offset.size();
   nvar  = covar2.ncol();
   int n = time.size();
-  int n_pvar = nvar - n_npvar;
 
-  NumericVector beta(nvar), newbeta(nvar), means(nvar), scale(nvar), pbeta(n_npvar);
-  NumericVector penalty_f(nvar);
+  NumericVector beta(nvar), newbeta(nvar), means(nvar), scale(nvar);
   NumericVector a(nvar), a2(nvar), u(nvar), u2(nvar);
-  NumericMatrix imat(nvar, nvar), cmat(nvar, nvar), cmat2(nvar, nvar), V(nvar, nvar);
-  arma::vec yy(nvar);
-  arma::vec Ystar(nvar + Dnrow);
-  arma::mat Vstar(nvar + Dnrow, nvar);
+  NumericMatrix imat(nvar, nvar), cmat(nvar, nvar), cmat2(nvar, nvar);
 
-  NumericVector mu(M+1), theta(M+1);
   NumericMatrix fit_beta(nvar, nlambda);
-  NumericVector df(nlambda), logl(nlambda);
-  NumericMatrix var(nvar*nvar, nlambda);
-  NumericVector dA(nvar);
   NumericMatrix covar = clone(covar2);
   IntegerVector strata = clone(strata2);
 
@@ -75,15 +63,10 @@ List fcoxfit_init(NumericVector time,   IntegerVector status,
 
   strata[nused-1] =1;
 
-
-
-  for(ilam=0; ilam<nlambda; ilam++){
-
-    error = 1;
+     error = 1;
     for(i=0; i<nvar; i++) beta[i] = ibeta[i];
 
-    for(iter=1; iter <= maxiter; iter++){
-      loglik =0;
+        loglik =0;
 
       for (i=0; i<nvar; i++) {
         u[i] =0;
@@ -181,91 +164,138 @@ List fcoxfit_init(NumericVector time,   IntegerVector status,
       for (j=0; j<nvar; j++) cmat2(i, j)=0;
     }
 
-  }
-      }
+
+
 
       for(i=0; i<nvar; i++){
         for (j=0; j<i; j++) {
           imat(i, j) = imat(j, i);
         }
       }
-      if( sum(abs(beta))==0) break;
-      if(error < eps) break;
 
 
-      V = f(imat);
-      arma::mat V0 = as<arma::mat>(V);
+      Rcpp::List res = List::create(Named("loglik")= loglik,
+                                    Named("u") = u,
+                                    Named("imat")=imat);
 
-      for(i=0; i<nvar; i++) {
-        u2[i]=0;
-        for(j=0; j<nvar; j++){
-          u2[i] += imat(i, j)*beta[j];
-        }
-      }
-
-
-
-      arma::mat Vt = V0.t();
-      arma::vec u0(nvar);
-
-      for(i=0; i<nvar; i++) u0(i) = u2[i] + u[i];
-      for(j=0; j<nvar; j++){
-        yy = arma::solve(Vt, u0);
-      }
-
-
-      for(i=0; i<n_npvar; i++){
-        pbeta[i] = beta(penalty_where[i]-1);
-      }
-
-      mu= muf(pbeta, gamma, lambda[ilam], M, d);
-
-      for(j=0; j<(M+1); j++){
-        if(mu[j] == 0) theta[j] = 1e10;
-        else theta[j] = pow(mu[j], 1-1/gamma);
-      }
-
-      penalty_f.fill(0);
-      for(k=0; k<H.ncol(); k++){
-        for(j=0; j<(M+1); j++) penalty_f[penalty_where[k]-1] += theta[j]*H(j, k);
-      }
-
-      Ystar.fill(0);
-      for(i=0; i<nvar; i++) Ystar(i) = yy(i);
-
-      for(j=0; j<nvar; j++){
-        for(i=0; i<nvar; i++){
-          Vstar(i, j) = V(i, j);
-        }
-        for(i=0; i<Dnrow; i++){
-          Vstar(i+nvar, j) = Dstar(i, j);
-        }
-      }
-
-
-
-      newbeta = wshoot(Vstar, Ystar, beta, penalty_f, lambda[ilam], maxiter, eps, n);
-
-      error = max(abs(newbeta - beta));
-      for(i=0; i<nvar; i++) beta[i] = newbeta[i];
-    }
-
-    for(i=0; i<nvar; i++) fit_beta(i,ilam) = newbeta[i];
-
-    dA.fill(0);
-    for(i=0; i<nvar; i++) if(newbeta[i]!=0) dA[i] = n*penalty_f[i]/fabs(newbeta[i]);
-
-    List df_var = df_f(newbeta, dA, G, imat);
-    df[ilam] = df_var["df"];
-    NumericVector tmpvar = df_var["var"];
-    var(_, ilam) = tmpvar;
-    logl[ilam] = loglik;
-  }
-  Rcpp::List res = List::create(Named("loglik")= logl,
-                                Named("beta") = fit_beta,
-                                Named("df")=df, Named("var")=var);
 
   return(res);
 
 
 }
+
+
+
+
+  //[[Rcpp::export()]]
+  double fcoxfit_loglik(NumericVector time,   IntegerVector status,
+                   NumericMatrix covar2,    NumericVector offset, NumericVector weights,
+                   IntegerVector strata2, double eps,  NumericVector ibeta) {
+
+
+    double tdeath, temp, temp2, zbeta, risk;
+    double denom, dtime, deadwt, denom2, wtave;
+    double loglik;
+
+
+    int i, j, k, person, ilam, iter;
+    int nused, nvar;
+    int ndead, nrisk;
+
+    nused = offset.size();
+    nvar  = covar2.ncol();
+    int n = time.size();
+
+    NumericVector beta(nvar), newbeta(nvar), means(nvar), scale(nvar);
+
+    NumericMatrix fit_beta(nvar, nlambda);
+    NumericMatrix covar = clone(covar2);
+    IntegerVector strata = clone(strata2);
+
+
+    /*
+    ** Subtract the mean from each covar, as this makes the regression
+    **  much more stable.
+    */
+    tdeath=0; temp2=0;
+    for (i=0; i<nused; i++) {
+      temp2 += weights[i];
+      tdeath += weights[i] * status[i];
+    }
+    for (i=0; i<nvar; i++) {
+      temp=0;
+      for (person=0; person<nused; person++)
+        temp += weights[person] * covar(person, i);
+      temp /= temp2;
+      means[i] = temp;
+      for (person=0; person<nused; person++) covar(person, i) -=temp;
+    }
+
+
+    for (i=0; i<nvar; i++) scale[i] = 1.0;
+
+    strata[nused-1] =1;
+
+    error = 1;
+    for(i=0; i<nvar; i++) beta[i] = ibeta[i];
+
+    loglik =0;
+
+
+    for (person=nused-1; person>=0; ) {
+      if (strata[person] == 1) {
+        nrisk =0 ;
+        denom = 0;
+
+      }
+
+
+      dtime = time[person];
+      ndead =0; /*number of deaths at this time point */
+    deadwt =0;  /* sum of weights for the deaths */
+    denom2=0;  /* sum of weighted risks for the deaths */
+    while(person >=0 &&time[person]==dtime) {
+      /* walk through the this set of tied times */
+      nrisk++;
+      zbeta = offset[person];    /* form the term beta*z (vector mult) */
+      for (i=0; i<nvar; i++)
+        zbeta += beta[i]*covar(person, i);
+      risk = exp(zbeta) * weights[person];
+      if (status[person] ==0) {
+        denom += risk;
+       }
+      else {
+        ndead++;
+        deadwt += weights[person];
+        denom2 += risk;
+        loglik += weights[person]*zbeta;
+       }
+      person--;
+      if (person>=0 && strata[person]==1) break;
+    }
+
+    if (ndead >0) {  /* we need to add to the main terms */
+      if (method==0) { /* Breslow */
+      denom += denom2;
+        loglik -= deadwt* log(denom);
+      }
+      else { /* Efron */
+      /*
+        ** If there are 3 deaths we have 3 terms: in the first the
+        **  three deaths are all in, in the second they are 2/3
+        **  in the sums, and in the last 1/3 in the sum.  Let k go
+        **  1 to ndead: we sequentially add a2/ndead and cmat2/ndead
+        **  and efron_wt/ndead to the totals.
+        */
+      wtave = deadwt/ndead;
+        for (k=0; k<ndead; k++) {
+          denom += denom2/ndead;
+          loglik -= wtave* log(denom);
+        }
+      }
+
+
+      return(loglik);
+
+
+    }

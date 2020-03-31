@@ -2,8 +2,8 @@
 
 #' @export
 fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapezoidal", "riemann"),
-                L = NULL, presmooth = NULL, presmooth.opts = NULL, sparse = c("none", "global", "local"), tuning.method=c("aic", "bic", "gcv"),
-                theta = NULL, lambda = NULL, penalty = c("lasso", "alasso", "scad", "mcp"),
+                L = NULL, presmooth = NULL, presmooth.opts = NULL, sparse = c("none", "local"), tuning.method=c("aic", "bic", "gcv"),
+                theta = NULL, lambda = NULL, penalty = c("lasso", "alasso", "scad", "mcp", "gBridge"),
           ...)
 {
   dots <- list(...)
@@ -85,9 +85,8 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
 
 
  if(sparse == "none") X <- pterm(smooth[[1]], theta,  method = tuning.method, eps = 1e-06, n=n)
- else X <- pterm1(smooth[[1]], theta, lambda, penalty)
+ else X <- pterm1(smooth[[1]], theta, lambda)
 
-#  X <- pterm(smooth[[1]], theta,  method = tuning.method, eps = 1e-06)
  smooth[[1]]$X <- NULL
 
  names <- paste0(basistype, "(", tindname,  ", ", "by = ", LXname, ")")
@@ -143,7 +142,7 @@ pterm <- function (sm, theta, method = c("aic", "bic", "gcv", "fixed"),
 }
 
 
-pterm1 <- function (sm, theta, lambda, penalty)
+pterm1 <- function (sm, theta, lambda)
 {
 
 
@@ -152,7 +151,7 @@ pterm1 <- function (sm, theta, lambda, penalty)
   W <- sm$X
   D <- sm$S[[1]]
 
-  pfun.lFunc <- function(coef, theta, lambda,  penalty.f, init, ny, penalty, D) {
+  pfun.lFunc <- function(coef, theta, lambda,  penalty.f, init,  penalty, D) {
 
     kappa <- ifelse(theta <= 0, 0, theta/(1 - theta))
 
@@ -168,22 +167,22 @@ pterm1 <- function (sm, theta, lambda, penalty)
                        mcp = mcpderiv(H, alpha, lambda*penalty.f))
 
       sparse.penalty <- switch(penalty,
-                               lasso = ny*sum(as.numeric(lampen)*coef^2/H/2),
-                               alasso = ny*sum(as.numeric(lampen)*coef^2/H/abs(init))/2,
-                               scad = ny*sum(as.numeric(lampen)*coef^2/H/2),
-                               mcp = ny*sum(as.numeric(lampen)*coef^2/H/2))
+                               lasso = sum(as.numeric(lampen)*coef^2/H/2),
+                               alasso = sum(as.numeric(lampen)*coef^2/H/abs(init))/2,
+                               scad = sum(as.numeric(lampen)*coef^2/H/2),
+                               mcp = sum(as.numeric(lampen)*coef^2/H/2))
 
       sparse.first <- switch(penalty,
-                             lasso = ny*as.numeric(lampen)*coef/H,
-                             alasso = ny*as.numeric(lampen)*(coef/H/abs(init)),
-                             scad = ny*as.numeric(lampen)*coef/H,
-                             mcp = ny*as.numeric(lampen)*coef/H)
+                             lasso = as.numeric(lampen)*coef/H,
+                             alasso = as.numeric(lampen)*(coef/H/abs(init)),
+                             scad = as.numeric(lampen)*coef/H,
+                             mcp = as.numeric(lampen)*coef/H)
 
       sparse.second <- switch(penalty,
-                              lasso = diag(ny*lampen/H, ncol=nvar, nrow=nvar),
-                              alasso = diag(ny*lampen/H/abs(init), ncol=nvar, nrow=nvar),
-                              scad = diag(ny*lampen/H,  ncol=nvar, nrow=nvar),
-                              mcp = diag(ny*lampen/H,  ncol=nvar, nrow=nvar))
+                              lasso = diag(lampen/H, ncol=nvar, nrow=nvar),
+                              alasso = diag(lampen/H/abs(init), ncol=nvar, nrow=nvar),
+                              scad = diag(lampen/H,  ncol=nvar, nrow=nvar),
+                              mcp = diag(lampen/H,  ncol=nvar, nrow=nvar))
     }
 
 
@@ -293,37 +292,6 @@ control.tuning<- function (parms, iter, old, n, df, loglik)
   list(theta = newtheta, done = done, history = history, tst = 4)
 }
 
-
-
-penalty.v <- function(init, coef, theta, lambda, alpha, ny, D, penalty, I) {
-
-  H <- abs(coef)
-  if(lambda == 0) lampen <- 0
-  else
-  lampen <- switch(penalty,
-                   lasso =  lambda,
-                   alasso = lambda,
-                   scad = scadderiv(H, alpha, lambda)/H,
-                   mcp = mcpderiv(H, alpha, lambda)/H)
-
- # sparse.penalty <- switch(penalty,
-##                           Lasso = ny*as.numeric(lampen)*sum(H),
-#                           ALasso = ny*as.numeric(lampen)*sum(H/abs(init)),
-#                           SCAD = ny*as.numeric(lampen)*sum(coef^2),
-#                           MCP = ny*as.numeric(lampen)*sum(coef^2))
-  sparse.second <- switch(penalty,
-                          lasso = ny*lampen*1/abs(coef),
-                          alasso = ny*lampen*1/abs(coef)/abs(init),
-                          scad = ny*lampen,
-                          mcp = ny*lampen)
-
-  kappa <- ifelse(theta <= 0, 0, theta/(1 - theta))
- # pp <- as.numeric(t(coef) %*% D %*% coef) * kappa/2 + sparse.penalty
-  second <- kappa * D + diag(sparse.second)
-  df <- sum(diag(solve(I + second)%*%I))
-
-  list(second = second, df = df)
-}
 
 
 tuning.summary <- function(tuning.method, loglik, df, n){
