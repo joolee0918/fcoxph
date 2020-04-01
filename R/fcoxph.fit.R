@@ -328,7 +328,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
         ny <- ncol(Y)
         nstrat <- as.numeric(strats)
         nvar <- ncol(X)
-        status <- y[,ny,drop=TRUE]
+        status <- Y[,ny,drop=TRUE]
 
         if (is.null(strats)) {
           ord <- order(Y[,ny-1], -status)
