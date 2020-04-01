@@ -278,6 +278,9 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     if (any(ord>1)) stop ('Penalty terms cannot be in an interaction')
     pcols <- assign[match(pname, names(assign))]
     npcols <- assign[!match(pname, names(assign))]
+    penalty.where <- as.numeric(unlist(pcols))
+    npenalty.where <- as.numeric(unlist(npcols))
+
 
  if(sparse == "none"){
 
@@ -318,6 +321,76 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     fit$coefficients <- fit0$beta[, sel]
     nvar <- length(fit$coefficients)
     fit$var <- matrix(fit0$var[,sel], nvar, nvar)
+    nzero <- c(npenalty.where, penalty.where[fit$coefficients[penalty.where]!=0])
+    if (robust && !is.null(fit$coefficients) && !all(is.na(fit$coefficients))) {
+
+        fit$naive.var <- fit$var
+        ny <- ncol(Y)
+        nstrat <- as.numeric(strats)
+        nvar <- ncol(X)
+        if (is.null(strats)) {
+          ord <- order(Y[,ny-1], -status)
+          newstrat <- rep(0,n)
+        }else {
+          ord <- order(nstrat, Y[,ny-1], -status)
+          newstrat <- c(diff(as.numeric(nstrat[ord]))!=0 ,1)
+        }
+        newstrat[n] <- 1
+
+        # sort the data
+        x <- X[ord,]
+        y <- Y[ord,]
+
+        temp2 = sum(weights)
+        means = sapply(1:nvar, function(i) sum(weights*X[, i])/temp2)
+
+        score <- exp(c(X %*% fit$coefficients) + offset - sum(fit$coefficients*means))[ord]
+
+        if (ny==2) {
+          resid <- .C(survival:::Ccoxscore, as.integer(n),
+                      as.integer(nvar),
+                      as.double(y),
+                      x=as.double(x),
+                      as.integer(newstrat),
+                      as.double(score),
+                      as.double(weights[ord]),
+                      as.integer(method=='efron'),
+                      resid= double(n*nvar),
+                      double(2*nvar))$resid
+        }
+        else {
+          resid<- .C(survival:::Cagscore,
+                     as.integer(n),
+                     as.integer(nvar),
+                     as.double(y),
+                     as.double(x),
+                     as.integer(newstrat),
+                     as.double(score),
+                     as.double(weights[ord]),
+                     as.integer(method=='efron'),
+                     resid=double(n*nvar),
+                     double(nvar*6))$resid
+        }
+
+        if (nvar >1) {
+          rr <- matrix(0, n, nvar)
+          rr[ord,] <- matrix(resid, ncol=nvar)
+        }else rr[ord] <- resid
+
+        if (!missing(cluster)) {
+          if (length(cluster) !=n) stop("Wrong length for 'cluster'")
+          rr <- drop(rowsum(rr, cluster))
+        }
+
+        rr_sum <- apply(rr, 2, sum)
+        print(rr_sum)
+        A <- matrix(fit0$A[,sel], nvar, nvar)
+        B <- t(rr)%*%rr - t(rr_sum)%*%rr_sum
+        fit$var <- rep(0, nvar)
+
+        fit$var <- solve(A[nzero, nzero])%*%B[nzero, nzero]%*%solve(A[nzero, nzero])
+      }
+
     fit$loglik <- fit0$loglik[sel]
     fit$penalty <- fit$penalty
     fit$loglik0 <- fit0$loglik0

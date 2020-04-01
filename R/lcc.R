@@ -40,18 +40,19 @@ df.f <- function(beta, penalty.where, dA, G, I){
   H <- I
   H[penalty.where, penalty.where] <- H[penalty.where, penalty.where] + G
 
-  H0 <- I + dA
-  H0[penalty.where, penalty.where] <- H0[penalty.where, penalty.where] + G
+  A <- I + dA
+  A[penalty.where, penalty.where] <- A[penalty.where, penalty.where] + G
 
-  nzero <- (beta!=0)
+  npenalty.where <- seq(1, nvar)[-penalty.where]
+  nzero <- c(npenalty.where, penalty.where[beta[penalty.where]!=0])
   var <- matrix(0, nvar, nvar)
   if(sum(nzero) == 0) {
     df = 0
     var = rep(0, nvar*nvar)
   }else{
     df  <- sum( diag((solve(H[nzero, nzero])%*%I[nzero, nzero])))
-    var[nzero, nzero] <-  (solve(H[nzero, nzero])%*%I[nzero, nzero]%*%solve(H[nzero, nzero]))
+    var[nzero, nzero] <-  (solve(H0[nzero, nzero])%*%I[nzero, nzero]%*%solve(H0[nzero, nzero]))
   }
-   res <- list(df=df, var=as.vector(var))
+   res <- list(df=df, var=as.vector(var), A = as.vector(H0))
   return(res)
 }

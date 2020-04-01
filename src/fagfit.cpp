@@ -47,7 +47,7 @@ List fagfit_cpp(NumericMatrix surv2,
   NumericVector mu(M+1), theta(M+1);
   NumericMatrix fit_beta(nvar, nlambda);
   NumericVector df(nlambda), logl(nlambda);
-  NumericMatrix var(nvar*nvar, nlambda);
+  NumericMatrix var(nvar*nvar, nlambda), A(nvar*nvar, nlambda);
   NumericVector dA(nvar);
   NumericMatrix covar = clone(covar2);
   IntegerVector strata = clone(strata2);
@@ -420,12 +420,14 @@ List fagfit_cpp(NumericMatrix surv2,
     List df_var = df_f(newbeta, penalty_where, dA, G, imat);
     df[ilam] = df_var["df"];
     NumericVector tmpvar = df_var["var"];
+    NumericVector tmpA = df_var["A"]
     var(_, ilam) = tmpvar;
+    A(_, ilam) = tmpA;
     logl[ilam] = loglik;
   }
   Rcpp::List res = List::create(Named("loglik")= logl,
                                 Named("beta") = fit_beta,
-                                Named("df")=df, Named("var")=var);
+                                Named("df")=df, Named("var")=var, Named("A") = A);
 
   return(res);
 
