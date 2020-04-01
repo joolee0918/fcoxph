@@ -278,6 +278,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     if (any(ord>1)) stop ('Penalty terms cannot be in an interaction')
     pcols <- assign[match(pname, names(assign))]
     npcols <- assign[!match(pname, names(assign))]
+
     penalty.where <- as.numeric(unlist(pcols))
     npenalty.where <- as.numeric(unlist(npcols))
 
@@ -324,6 +325,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     fit$var <- matrix(fit0$var[,sel], nvar, nvar)
     fit$u <- fit0$u[, sel]
     nzero <- c(npenalty.where, penalty.where[fit$coefficients[penalty.where]!=0])
+    print(nzero)
 
     if (robust && !is.null(fit$coefficients) && !all(is.na(fit$coefficients))) {
 
@@ -391,6 +393,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
         rr_sum <- matrix(rr_sum, nrow=1, ncol=nvar)
         A <- matrix(fit0$A[,sel], nvar, nvar)
         B <- t(rr)%*%rr - t(rr_sum)%*%rr_sum
+        print(diag(B))
         fit$var <- matrix(0, nvar, nvar)
 
         fit$var[nzero, nzero] <- solve(A[nzero, nzero])%*%B[nzero, nzero]%*%solve(A[nzero, nzero])
