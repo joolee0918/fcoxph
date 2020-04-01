@@ -347,7 +347,7 @@ NumericMatrix fcox_score(int   n,      int   nvar,    NumericMatrix y,
 
     if (deaths>0 && (i==0 || strata[i-1]==1 || time[i]!=time[i-1])){
       /* last obs of a set of tied death times */
-      if (deaths <2 || *method==0) {
+      if (deaths <2 || method==0) {
         hazard = meanwt/denom;
         for (j=0; j<nvar; j++)  {
           temp = (a[j]/denom);     /* xbar */

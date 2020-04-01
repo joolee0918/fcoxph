@@ -588,7 +588,7 @@ NumericMatrix fag_score(int   n,      int   nvar,    NumericMatrix y,
   int i,k;
   int person;
   double denom, time;
-  NumericVector a2(nvar), mean(nvar);
+  NumericVector a(nvar), a2(nvar), mean(nvar);
   double e_denom;
   double risk;
   double hazard, meanwt;
@@ -640,7 +640,7 @@ NumericMatrix fag_score(int   n,      int   nvar,    NumericMatrix y,
       }
 
       /* add things in for everyone in the risk set*/
-      if (deaths <2 || *method==0) {
+      if (deaths <2 || method==0) {
         /* easier case */
         hazard = meanwt/denom;
         for (i=0; i<nvar; i++) mean[i] = a[i]/denom;
