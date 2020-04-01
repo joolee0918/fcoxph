@@ -46,7 +46,7 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
   NumericVector mu(M+1), theta(M+1);
   NumericMatrix fit_beta(nvar, nlambda);
   NumericVector df(nlambda), logl(nlambda);
-  NumericMatrix var(nvar*nvar, nlambda), A((nvar*nvar, nlambda);
+  NumericMatrix var(nvar*nvar, nlambda), A(nvar*nvar, nlambda);
   NumericVector dA(nvar);
   NumericMatrix covar = clone(covar2);
   IntegerVector strata = clone(strata2);
@@ -265,7 +265,7 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
 
     df[ilam] = df_var["df"];
     NumericVector tmpvar = df_var["var"];
-    NumericVector tmpA = df_var["A"]
+    NumericVector tmpA = df_var["A"];
     var(_, ilam) = tmpvar;
     A(_, ilam) = tmpA;
     logl[ilam] = loglik;
