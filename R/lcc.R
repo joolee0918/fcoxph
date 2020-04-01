@@ -45,6 +45,7 @@ df.f <- function(beta, penalty.where, dA, G, I){
 
 
   zero <- penalty.where[beta[penalty.where]==0]
+  print(zero)
   var <- matrix(0, nvar, nvar)
   if(length(zero) == nvar) {
     df = 0
