@@ -45,12 +45,15 @@ df.f <- function(beta, penalty.where, dA, G, I){
 
 
   zero <- penalty.where[beta[penalty.where]==0]
-  print(zero)
+
   var <- matrix(0, nvar, nvar)
   if(length(zero) == nvar) {
     df = 0
     var = rep(0, nvar*nvar)
-  }else{
+  }else if(length(zero) ==0){
+    df  <- sum( diag((solve(H)%*%I)))
+    var <-  (solve(A)%*%I%*%solve(A))
+  } else{
     df  <- sum( diag((solve(H[-zero, -zero])%*%I[-zero, -zero])))
     var[-zero, -zero] <-  (solve(A[-zero, -zero])%*%I[-zero, -zero]%*%solve(A[-zero, -zero]))
   }
