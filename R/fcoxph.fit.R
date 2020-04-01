@@ -334,10 +334,10 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
 
         if (is.null(strats)) {
           ord <- order(Y[,ny-1], -status)
-          newstrat <- rep(0,data.n)
+          newstrat <- as.integer(rep(0,data.n))
         }else {
           ord <- order(nstrat, Y[,ny-1], -status)
-          newstrat <- c(diff(as.numeric(nstrat[ord]))!=0 ,1)
+          newstrat <- as.integer(c(diff(as.numeric(nstrat[ord]))!=0 ,1))
         }
         newstrat[data.n] <- 1
 
@@ -345,38 +345,38 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
         x <- X[ord,]
         y <- Y[ord,]
 
-        if (is.null(weights)) weights <- rep(1,n)
+        if (is.null(weights)) weights <- rep(1, data.n)
         temp2 = sum(weights)
         means = sapply(1:nvar, function(i) sum(weights*X[, i])/temp2)
         score <- exp(c(as.matrix(X) %*% fit$coefficients) + offset - sum(fit$coefficients*means))[ord]
         if (ny==2) {
-          resid <- fcox_score(as.integer(n),
+          resid <- fcox_score(as.integer(data.n),
                       as.integer(nvar),
-                      as.double(y),
-                      x=as.double(x),
-                      as.integer(newstrat),
+                      y,
+                      x,
+                      newstrat,
                       as.double(score),
                       as.double(weights[ord]),
                       as.integer(method=='efron'))
         }
         else {
-          resid<- fag_score(as.integer(n),
+          resid<- fag_score(as.integer(data.n),
                      as.integer(nvar),
-                     as.double(y),
-                     as.double(x),
-                     as.integer(newstrat),
+                     y,
+                     x,
+                     newstrat,
                      as.double(score),
                      as.double(weights[ord]),
                      as.integer(method=='efron'))
         }
 
         if (nvar >1) {
-          rr <- matrix(0, n, nvar)
+          rr <- matrix(0, data.n, nvar)
           rr[ord,] <- matrix(resid, ncol=nvar)
         }else rr[ord] <- resid
 
         if (!missing(cluster)) {
-          if (length(cluster) !=n) stop("Wrong length for 'cluster'")
+          if (length(cluster) !=data.n) stop("Wrong length for 'cluster'")
           rr <- drop(rowsum(rr, cluster))
         }
 
