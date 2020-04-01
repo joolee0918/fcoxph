@@ -53,6 +53,6 @@ df.f <- function(beta, penalty.where, dA, G, I){
     df  <- sum( diag((solve(H[nzero, nzero])%*%I[nzero, nzero])))
     var[nzero, nzero] <-  (solve(A[nzero, nzero])%*%I[nzero, nzero]%*%solve(A[nzero, nzero]))
   }
-   res <- list(df=df, var=as.vector(var), A = as.vector(H0))
+   res <- list(df=df, var=as.vector(var), A = as.vector(A))
   return(res)
 }
