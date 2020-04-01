@@ -326,7 +326,11 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
 
     if (robust && !is.null(fit$coefficients) && !all(is.na(fit$coefficients))) {
 
-        fit$naive.var <- fit$var
+      fit$naive.var <- fit$var
+
+      if(length(zero) == nvar) {
+        fit$var = rep(0, nvar*nvar)
+      }else{
         ny <- ncol(Y)
         nstrat <- as.numeric(strats)
 
@@ -334,10 +338,10 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
 
         if (is.null(strats)) {
           ord <- order(Y[,ny-1], -status)
-          newstrat <- as.integer(rep(0,data.n))
+          newstrat <- rep(0,data.n)
         }else {
           ord <- order(nstrat, Y[,ny-1], -status)
-          newstrat <- as.integer(c(diff(as.numeric(nstrat[ord]))!=0 ,1))
+          newstrat <- c(diff(as.numeric(nstrat[ord]))!=0 ,1)
         }
         newstrat[data.n] <- 1
 
@@ -350,24 +354,29 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
         means = sapply(1:nvar, function(i) sum(weights*X[, i])/temp2)
         score <- exp(c(as.matrix(X) %*% fit$coefficients) + offset - sum(fit$coefficients*means))[ord]
         if (ny==2) {
-          resid <- fcox_score(as.integer(data.n),
+          resid <- .C(survival:::Ccoxscore, as.integer(data.n),
                       as.integer(nvar),
-                      y,
-                      x,
-                      newstrat,
+                      as.double(y),
+                      x=as.double(x),
+                      as.integer(newstrat),
                       as.double(score),
                       as.double(weights[ord]),
-                      as.integer(method=='efron'))
+                      as.integer(method=='efron'),
+                      resid= double(n*nvar),
+                      double(2*nvar))$resid
         }
         else {
-          resid<- fag_score(as.integer(data.n),
+          resid<- .C(survival:::Cagscore,
+                     as.integer(data.n),
                      as.integer(nvar),
-                     y,
-                     x,
-                     newstrat,
+                     as.double(y),
+                     as.double(x),
+                     as.integer(newstrat),
                      as.double(score),
                      as.double(weights[ord]),
-                     as.integer(method=='efron'))
+                     as.integer(method=='efron'),
+                     resid=double(n*nvar),
+                     double(nvar*6))$resid
         }
 
         if (nvar >1) {
@@ -380,16 +389,12 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
           rr <- drop(rowsum(rr, cluster))
         }
 
-        rr_sum <- apply(rr, 2, sum)
-
-        rr_sum <- matrix(rr_sum, nrow=1, ncol=nvar)
-        print(rr_sum)
         A <- matrix(fit0$A[,sel], nvar, nvar)
-        B <- t(rr)%*%rr - t(rr_sum)%*%rr_sum
-        print(diag(B))
+        B <- t(rr)%*%rr
         fit$var <- matrix(0, nvar, nvar)
 
-        fit$var[-zero, -zero] <- solve(A[-zero, -zero])%*%B[-zero, -zero]%*%solve(A[-zero, -zero])
+        if(length(zero) ==0) fit$var <- solve(A)%*%B%*%solve(A)
+        else fit$var[-zero, -zero] <- solve(A[-zero, -zero])%*%B[-zero, -zero]%*%solve(A[-zero, -zero])
       }
 
     print(fit0$u[,sel])
