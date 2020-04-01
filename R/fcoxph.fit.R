@@ -279,6 +279,8 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     pcols <- assign[match(pname, names(assign))]
     npcols <- assign[!match(pname, names(assign))]
 
+    print(pcols)
+    print(npcols)
     penalty.where <- as.numeric(unlist(pcols))
     npenalty.where <- as.numeric(unlist(npcols))
 
