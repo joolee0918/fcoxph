@@ -350,29 +350,24 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
         means = sapply(1:nvar, function(i) sum(weights*X[, i])/temp2)
         score <- exp(c(as.matrix(X) %*% fit$coefficients) + offset - sum(fit$coefficients*means))[ord]
         if (ny==2) {
-          resid <- .C(survival:::Ccoxscore, as.integer(n),
+          resid <- fcox_score(as.integer(n),
                       as.integer(nvar),
                       as.double(y),
                       x=as.double(x),
                       as.integer(newstrat),
                       as.double(score),
                       as.double(weights[ord]),
-                      as.integer(method=='efron'),
-                      resid= double(n*nvar),
-                      double(2*nvar))$resid
+                      as.integer(method=='efron'))
         }
         else {
-          resid<- .C(survival:::Cagscore,
-                     as.integer(n),
+          resid<- fag_score(as.integer(n),
                      as.integer(nvar),
                      as.double(y),
                      as.double(x),
                      as.integer(newstrat),
                      as.double(score),
                      as.double(weights[ord]),
-                     as.integer(method=='efron'),
-                     resid=double(n*nvar),
-                     double(nvar*6))$resid
+                     as.integer(method=='efron'))
         }
 
         if (nvar >1) {
@@ -388,6 +383,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
         rr_sum <- apply(rr, 2, sum)
 
         rr_sum <- matrix(rr_sum, nrow=1, ncol=nvar)
+        print(rr_sum)
         A <- matrix(fit0$A[,sel], nvar, nvar)
         B <- t(rr)%*%rr - t(rr_sum)%*%rr_sum
         print(diag(B))

@@ -295,3 +295,79 @@ List fcoxfit_init(NumericVector time,   IntegerVector status,
 
 
     }
+
+//[[Rcpp::export()]]
+NumericMatrix fcox_score(int   n,      int   nvar,    NumericMatrix y,
+              NumericMatrix covar2,  IntegerVector   strata,   NumericVector score,
+              NumericVector weights, int   method)
+{
+  int i,j, k;
+  double temp;
+  double deaths;
+  int dd;
+  NumericVector time(n), status(n);
+  NumericVector a(nvar), a2(nvar);
+  double denom=0, e_denom;
+  double risk;
+  NumericMatrix resid(n, nvar);
+  double hazard, meanwt;
+  double downwt, temp2;
+  double mean;
+
+  time = y(_, 0);
+  status = y(_, 1);
+   /*
+  **  Set up the ragged array
+  */
+  NumericMatrix covar = clone(covar2);
+
+  e_denom=0;
+  deaths=0;
+  meanwt=0;
+  for (i=0; i<nvar; i++) a2[i] =0;
+  strata[n-1] =1;  /*failsafe */
+  for (i=n-1; i >=0; i--) {
+    if (strata[i]==1) {
+      denom =0;
+      for (j=0; j<nvar; j++) a[j] =0;
+    }
+
+    risk = score[i] * weights[i];
+    denom += risk;
+    if (status[i]==1) {
+      deaths++;
+      e_denom += risk;
+      meanwt += weights[i];
+      for (j=0; j<nvar; j++) a2[j] += risk*covar(i, j);
+    }
+    for (j=0; j<nvar; j++) {
+      a[j] += risk * covar(i, j);
+      resid(i, j) =0;
+    }
+
+    if (deaths>0 && (i==0 || strata[i-1]==1 || time[i]!=time[i-1])){
+      /* last obs of a set of tied death times */
+      if (deaths <2 || *method==0) {
+        hazard = meanwt/denom;
+        for (j=0; j<nvar; j++)  {
+          temp = (a[j]/denom);     /* xbar */
+      for (k=i; k<n; k++) {
+        temp2 = covar(k, j) - temp;
+        if (time[k]==time[i] && status[k]==1)
+          resid(k, j) += temp2;
+        //resid(k, j) -= temp2* score[k] * hazard;
+        if (strata[k]==1) break;
+      }
+        }
+      }
+
+      e_denom =0;
+      deaths =0;
+      meanwt =0;
+      for (j=0; j<nvar; j++)  a2[j] =0;
+    }
+  }
+
+  return(resid);
+}
+

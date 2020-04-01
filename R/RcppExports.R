@@ -9,12 +9,20 @@ fagfit_loglik <- function(surv2, covar2, strata2, weights, offset, ibeta, sort1,
     .Call(`_fcoxph_fagfit_loglik`, surv2, covar2, strata2, weights, offset, ibeta, sort1, sort2, method, eps)
 }
 
+fag_score <- function(n, nvar, y, covar2, strata, score, weights, method) {
+    .Call(`_fcoxph_fag_score`, n, nvar, y, covar2, strata, score, weights, method)
+}
+
 fcoxfit_init <- function(time, status, covar2, offset, weights, strata2, eps, method, ibeta) {
     .Call(`_fcoxph_fcoxfit_init`, time, status, covar2, offset, weights, strata2, eps, method, ibeta)
 }
 
 fcoxfit_loglik <- function(time, status, covar2, offset, weights, strata2, eps, method, ibeta) {
     .Call(`_fcoxph_fcoxfit_loglik`, time, status, covar2, offset, weights, strata2, eps, method, ibeta)
+}
+
+fcox_score <- function(n, nvar, y, covar2, strata, score, weights, method) {
+    .Call(`_fcoxph_fcox_score`, n, nvar, y, covar2, strata, score, weights, method)
 }
 
 fagfit_cpp <- function(surv2, covar2, strata2, weights, offset, ibeta, sort1, sort2, method, maxiter, eps, H, Dstar, G, lambda, gamma, M, d, n_npvar, Dnrow, penalty_where, doscale, f, df_f) {

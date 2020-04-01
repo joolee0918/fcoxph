@@ -578,3 +578,88 @@ double fagfit_loglik(NumericMatrix surv2,
 
 
 }
+
+
+//[[Rcpp::export()]]
+NumericMatrix fag_score(int   n,      int   nvar,    NumericMatrix y,
+                         NumericMatrix covar2,  IntegerVector   strata,   NumericVector score,
+                         NumericVector weights, int   method)
+{
+  int i,k;
+  int person;
+  double denom, time;
+  NumericVector a2(nvar), mean(nvar);
+  double e_denom;
+  double risk;
+  double hazard, meanwt;
+  double  deaths, downwt;
+  int dd;
+  NumericVector start(n), stop(n), event(n);
+  NumericMatrix resid(n, nvar);
+  double temp1, temp2, d2;
+
+  start =y(_, 0);
+  stop  = y(_, 1);
+  event = y(_, 2);
+  /*
+  **  Set up the ragged arrays
+  */
+  NumericMatrix covar = clone(covar2);
+
+  for (person=0; person<n; ) {
+    if (event[person]==0) person++;
+    else {
+      /*
+      ** compute the mean over the risk set, also hazard at this time
+      */
+      denom =0;
+      e_denom =0;
+      meanwt =0;
+      deaths =0;
+      for (i=0; i<nvar; i++) {
+        a[i] =0;
+        a2[i]=0;
+      }
+      time = stop[person];
+      for (k=person; k<n; k++) {
+        if (start[k] < time) {
+          risk = score[k] * weights[k];
+          denom += risk;
+          for (i=0; i<nvar; i++) {
+            a[i] = a[i] + risk*covar(k, i);
+          }
+          if (stop[k]==time && event[k]==1) {
+            deaths++;
+            e_denom += risk;
+            meanwt += weights[k];
+            for (i=0; i<nvar; i++)
+              a2[i] = a2[i] + risk*covar(k, i);
+          }
+        }
+        if (strata[k]==1) break;
+      }
+
+      /* add things in for everyone in the risk set*/
+      if (deaths <2 || *method==0) {
+        /* easier case */
+        hazard = meanwt/denom;
+        for (i=0; i<nvar; i++) mean[i] = a[i]/denom;
+        for (k=person; k<n; k++) {
+          if (start[k] < time) {
+            risk = score[k];
+            if (stop[k]==time) {
+              person++;
+              if (event[k]==1)
+                for (i=0; i<nvar; i++)
+                  resid(k, i) += (covar(k, i) -mean[i]);
+            }
+          }
+          if (strata[k]==1) break;
+        }
+      }
+
+
+    }
+  }
+  return(resid);
+}
