@@ -237,6 +237,8 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
   n.par <- length(npenalty.where)
 
 
+  print(penalty.where)
+  print(npenalty.where)
 
   #
   # Last of the setup: create the vector of variable names
@@ -272,9 +274,9 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
   }
     }else{
     if (andersen) {coxfit0 <- .Call(survival:::Cagfit4,
-                                   y, xx[, npenalty.where], newstrat, weights,
+                                   y, xx[, -penalty.where], newstrat, weights,
                                    offset,
-                                   as.double(init[npenalty.where]),
+                                   as.double(init[-penalty.where]),
                                    sort.start, sort.end,
                                    as.integer(method=="efron"),
                                    as.integer(control$iter.max),
@@ -286,19 +288,19 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
                            as.integer(control$iter.max),
                            stime,
                            sstat,
-                           xx[sorted, npenalty.where],
+                           xx[sorted, -penalty.where],
                            as.double(offset[sorted]),
                            weights[sorted],
                            cox.newstrat,
                            as.integer(method=="efron"),
                            as.double(control$eps),
                            as.double(control$toler.chol),
-                           as.vector(init[npenalty.where]),
+                           as.vector(init[-penalty.where]),
                            as.integer(1))
     }
 
     tmpinit <- rep(0, nvar)
-    tmpinit[npenalty.where] <- coxfit0$coef
+    tmpinit[-penalty.where] <- coxfit0$coef
 
     if (andersen) {coxfit <-  fagfit_init(y, xx, newstrat, weights,
                                           offset, as.vector(tmpinit),

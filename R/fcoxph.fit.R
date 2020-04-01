@@ -326,7 +326,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     nvar <- length(fit$coefficients)
     fit$var <- matrix(fit0$var[,sel], nvar, nvar)
     fit$u <- fit0$u[, sel]
-    nzero <- c(npenalty.where, penalty.where[fit$coefficients[penalty.where]!=0])
+    zero <- penalty.where[fit$coefficients[penalty.where]==0]
     print(nzero)
 
     if (robust && !is.null(fit$coefficients) && !all(is.na(fit$coefficients))) {
@@ -398,7 +398,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
         print(diag(B))
         fit$var <- matrix(0, nvar, nvar)
 
-        fit$var[nzero, nzero] <- solve(A[nzero, nzero])%*%B[nzero, nzero]%*%solve(A[nzero, nzero])
+        fit$var[-zero, -zero] <- solve(A[-zero, -zero])%*%B[-zero, -zero]%*%solve(A[-zero, -zero])
       }
 
     print(fit0$u[,sel])
