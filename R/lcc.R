@@ -46,7 +46,7 @@ df.f <- function(beta, penalty.where, dA, G, I){
 
   zero <- penalty.where[beta[penalty.where]==0]
   var <- matrix(0, nvar, nvar)
-  if(sum(nzero) == 0) {
+  if(length(zero) == nvar) {
     df = 0
     var = rep(0, nvar*nvar)
   }else{
