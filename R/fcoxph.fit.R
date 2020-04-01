@@ -387,7 +387,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
 
         rr_sum <- apply(rr, 2, sum)
 
-        rr_sum <- as.matrix(rr_sum, nrow=1, ncol=nvar)
+        rr_sum <- matrix(rr_sum, nrow=1, ncol=nvar)
         print(rr_sum)
         print(dim(rr_sum))
         print(dim(rr))
