@@ -319,15 +319,19 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     fit <- list()
 
     fit$coefficients <- fit0$beta[, sel]
+    print(fit$coefficients)
     nvar <- length(fit$coefficients)
     fit$var <- matrix(fit0$var[,sel], nvar, nvar)
     nzero <- c(npenalty.where, penalty.where[fit$coefficients[penalty.where]!=0])
+
     if (robust && !is.null(fit$coefficients) && !all(is.na(fit$coefficients))) {
 
         fit$naive.var <- fit$var
         ny <- ncol(Y)
+        print(ny)
         nstrat <- as.numeric(strats)
-        nvar <- ncol(X)
+
+        print(nvar)
         status <- Y[,ny,drop=TRUE]
 
         if (is.null(strats)) {
@@ -342,11 +346,13 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
         # sort the data
         x <- X[ord,]
         y <- Y[ord,]
+        print(mean(x))
+        print(mean(y))
 
         temp2 = sum(weights)
         means = sapply(1:nvar, function(i) sum(weights*X[, i])/temp2)
-
-        score <- exp(c(X %*% fit$coefficients) + offset - sum(fit$coefficients*means))[ord]
+        print(means)
+        score <- exp(c(as.matrix(X) %*% fit$coefficients) + offset - sum(fit$coefficients*means))[ord]
         print(mean(score))
         if (ny==2) {
           resid <- .C(survival:::Ccoxscore, as.integer(n),
