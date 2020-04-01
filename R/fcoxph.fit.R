@@ -391,7 +391,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
         rr_sum <- matrix(rr_sum, nrow=1, ncol=nvar)
         A <- matrix(fit0$A[,sel], nvar, nvar)
         B <- t(rr)%*%rr - t(rr_sum)%*%rr_sum
-        fit$var <- rep(0, nvar)
+        fit$var <- matrix(0, nvar, nvar)
 
         fit$var[nzero, nzero] <- solve(A[nzero, nzero])%*%B[nzero, nzero]%*%solve(A[nzero, nzero])
       }
