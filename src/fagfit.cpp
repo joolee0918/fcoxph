@@ -420,7 +420,7 @@ List fagfit_cpp(NumericMatrix surv2,
     List df_var = df_f(newbeta, penalty_where, dA, G, imat);
     df[ilam] = df_var["df"];
     NumericVector tmpvar = df_var["var"];
-    NumericVector tmpA = df_var["A"]
+    NumericVector tmpA = df_var["A"];
     var(_, ilam) = tmpvar;
     A(_, ilam) = tmpA;
     logl[ilam] = loglik;
