@@ -332,12 +332,12 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
 
         if (is.null(strats)) {
           ord <- order(Y[,ny-1], -status)
-          newstrat <- rep(0,n)
+          newstrat <- rep(0,data.n)
         }else {
           ord <- order(nstrat, Y[,ny-1], -status)
           newstrat <- c(diff(as.numeric(nstrat[ord]))!=0 ,1)
         }
-        newstrat[n] <- 1
+        newstrat[data.n] <- 1
 
         # sort the data
         x <- X[ord,]
