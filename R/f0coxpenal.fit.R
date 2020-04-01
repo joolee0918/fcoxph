@@ -381,7 +381,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
   ## Fitting
   var <- A <- matrix(0, ncol = L*nlambda, nrow=nvar*nvar)
   df <- loglik <-  penalty <- rep(0, L*nlambda)
-  coef <-   matrix(0, ncol = L*nlambda, nrow=nvar)
+  coef <-  u <-  matrix(0, ncol = L*nlambda, nrow=nvar)
   for(iter in 1:L){
     for(i in 1:m){
       thetalist[[i]] <- Theta[iter]
@@ -478,6 +478,8 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
     var[, ((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)] <- fit$var
     A[, ((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)] <- fit$A
     coef[, ((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)] <- fit$beta
+    u[, ((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)] <- fit$u
+
 
 
    for(i in 1:nlambda)  penalty[((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)] <- as.numeric(t(fit$beta[penalty.where,i])%*%G%*%fit$beta[penalty.where,i]/2)+ sum(as.numeric(n*p.lambda[i]*sqrt(H%*%abs(fit$beta[penalty.where,i]))))
@@ -492,6 +494,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
            df=df,
            var = var,
            A = A,
+           u = u,
            loglik0 = loglik0,
            loglik = loglik,
            penalty = penalty,

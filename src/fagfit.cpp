@@ -427,7 +427,7 @@ List fagfit_cpp(NumericMatrix surv2,
   }
   Rcpp::List res = List::create(Named("loglik")= logl,
                                 Named("beta") = fit_beta,
-                                Named("df")=df, Named("var")=var, Named("A") = A);
+                                Named("df")=df, Named("var")=var, Named("A") = A, Named("u") = u);
 
   return(res);
 

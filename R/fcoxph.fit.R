@@ -328,10 +328,8 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
 
         fit$naive.var <- fit$var
         ny <- ncol(Y)
-        print(ny)
         nstrat <- as.numeric(strats)
 
-        print(nvar)
         status <- Y[,ny,drop=TRUE]
 
         if (is.null(strats)) {
@@ -346,15 +344,11 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
         # sort the data
         x <- X[ord,]
         y <- Y[ord,]
-        print(mean(x))
-        print(mean(y))
 
         if (is.null(weights)) weights <- rep(1,n)
         temp2 = sum(weights)
         means = sapply(1:nvar, function(i) sum(weights*X[, i])/temp2)
-        print(means)
         score <- exp(c(as.matrix(X) %*% fit$coefficients) + offset - sum(fit$coefficients*means))[ord]
-        print(mean(score))
         if (ny==2) {
           resid <- .C(survival:::Ccoxscore, as.integer(n),
                       as.integer(nvar),
@@ -379,7 +373,6 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
                      as.integer(method=='efron'),
                      resid=double(n*nvar),
                      double(nvar*6))$resid
-          print(mean(resid))
         }
 
         if (nvar >1) {
@@ -392,7 +385,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
           rr <- drop(rowsum(rr, cluster))
         }
 
-        rr_sum <- apply(rr, 2, sum)
+        rr_sum <- as.matrix(apply(rr, 2, sum), nrow=1, ncol=nvar)
         print(rr_sum)
         A <- matrix(fit0$A[,sel], nvar, nvar)
         B <- t(rr)%*%rr - t(rr_sum)%*%rr_sum
@@ -401,6 +394,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
         fit$var <- solve(A[nzero, nzero])%*%B[nzero, nzero]%*%solve(A[nzero, nzero])
       }
 
+    print(fit0$u[,sel])
     fit$loglik <- fit0$loglik[sel]
     fit$penalty <- fit$penalty
     fit$loglik0 <- fit0$loglik0
