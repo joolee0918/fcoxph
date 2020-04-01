@@ -385,8 +385,12 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
           rr <- drop(rowsum(rr, cluster))
         }
 
-        rr_sum <- as.matrix(apply(rr, 2, sum), nrow=1, ncol=nvar)
+        rr_sum <- apply(rr, 2, sum)
+
+        rr_sum <- as.matrix(rr_sum, nrow=1, ncol=nvar)
         print(rr_sum)
+        print(dim(rr_sum))
+        print(dim(rr))
         A <- matrix(fit0$A[,sel], nvar, nvar)
         B <- t(rr)%*%rr - t(rr_sum)%*%rr_sum
         fit$var <- rep(0, nvar)
