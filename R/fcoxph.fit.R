@@ -389,6 +389,8 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
           rr <- drop(rowsum(rr, cluster))
         }
 
+        rr <- rr * weights
+
         A <- matrix(fit0$A[,sel], nvar, nvar)
         B <- t(rr)%*%rr
         fit$var <- matrix(0, nvar, nvar)
@@ -396,6 +398,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
         if(length(zero) ==0) fit$var <- solve(A)%*%B%*%solve(A)
         else fit$var[-zero, -zero] <- solve(A[-zero, -zero])%*%B[-zero, -zero]%*%solve(A[-zero, -zero])
       }
+    }
 
     print(fit0$u[,sel])
     fit$loglik <- fit0$loglik[sel]
