@@ -43,15 +43,15 @@ df.f <- function(beta, penalty.where, dA, G, I){
   A <- I + dA
   A[penalty.where, penalty.where] <- A[penalty.where, penalty.where] + G
 
-  npenalty.where <- seq(1, nvar)[-penalty.where]
-  nzero <- c(npenalty.where, penalty.where[beta[penalty.where]!=0])
+
+  zero <- penalty.where[beta[penalty.where]==0]
   var <- matrix(0, nvar, nvar)
   if(sum(nzero) == 0) {
     df = 0
     var = rep(0, nvar*nvar)
   }else{
-    df  <- sum( diag((solve(H[nzero, nzero])%*%I[nzero, nzero])))
-    var[nzero, nzero] <-  (solve(A[nzero, nzero])%*%I[nzero, nzero]%*%solve(A[nzero, nzero]))
+    df  <- sum( diag((solve(H[-zero, -zero])%*%I[-zero, -zero])))
+    var[-zero, -zero] <-  (solve(A[-zero, -zero])%*%I[-zero, -zero]%*%solve(A[-zero, -zero]))
   }
    res <- list(df=df, var=as.vector(var), A = as.vector(A))
   return(res)

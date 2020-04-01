@@ -232,13 +232,8 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
   }
 
   penalty.where <- as.numeric(unlist(pcols))
-  npenalty.where <- as.numeric(unlist(npcols))
   n.nonpar <- length(penalty.where)
-  n.par <- length(npenalty.where)
 
-
-  print(penalty.where)
-  print(npenalty.where)
 
   #
   # Last of the setup: create the vector of variable names

@@ -277,12 +277,8 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     ord <- attr(Terms, "order")[match(pname, attr(Terms, 'term.labels'))]
     if (any(ord>1)) stop ('Penalty terms cannot be in an interaction')
     pcols <- assign[match(pname, names(assign))]
-    npcols <- assign[!match(pname, names(assign))]
 
-    print(pcols)
-    print(npcols)
     penalty.where <- as.numeric(unlist(pcols))
-    npenalty.where <- as.numeric(unlist(npcols))
 
 
  if(sparse == "none"){
@@ -327,7 +323,6 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     fit$var <- matrix(fit0$var[,sel], nvar, nvar)
     fit$u <- fit0$u[, sel]
     zero <- penalty.where[fit$coefficients[penalty.where]==0]
-    print(nzero)
 
     if (robust && !is.null(fit$coefficients) && !all(is.na(fit$coefficients))) {
 
