@@ -349,6 +349,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
         print(mean(x))
         print(mean(y))
 
+        if (is.null(weights)) weights <- rep(1,n)
         temp2 = sum(weights)
         means = sapply(1:nvar, function(i) sum(weights*X[, i])/temp2)
         print(means)
