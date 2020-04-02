@@ -408,15 +408,8 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     if(sel%%length(lambda) ==0) lambda.where <- length(lambda)
     else lambda.where <- sel%%length(lambda)
     fit$penalty.par <- c(theta = theta[ceiling(sel/length(lambda))], lambda = lambda[lambda.where])
-  #  fit$df <- fit0$df
-  #  fit$loglik0.history <- fit0$loglik
-  #  fit$aic.history <- -2*fit0$loglik + 2*fit0$df
-  #  fit$bic.history <- -2*fit0$loglik + log(data.n)*fit0$dfa
-  #  fit$gcv.history <- -fit0$loglik/(data.n*(1-fit0$df/data.n)^2)
-  #  fit$history <- fit0$beta
     fit$lambda <- fit0$lambda
     fit$theta <- fit0$theta
-  #  fit$sel <- sel
     fit$pterms
   }
 

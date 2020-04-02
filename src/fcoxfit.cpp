@@ -15,8 +15,8 @@ using namespace Rcpp;
 List fcoxfit_cpp(NumericVector time,   IntegerVector status,
                  NumericMatrix covar2,    NumericVector offset, NumericVector weights,
                  IntegerVector strata2, int maxiter, double eps,
-                 NumericMatrix H, NumericMatrix Dstar, NumericMatrix G, int method, NumericVector ibeta,  NumericVector lambda,
-                 double gamma, int M, int d, int n_npvar,  int Dnrow, IntegerVector penalty_where, int doscale, Function f, Function df_f) {
+                 NumericMatrix H, NumericMatrix Dstar, NumericMatrix G, int method, NumericVector ibeta,  NumericVector lambda, double alpha,
+                 double gamma, int M, int d, int n_npvar,  int Dnrow, int penalty, IntegerVector penalty_where, int doscale, Function f, Function df_f) {
 
 
   double tdeath, temp, temp2, zbeta, risk;
@@ -32,7 +32,6 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
   int nlambda = lambda.size();
   nused = offset.size();
   nvar  = covar2.ncol();
-  int n = time.size();
   int n_pvar = nvar - n_npvar;
 
   NumericVector beta(nvar), newbeta(nvar), means(nvar), scale(nvar), pbeta(n_npvar);
@@ -218,21 +217,22 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
         pbeta[i] = beta(penalty_where[i]-1);
       }
 
+      penalty_f.fill(0);
 
+      if(penalty == 3) {
       mu= muf(pbeta, gamma, lambda[ilam], M, d);
-
 
       for(j=0; j<(M+1); j++){
         if(mu[j] == 0) theta[j] = 1e10;
         else theta[j] = pow(mu[j], 1-1/gamma);
       }
 
-
-      penalty_f.fill(0);
       for(k=0; k<H.ncol(); k++){
         for(j=0; j<(M+1); j++) penalty_f[penalty_where[k]-1] += theta[j]*H(j, k);
       }
-
+      } else{
+        for(k=0; k<n_npvar; k++) penalty_f[penalty_where[k]-1] = 1;
+      }
 
       Ystar.fill(0);
       for(i=0; i<nvar; i++) Ystar(i) = yy(i);
@@ -248,7 +248,7 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
 
 
 
-      newbeta = wshoot(Vstar, Ystar, beta, penalty_f, lambda[ilam], maxiter, eps, n);
+      newbeta = wshoot1(Vstar, Ystar, beta, penalty, penalty_f, lambda[ilam], alpha, maxiter, eps, nused);
 
       error = max(abs(newbeta - beta));
       for(i=0; i<nvar; i++) beta[i] = newbeta[i];
@@ -259,7 +259,10 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
 
 
     dA.fill(0);
-    for(i=0; i<nvar; i++) if(newbeta[i]!=0) dA[i] = n*penalty_f[i]/fabs(newbeta[i]);
+    for(i=0; i<nvar; i++) if(newbeta[i]!=0) {
+      if(penalty==2) dA[i] = nused*penalty_f[i]/fabs(newbeta[i]) - nused*1/alpha;
+      else dA[i] = nused*penalty_f[i]/fabs(newbeta[i]);
+    }
 
     List df_var = df_f(newbeta, penalty_where, dA, G, imat);
 

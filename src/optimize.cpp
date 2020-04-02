@@ -20,6 +20,51 @@ double ss2(int j, NumericVector tmpb, arma::mat Q, arma::vec B, int n)
   return(s);
 }
 
+NumericVector wshoot1 (arma::mat x, arma::vec y, NumericVector init, int penalty, NumericVector weight, double lambda, double alpha, int maxiter, double tol, int n)
+{
+  int nrow = x.n_rows;
+  int ncol = x.n_cols;
+
+  arma::vec B(nrow);
+  int i, j;
+  double s, eps;
+  NumericVector oldbeta(ncol), tmpbeta(ncol), lams(ncol);
+
+  arma::mat Q = x.t()*x;
+
+  for(j=0; j<ncol; j++){
+    B(j)=0;
+    for(i=0; i<nrow; i++) B(j) += x(i, j)*y(i);
+  }
+
+
+  for(i=0; i<ncol; i++) {
+    lams[i] = lambda*weight[i];
+    oldbeta[i] = init[i];
+    tmpbeta[i] = oldbeta[i];
+  }
+
+  for (i=0; i<maxiter; i++){
+    for (j=0; j<ncol; j++){
+      s = ss2(j,tmpbeta,Q,B,n);
+      if(fabs(s) <= lams[j])
+        tmpbeta[j] = 0.0;
+      else {
+        if(penalty==2) tmpbeta[j] = (-s)/(Q(j,j)/n + lams[j]/fabs(tmpbeta[j]) - 1/alpha); // MCP
+        else tmpbeta[j] = (-s)/(Q(j,j)/n + lams[j]/fabs(tmpbeta[j])); //LASSO + gBridge
+      }
+    }
+
+    eps = max(abs(tmpbeta-oldbeta));
+    for(i=0; i<ncol; i++) oldbeta[i] =  tmpbeta[i];
+    if (eps <=tol) break;
+
+    i = i+1;
+  }
+  return(tmpbeta);
+}
+
+
 NumericVector wshoot (arma::mat x, arma::vec y, NumericVector init, NumericVector weight, double lambda, int maxiter, double tol, int n)
 {
   int nrow = x.n_rows;
@@ -63,7 +108,6 @@ NumericVector wshoot (arma::mat x, arma::vec y, NumericVector init, NumericVecto
   }
   return(tmpbeta);
 }
-
 
 
 NumericVector muf(NumericVector b, double gamma, double lambda, int M, int d)

@@ -14,15 +14,14 @@ using namespace Rcpp;
 List fagfit_cpp(NumericMatrix surv2,
                  NumericMatrix covar2,   IntegerVector strata2, NumericVector weights, NumericVector offset,
                  NumericVector ibeta, IntegerVector sort1, IntegerVector sort2, int method, int maxiter, double eps,
-                 NumericMatrix H, NumericMatrix Dstar, NumericMatrix G,  NumericVector lambda,
-                 double gamma, int M, int d, int n_npvar,  int Dnrow, IntegerVector penalty_where, int doscale, Function f, Function df_f) {
+                 NumericMatrix H, NumericMatrix Dstar, NumericMatrix G,  NumericVector lambda, double alpha,
+                 double gamma, int M, int d, int n_npvar, int Dnrow, int penalty,  IntegerVector penalty_where, int doscale, Function f, Function df_f) {
 
 
   double temp, temp2, zbeta, risk;
   double denom, dtime, deadwt, denom2, wtave, meanwt, etasum;
   double loglik;
   double error;
-
 
   int i, j, k, person, ilam, iter;
   int indx1, istrat, p, p1;
@@ -380,17 +379,23 @@ List fagfit_cpp(NumericMatrix surv2,
         pbeta[i] = beta(penalty_where[i]-1);
       }
 
-      mu= muf(pbeta, gamma, lambda[ilam], M, d);
+      penalty_f.fill(0);
+
+      if(penalty == 3) {
+        mu= muf(pbeta, gamma, lambda[ilam], M, d);
 
       for(j=0; j<(M+1); j++){
         if(mu[j] == 0) theta[j] = 1e10;
         else theta[j] = pow(mu[j], 1-1/gamma);
       }
 
-      penalty_f.fill(0);
-      for(k=0; k<H.ncol(); k++){
+      for(k=0; k<n_npvar; k++){
         for(j=0; j<(M+1); j++) penalty_f[penalty_where[k]-1] += theta[j]*H(j, k);
       }
+      }else{
+        for(k=0; k<n_npvar; k++) penalty_f[penalty_where[k]-1] = 1;
+      }
+
 
       Ystar.fill(0);
       for(i=0; i<nvar; i++) Ystar(i) = yy(i);
@@ -404,9 +409,7 @@ List fagfit_cpp(NumericMatrix surv2,
         }
       }
 
-
-
-      newbeta = wshoot(Vstar, Ystar, beta, penalty_f, lambda[ilam], maxiter, eps, nused);
+      newbeta = wshoot1(Vstar, Ystar, beta, penalty, penalty_f, lambda[ilam], alpha, maxiter, eps, nused);
 
       error = max(abs(newbeta - beta));
       for(i=0; i<nvar; i++) beta[i] = newbeta[i];
@@ -415,7 +418,10 @@ List fagfit_cpp(NumericMatrix surv2,
     for(i=0; i<nvar; i++) fit_beta(i,ilam) = newbeta[i];
 
     dA.fill(0);
-    for(i=0; i<nvar; i++) if(newbeta[i]!=0) dA[i] = nused*penalty_f[i]/fabs(newbeta[i]);
+    for(i=0; i<nvar; i++) if(newbeta[i]!=0) {
+      if(penalty==2) dA[i] = nused*penalty_f[i]/fabs(newbeta[i]) - nused*1/alpha;
+      else dA[i] = nused*penalty_f[i]/fabs(newbeta[i]);
+    }
 
     List df_var = df_f(newbeta, penalty_where, dA, G, imat);
     df[ilam] = df_var["df"];

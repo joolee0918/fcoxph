@@ -6,7 +6,8 @@
 
 #' @export
 fcoxph <- function (formula, data, weights, na.action, init, control, knots = NULL, penalty = c("gBridge"),
-                    L2penalty = c("none", "smooth"), theta = switch(L2penalty, none = 0, ridge = NULL, smooth = NULL), gamma = 0.5, lambda = NULL, lambda.min.ratio = 0.001, nlambda = NULL, alpha = switch(penalty, scad = 3.7, mcp = 3),
+                    L2penalty = c("none", "smooth"), theta = switch(L2penalty, none = 0, ridge = NULL, smooth = NULL), gamma = 0.5, lambda = NULL, lambda.min.ratio = 0.001, nlambda = NULL,
+                    alpha = switch(penalty, scad = 3.7, mcp = 3, gBridge=0),
                     sparse = c("none", "local"),  group.multiplier=NULL, tuning.method = c("cv", "aic", "bic", "gcv"), nfolds = 10, foldid = NULL,
                     method = "breslow", parallel = FALSE, ncluster = NULL, x = TRUE, model = FALSE, y = TRUE, ...)
 {
@@ -84,30 +85,11 @@ fcoxph <- function (formula, data, weights, na.action, init, control, knots = NU
       nm[[i]] <- fterms[[i]]$names
       term.smooth[[i]] <- fterms[[i]]$sm
       argvals[[i]] <- fterms[[i]]$argvals
-  #    theta[[i]] <- fterms[[i]]$theta
-  #    lambda[[i]] <- fterms[[i]]$lambda
-      #fterms <- fterms[[i]]$X
-    }
-
- #   assign(nm, fterms, envir=newfrmlenv)
-#    invisible(NULL)
+     }
 
     lapply(fterms, function(x) {
         assign(x = x$names, x$X, envir = newfrmlenv)
         invisible(NULL)
-
-#      if ("xt" %in% names(x$call)) {
-#        xtvars <- all.vars(x$call$xt)
-#        if (length(xtvars)) {
-#          sapply(xtvars, function(xtvar) {
-#            xtvarval <- eval(as.name(xtvar), envir = evalenv,
-##                             enclos = frmlenv)
-#            assign(x = xtvar, value = xtvarval, envir = parent.env(newfrmlenv))
-#            invisible(NULL)
-#          })
-#        }
-#      }
-#      invisible(NULL)
     })
   }
   else fterms <- NULL

@@ -458,16 +458,16 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
                          as.integer(method=="efron"),
                          as.integer(control$iter.max),
                          as.double(control$eps),
-                        H, Dstar, G,  p.lambda,
-                        gamma,  M, d, n.nonpar,  Dnrow, penalty.where, as.integer(0), chol, df.f)
+                         H, Dstar, G,  p.lambda, alpha,
+                         gamma,  M, d, n.nonpar,  Dnrow, switch(penalty, lasso = 1, MCP = 2, gBridge = 3), penalty.where, as.integer(0), penalty, chol, df.f)
 
     } else{
 
      fit <- fcoxfit_cpp(stime,   sstat, xx[sorted,],
                        as.double(offset[sorted]), weights[sorted],
                        as.integer(cox.newstrat), as.integer(control$iter.max), as.double(control$eps),
-                       H, Dstar, G, as.integer(method=="efron"), init,  p.lambda,
-                       gamma,  M, d, n.nonpar,  Dnrow, penalty.where, as.integer(0), chol, df.f)
+                       H, Dstar, G, as.integer(method=="efron"), init,  p.lambda, alpha,
+                       gamma,  M, d, n.nonpar,  Dnrow, switch(penalty, lasso = 1, MCP = 2, gBridge = 3), penalty.where, as.integer(0), penalty, chol, df.f)
     }
 
     df[((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)]  <- fit$df
