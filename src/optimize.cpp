@@ -49,8 +49,10 @@ NumericVector wshoot1 (arma::mat x, arma::vec y, NumericVector init, int pen, Nu
       s = ss2(j,tmpbeta,Q,B,n);
       if(fabs(s) <= lams[j]) tmpbeta[j] = 0.0;
       else {
-        if(pen==2) tmpbeta[j] = (-s)/(Q(j,j)/n + lams[j]/fabs(tmpbeta[j]) - 1/alpha); // MCP
-        else tmpbeta[j] = (-s)/(Q(j,j)/n + lams[j]/fabs(tmpbeta[j])); //LASSO + gBridge
+        if(pen==2){
+          if(1/fabs(tmpbeta[j]) > 1/(lams[j]*alpha)) tmpbeta[j] = (-s)/(Q(j,j)/n + lams[j]/fabs(tmpbeta[j]) - 1/alpha); // MCP
+          else tmpbeta[j] = (-s)/(Q(j,j)/n);
+        }else tmpbeta[j] = (-s)/(Q(j,j)/n + lams[j]/fabs(tmpbeta[j])); //LASSO + gBridge
       }
     }
 
