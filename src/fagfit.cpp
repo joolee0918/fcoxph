@@ -15,7 +15,7 @@ List fagfit_cpp(NumericMatrix surv2,
                  NumericMatrix covar2,   IntegerVector strata2, NumericVector weights, NumericVector offset,
                  NumericVector ibeta, IntegerVector sort1, IntegerVector sort2, int method, int maxiter, double eps,
                  NumericMatrix H, NumericMatrix Dstar, NumericMatrix G,  NumericVector lambda, double alpha,
-                 double gamma, int M, int d, int n_npvar, int Dnrow, int penalty,  IntegerVector penalty_where, int doscale, Function f, Function df_f) {
+                 double gamma, int M, int d, int n_npvar, int Dnrow, int penalty,  IntegerVector penalty_where, Function f, Function df_f) {
 
 
   double temp, temp2, zbeta, risk;
@@ -35,7 +35,7 @@ List fagfit_cpp(NumericMatrix surv2,
   int n_pvar = nvar - n_npvar;
 
   NumericVector eta(nused), keep(nused);
-  NumericVector beta(nvar), newbeta(nvar), means(nvar), scale(nvar), pbeta(n_npvar);
+  NumericVector beta(nvar), newbeta(nvar), means(nvar), pbeta(n_npvar);
   NumericVector penalty_f(nvar);
   NumericVector a(nvar), a2(nvar), u(nvar), u2(nvar);
   NumericMatrix imat(nvar, nvar), cmat(nvar, nvar), cmat2(nvar, nvar), V(nvar, nvar);
@@ -79,9 +79,6 @@ List fagfit_cpp(NumericMatrix surv2,
   }
     }
      }
-
-
-  for (i=0; i<nvar; i++) scale[i] = 1.0;
 
 
   indx1 =0;

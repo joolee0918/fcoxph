@@ -16,7 +16,7 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
                  NumericMatrix covar2,    NumericVector offset, NumericVector weights,
                  IntegerVector strata2, int maxiter, double eps,
                  NumericMatrix H, NumericMatrix Dstar, NumericMatrix G, int method, NumericVector ibeta,  NumericVector lambda, double alpha,
-                 double gamma, int M, int d, int n_npvar,  int Dnrow, int penalty, IntegerVector penalty_where, int doscale, Function f, Function df_f) {
+                 double gamma, int M, int d, int n_npvar,  int Dnrow, int penalty, IntegerVector penalty_where, Function f, Function df_f) {
 
 
   double tdeath, temp, temp2, zbeta, risk;
@@ -34,7 +34,7 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
   nvar  = covar2.ncol();
   int n_pvar = nvar - n_npvar;
 
-  NumericVector beta(nvar), newbeta(nvar), means(nvar), scale(nvar), pbeta(n_npvar);
+  NumericVector beta(nvar), newbeta(nvar), means(nvar),  pbeta(n_npvar);
   NumericVector penalty_f(nvar);
   NumericVector a(nvar), a2(nvar), u(nvar), u2(nvar);
   NumericMatrix imat(nvar, nvar), cmat(nvar, nvar), cmat2(nvar, nvar), V(nvar, nvar);
@@ -69,8 +69,6 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
     for (person=0; person<nused; person++) covar(person, i) -=temp;
   }
 
-
-  for (i=0; i<nvar; i++) scale[i] = 1.0;
 
   strata[nused-1] =1;
 
