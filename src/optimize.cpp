@@ -47,14 +47,14 @@ NumericVector wshoot1 (arma::mat x, arma::vec y, NumericVector init, int pen, Nu
   for (i=0; i<maxiter; i++){
     for (j=0; j<ncol; j++){
       s = ss2(j,tmpbeta,Q,B,n);
-      if(fabs(s) <= lams[j])
-        tmpbeta[j] = 0.0;
+      if(fabs(s) <= lams[j]) tmpbeta[j] = 0.0;
       else {
         if(pen==2) tmpbeta[j] = (-s)/(Q(j,j)/n + lams[j]/fabs(tmpbeta[j]) - 1/alpha); // MCP
         else tmpbeta[j] = (-s)/(Q(j,j)/n + lams[j]/fabs(tmpbeta[j])); //LASSO + gBridge
       }
     }
 
+    Rcout<<tmpbeta<<"\n";
     eps = max(abs(tmpbeta-oldbeta));
     for(i=0; i<ncol; i++) oldbeta[i] =  tmpbeta[i];
     if (eps <=tol) break;
