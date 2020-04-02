@@ -3,7 +3,7 @@
 #' @export
 fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapezoidal", "riemann"),
                 L = NULL, presmooth = NULL, presmooth.opts = NULL, sparse = c("none", "local"), tuning.method=c("aic", "bic", "gcv"),
-                theta = NULL, lambda = NULL, penalty = c("lasso", "alasso", "scad", "mcp", "gBridge"),
+                theta = NULL, lambda = NULL, penalty = c("lasso", "MCP", "gBridge"),
           ...)
 {
   dots <- list(...)
@@ -162,27 +162,27 @@ pterm1 <- function (sm, theta, lambda)
     else {
       lampen <- switch(penalty,
                        lasso =  lambda*penalty.f,
-                       alasso = lambda*penalty.f,
-                       scad = scadderiv(H, alpha, lambda*penalty.f),
-                       mcp = mcpderiv(H, alpha, lambda*penalty.f))
+                 #      alasso = lambda*penalty.f,
+                #       scad = scadderiv(H, alpha, lambda*penalty.f),
+                       MCP = mcpderiv(H, alpha, lambda*penalty.f))
 
       sparse.penalty <- switch(penalty,
                                lasso = sum(as.numeric(lampen)*coef^2/H/2),
-                               alasso = sum(as.numeric(lampen)*coef^2/H/abs(init))/2,
-                               scad = sum(as.numeric(lampen)*coef^2/H/2),
-                               mcp = sum(as.numeric(lampen)*coef^2/H/2))
+            #                   alasso = sum(as.numeric(lampen)*coef^2/H/abs(init))/2,
+            #                   scad = sum(as.numeric(lampen)*coef^2/H/2),
+                               MCP = sum(as.numeric(lampen)*coef^2/H/2))
 
       sparse.first <- switch(penalty,
                              lasso = as.numeric(lampen)*coef/H,
-                             alasso = as.numeric(lampen)*(coef/H/abs(init)),
-                             scad = as.numeric(lampen)*coef/H,
-                             mcp = as.numeric(lampen)*coef/H)
+            #                 alasso = as.numeric(lampen)*(coef/H/abs(init)),
+            #                 scad = as.numeric(lampen)*coef/H,
+                             MCP = as.numeric(lampen)*coef/H)
 
       sparse.second <- switch(penalty,
                               lasso = diag(lampen/H, ncol=nvar, nrow=nvar),
-                              alasso = diag(lampen/H/abs(init), ncol=nvar, nrow=nvar),
-                              scad = diag(lampen/H,  ncol=nvar, nrow=nvar),
-                              mcp = diag(lampen/H,  ncol=nvar, nrow=nvar))
+          #                    alasso = diag(lampen/H/abs(init), ncol=nvar, nrow=nvar),
+          #                    scad = diag(lampen/H,  ncol=nvar, nrow=nvar),
+                              MCP = diag(lampen/H,  ncol=nvar, nrow=nvar))
     }
 
 
