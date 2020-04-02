@@ -121,6 +121,9 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
   # ptype= 1 or 3 if a sparse term exists, 2 or 3 if a non-sparse exists
   ptype <- any(sparse) + 2*(any(!sparse))
 
+  pen <- as.integer(switch(penalty, lasso = 1, MCP = 2, gBridge = 3)[1])
+
+
   ## Make sure these get defined <TSL>
   f.expr1<-function(coef) NULL
   f.expr2<-function(coef) NULL
@@ -459,7 +462,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
                          as.integer(control$iter.max),
                          as.double(control$eps),
                          H, Dstar, G,  p.lambda, alpha,
-                         gamma,  M, d, n.nonpar,  Dnrow, as.integer(switch(penalty, lasso = 1, MCP = 2, gBridge = 3)), penalty.where, chol, df.f)
+                         gamma,  M, d, n.nonpar,  Dnrow, pen, penalty.where, chol, df.f)
 
     } else{
 
@@ -467,7 +470,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
                        as.double(offset[sorted]), weights[sorted],
                        as.integer(cox.newstrat), as.integer(control$iter.max), as.double(control$eps),
                        H, Dstar, G, as.integer(method=="efron"), init,  p.lambda, alpha,
-                       gamma,  M, d, n.nonpar,  Dnrow, as.integer(switch(penalty, lasso = 1, MCP = 2, gBridge = 3)), penalty.where, chol, df.f)
+                       gamma,  M, d, n.nonpar,  Dnrow, pen, penalty.where, chol, df.f)
     }
 
     df[((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)]  <- fit$df
