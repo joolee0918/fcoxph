@@ -450,7 +450,6 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
     fit.beta <- matrix(0, nvar, nlambda)
     if(!is.null(Dstar)) Dstar[,penalty.where] <- as.matrix(bdiag(lapply(1:m, function(i) D[[i]]*sqrt(thetalist[[i]]/(1-thetalist[[i]])) )))
 
-
     if(andersen){
       fit <- fagfit_cpp(y, xx, newstrat, weights,
                          offset, as.double(init),

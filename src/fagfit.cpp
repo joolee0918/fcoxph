@@ -15,7 +15,7 @@ List fagfit_cpp(NumericMatrix surv2,
                  NumericMatrix covar2,   IntegerVector strata2, NumericVector weights, NumericVector offset,
                  NumericVector ibeta, IntegerVector sort1, IntegerVector sort2, int method, int maxiter, double eps,
                  NumericMatrix H, NumericMatrix Dstar, NumericMatrix G,  NumericVector lambda, double alpha,
-                 double gamma, int M, int d, int n_npvar, int Dnrow, int penalty,  IntegerVector penalty_where, Function f, Function df_f) {
+                 double gamma, int M, int d, int n_npvar, int Dnrow, int pen,  IntegerVector penalty_where, Function f, Function df_f) {
 
 
   double temp, temp2, zbeta, risk;
@@ -377,7 +377,7 @@ List fagfit_cpp(NumericMatrix surv2,
 
       penalty_f.fill(0);
 
-      if(penalty == 3) {
+      if(pen == 3) {
         mu= muf(pbeta, gamma, lambda[ilam], M, d);
 
       for(j=0; j<(M+1); j++){
@@ -405,7 +405,7 @@ List fagfit_cpp(NumericMatrix surv2,
         }
       }
 
-      newbeta = wshoot1(Vstar, Ystar, beta, penalty, penalty_f, lambda[ilam], alpha, maxiter, eps, nused);
+      newbeta = wshoot1(Vstar, Ystar, beta, pen, penalty_f, lambda[ilam], alpha, maxiter, eps, nused);
 
       error = max(abs(newbeta - beta));
       for(i=0; i<nvar; i++) beta[i] = newbeta[i];
@@ -415,7 +415,7 @@ List fagfit_cpp(NumericMatrix surv2,
 
     dA.fill(0);
     for(i=0; i<nvar; i++) if(newbeta[i]!=0) {
-      if(penalty==2) dA[i] = nused*penalty_f[i]/fabs(newbeta[i]) - nused*1/alpha;
+      if(pen==2) dA[i] = nused*penalty_f[i]/fabs(newbeta[i]) - nused*1/alpha;
       else dA[i] = nused*penalty_f[i]/fabs(newbeta[i]);
     }
 

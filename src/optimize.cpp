@@ -20,7 +20,7 @@ double ss2(int j, NumericVector tmpb, arma::mat Q, arma::vec B, int n)
   return(s);
 }
 
-NumericVector wshoot1 (arma::mat x, arma::vec y, NumericVector init, int penalty, NumericVector weight, double lambda, double alpha, int maxiter, double tol, int n)
+NumericVector wshoot1 (arma::mat x, arma::vec y, NumericVector init, int pen, NumericVector weight, double lambda, double alpha, int maxiter, double tol, int n)
 {
   int nrow = x.n_rows;
   int ncol = x.n_cols;
@@ -50,7 +50,7 @@ NumericVector wshoot1 (arma::mat x, arma::vec y, NumericVector init, int penalty
       if(fabs(s) <= lams[j])
         tmpbeta[j] = 0.0;
       else {
-        if(penalty==2) tmpbeta[j] = (-s)/(Q(j,j)/n + lams[j]/fabs(tmpbeta[j]) - 1/alpha); // MCP
+        if(pen==2) tmpbeta[j] = (-s)/(Q(j,j)/n + lams[j]/fabs(tmpbeta[j]) - 1/alpha); // MCP
         else tmpbeta[j] = (-s)/(Q(j,j)/n + lams[j]/fabs(tmpbeta[j])); //LASSO + gBridge
       }
     }
