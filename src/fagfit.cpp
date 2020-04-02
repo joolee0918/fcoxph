@@ -407,7 +407,9 @@ List fagfit_cpp(NumericMatrix surv2,
 
       newbeta = wshoot1(Vstar, Ystar, beta, pen, penalty_f, lambda[ilam], alpha, maxiter, eps, nused);
 
+      Rcout<<newbeta<<"\n";
       error = max(abs(newbeta - beta));
+
       for(i=0; i<nvar; i++) beta[i] = newbeta[i];
     }
 
