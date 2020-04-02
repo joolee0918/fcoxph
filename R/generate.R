@@ -11,10 +11,13 @@ TWeiRandom.f <- function(tt,  lam, alp, tau) {
 }
 
 #' @export
-data.generator <- function(N, lam, alp, gamma1, gamma2, rangeval, probC, tau)
+data.generator <- function(N, lam, alp, gamma1, gamma2, rangeval, probC, tau, nknots, norder, p)
 {
-  nbasis=50+5-2
-  data.basis <- fda::create.bspline.basis(rangeval=c(0, 1),norder=5,nbasis=nbasis)
+  knots    = seq(rangeval[1],rangeval[2], length.out = nknots)
+  nbasis=nknots + norder - 2
+  data.basis <- fda::create.bspline.basis(knots, nbasis=nbasis, norder=norder)
+  obs = seq(rangeval[1], rangeval[2], length.out = p)
+  basismat = eval.basis(obs, data.basis)
 
   getdata.f <- function(id,  tau, lam, alp, gamma1, gamma2, W1, W2, Xbeta) {
 
@@ -54,15 +57,13 @@ data.generator <- function(N, lam, alp, gamma1, gamma2, rangeval, probC, tau)
     W2 <- rnorm(N, 0, 1)
     Xbeta <- cMat1 %*% G1
 
-    data.basis <- fda::create.bspline.basis(rangeval=c(0, 1),norder=5,nbasis=nbasis)
-    knots <- c(0,data.basis$params,1)
-    X <- cMat1%*%t(fda::eval.basis(knots, data.basis))
+    X <- cMat1%*%t(basismat)
 
     event <- lapply(1:N, function(i) getdata.f(id = i, W1 = W1[i], W2 = W2[i], Xbeta = Xbeta[i],
                                                tau = CC[i], lam = lam, alp = alp, gamma1 = gamma1, gamma2 = gamma2))
     data <- do.call(rbind, event)
 
-    data1 <- list(data=data, X = X)
+    data1 <- structure(list(id=data$id, estop=data$estop, estatus=data$estatus, W1 = data$W1, W2 = data$W2, X = X), class='data.frame')
 
   return(data1)
 }
@@ -71,15 +72,9 @@ data.generator <- function(N, lam, alp, gamma1, gamma2, rangeval, probC, tau)
 inner.prod <- function(f,basis,j)
 {
   rng <- fda::getbasisrange(basis)
-  knots <- c(rng[1],basis$params,1)
-  nbasis <- basis$nbasis
-  norder <- basis$nbasis - length(knots) + 2
 
   a <- rng[1]
-  if(j-norder > 0) a <- knots[j-norder+1]
-
   b <- rng[2]
-  if (j <= nbasis-norder) b <- knots[j+1]
 
   bfun <- function(t)
   {
