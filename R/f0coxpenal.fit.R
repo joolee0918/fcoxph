@@ -450,6 +450,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
     fit.beta <- matrix(0, nvar, nlambda)
     if(!is.null(Dstar)) Dstar[,penalty.where] <- as.matrix(bdiag(lapply(1:m, function(i) D[[i]]*sqrt(thetalist[[i]]/(1-thetalist[[i]])) )))
 
+
     if(andersen){
       fit <- fagfit_cpp(y, xx, newstrat, weights,
                          offset, as.double(init),
@@ -458,7 +459,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
                          as.integer(control$iter.max),
                          as.double(control$eps),
                          H, Dstar, G,  p.lambda, alpha,
-                         gamma,  M, d, n.nonpar,  Dnrow, switch(penalty, lasso = 1, MCP = 2, gBridge = 3), penalty.where, chol, df.f)
+                         gamma,  M, d, n.nonpar,  Dnrow, as.integer(switch(penalty, lasso = 1, MCP = 2, gBridge = 3)), penalty.where, chol, df.f)
 
     } else{
 
@@ -466,7 +467,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
                        as.double(offset[sorted]), weights[sorted],
                        as.integer(cox.newstrat), as.integer(control$iter.max), as.double(control$eps),
                        H, Dstar, G, as.integer(method=="efron"), init,  p.lambda, alpha,
-                       gamma,  M, d, n.nonpar,  Dnrow, switch(penalty, lasso = 1, MCP = 2, gBridge = 3), penalty.where, chol, df.f)
+                       gamma,  M, d, n.nonpar,  Dnrow, as.integer(switch(penalty, lasso = 1, MCP = 2, gBridge = 3)), penalty.where, chol, df.f)
     }
 
     df[((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)]  <- fit$df
