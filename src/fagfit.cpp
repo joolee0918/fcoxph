@@ -61,7 +61,6 @@ List fagfit_cpp(NumericMatrix surv2,
   ** Subtract the mean from each covar, as this makes the regression
   **  much more stable.
   */
-  if (nvar==1) doscale =0;  /* scaling has no impact, so skip it */
   for (i=0; i<nvar; i++) {
     person=0;
     for (istrat=0; istrat<nstrat; istrat++) {
