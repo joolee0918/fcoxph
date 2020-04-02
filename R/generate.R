@@ -18,7 +18,7 @@ data.generator <- function(N, lam, alp, gamma1, gamma2, rangeval, probC, tau)
 
   getdata.f <- function(id,  tau, lam, alp, gamma1, gamma2, W1, W2, Xbeta) {
 
-    lam <- lam * exp(Xbeta + gamma1 * W1)
+    lam <- lam * exp(Xbeta) #+ gamma1 * W1)
 
     #cur.t <- TWeiRandom.f(tt = 0,  lam = lam, alp = alp, tau = tau)
     cur.t <- rexp(1, rate=lam)
