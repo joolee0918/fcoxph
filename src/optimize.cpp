@@ -55,8 +55,6 @@ NumericVector wshoot1 (arma::mat x, arma::vec y, NumericVector init, int pen, Nu
         }else tmpbeta[j] = (-s)/(Q(j,j)/n + lams[j]/fabs(tmpbeta[j])); //LASSO + gBridge
       }
     }
-
-    Rcout<<tmpbeta<<"\n";
     eps = max(abs(tmpbeta-oldbeta));
     for(i=0; i<ncol; i++) oldbeta[i] =  tmpbeta[i];
     if (eps <=tol) break;
