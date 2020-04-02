@@ -225,7 +225,7 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
         else theta[j] = pow(mu[j], 1-1/gamma);
       }
 
-      for(k=0; k<H.ncol(); k++){
+      for(k=0; k<n_npvar; k++){
         for(j=0; j<(M+1); j++) penalty_f[penalty_where[k]-1] += theta[j]*H(j, k);
       }
       } else{
