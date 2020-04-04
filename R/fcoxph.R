@@ -180,6 +180,7 @@ on.exit({
     newcall[[1]] <- as.symbol("fcoxph.fit")
 }
   res <- eval(newcall)
+  res$smooth <- term.smooth
 
 
   return(res)
