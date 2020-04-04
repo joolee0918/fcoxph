@@ -304,7 +304,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     } else if (tuning.method == "aic") {
       sel <- which.min(-2*fit0$loglik + 2*fit0$df)
     }else if (tuning.method == "bic") {
-      sel <- which.min(-2*fit0$loglik + log(data.n)*fit0$df + 0.5*fit0$df*log(length(penalty.where)))
+      sel <- which.min(-2*fit0$loglik + log(data.n)*fit0$df) #+ 0.5*fit0$df*log(length(penalty.where)))
     }else if(tuning.method == "gcv") {
       sel <- which.min(-fit0$loglik/(data.n*(1-fit0$df/data.n)^2) )
     }
@@ -318,6 +318,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     fit <- list()
 
     fit$coefficients <- fit0$beta[, sel]
+    fit$history <- fit0$beta
     nvar <- length(fit$coefficients)
     fit$var <- matrix(fit0$var[,sel], nvar, nvar)
     fit$u <- fit0$u[, sel]

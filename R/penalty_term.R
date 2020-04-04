@@ -1,4 +1,5 @@
 #' @importFrom mgcv s smoothCon
+#' @importFrom fda eval.penalty
 
 #' @export
 fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapezoidal", "riemann"),
@@ -30,6 +31,13 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
 
   LXname <- paste("L.", deparse(substitute(X)), sep = "")
   basistype = "s"
+
+  nbasis <- dots$k
+  norder <- 4
+  M <- nbasis-norder
+  m <- ifelse(length(dots$m)==2, dots$m[2], dots$m[1])
+  basis <- fda::create.bspline.basis(xrange, nbasis=nbasis, norder=4)
+
   newcall <- list(as.symbol(basistype))
 
 
@@ -88,6 +96,7 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
  else X <- pterm1(smooth[[1]], theta, lambda)
 
  smooth[[1]]$X <- NULL
+ if(dots$bs!="ps") smooth[[1]]$S[[1]] <- fda::eval.penalty(basis,int2Lfd(2))/M^(3)
 
  names <- paste0(basistype, "(", tindname,  ", ", "by = ", LXname, ")")
 
@@ -146,7 +155,7 @@ pterm1 <- function (sm, theta, lambda)
 {
 
 
-  if(is.null(theta)) theta <- rev(c(0.25, 0.3, 0.4, 0.5, 0.725 ,0.95, 0.99, 0.995, 0.999, 0.9995))
+  if(is.null(theta)) theta <- rev(c(0.0015, 0.01, 0.1, 0.25, 0.5, 0.725 ,0.95, 0.99, 0.995, 0.9995))
   #theta <- 0
   W <- sm$X
   D <- sm$S[[1]]

@@ -386,6 +386,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
     for(i in 1:m){
       thetalist[[i]] <- Theta[iter]
       lambdalist[[i]] <- 0
+      G <- sm[[1]]$S[[1]]*thetalist[[1]]/(1-thetalist[[1]])
 
       if(thetalist[[i]]== 0){
         D[[i]] <- NULL
@@ -401,7 +402,6 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
         }else {
           D[[i]] <- sm[[i]]$D/4
         }
-        G <- sm[[1]]$S[[1]]*thetalist[[1]]/(1-thetalist[[1]])
         Dncol <- sum(sapply(D, ncol))
         Dnrow <- sum(sapply(D, nrow))
         Dstar <- matrix(0, nrow=Dnrow, ncol=nvar)
