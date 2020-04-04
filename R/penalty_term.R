@@ -35,7 +35,9 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
   nbasis <- dots$k
   norder <- 4
   M <- nbasis-norder
-  m <- ifelse(length(dots$m)==2, dots$m[2], dots$m[1])
+  if(is.null(m)) m<- 2
+  else if(length(dots$m)==1) m <- dots$m
+  else if(length(dots$m)==2) m <- dots$m[2]
   basis <- fda::create.bspline.basis(xrange, nbasis=nbasis, norder=4)
 
   newcall <- list(as.symbol(basistype))
@@ -96,7 +98,7 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
  else X <- pterm1(smooth[[1]], theta, lambda)
 
  smooth[[1]]$X <- NULL
- if(dots$bs!="ps") smooth[[1]]$S[[1]] <- fda::eval.penalty(basis,int2Lfd(2))/M^(3)
+ if(dots$bs!="ps") smooth[[1]]$S[[1]] <- fda::eval.penalty(basis,int2Lfd(m))/M^(3)
 
  names <- paste0(basistype, "(", tindname,  ", ", "by = ", LXname, ")")
 
