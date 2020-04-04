@@ -35,7 +35,7 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
   nbasis <- dots$k
   norder <- 4
   M <- nbasis-norder
-  if(is.null(m)) m<- 2
+  if(is.null(dots$m)) m<- 2
   else if(length(dots$m)==1) m <- dots$m
   else if(length(dots$m)==2) m <- dots$m[2]
   basis <- fda::create.bspline.basis(xrange, nbasis=nbasis, norder=4)
