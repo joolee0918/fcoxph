@@ -392,7 +392,9 @@ List fagfit_cpp(NumericMatrix surv2,
         for(k=0; k<n_npvar; k++) penalty_f[penalty_where[k]-1] = 1;
       }
 
-
+     if(Dnrow==0){
+       newbeta = wshoot1(V, Y, beta, pen, penalty_f, lambda[ilam], alpha, maxiter, eps, nused);
+     }else{
       Ystar.fill(0);
       for(i=0; i<nvar; i++) Ystar(i) = yy(i);
 
@@ -406,6 +408,7 @@ List fagfit_cpp(NumericMatrix surv2,
       }
 
       newbeta = wshoot1(Vstar, Ystar, beta, pen, penalty_f, lambda[ilam], alpha, maxiter, eps, nused);
+     }
       error = max(abs(newbeta - beta));
 
       for(i=0; i<nvar; i++) beta[i] = newbeta[i];
