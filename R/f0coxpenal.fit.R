@@ -389,10 +389,10 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
       if(L2penalty == "none"){
         D[[i]] <- 0
-        Dstar <- 0
+        Dstar <- as.matrix(0)
         Dncol <- 0
         Dnrow <- 0
-        G <- 0
+        G <- as.matrix(0)
         nystar <- nvar
       } else{
         if(is.null(sm[[i]]$D)) {
