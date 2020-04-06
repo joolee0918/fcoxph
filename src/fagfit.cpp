@@ -393,7 +393,7 @@ List fagfit_cpp(NumericMatrix surv2,
       }
 
      if(Dnrow==0){
-       newbeta = wshoot1(V, yy, beta, pen, penalty_f, lambda[ilam], alpha, maxiter, eps, nused);
+       newbeta = wshoot1(V0, yy, beta, pen, penalty_f, lambda[ilam], alpha, maxiter, eps, nused);
      }else{
       Ystar.fill(0);
       for(i=0; i<nvar; i++) Ystar(i) = yy(i);
