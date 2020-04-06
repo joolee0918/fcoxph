@@ -35,13 +35,15 @@ ss <- function(j,tmpb,Q,B, n)
 }
 
 
-df.f <- function(beta, penalty.where, dA, G, I){
+df.f <- function(beta, penalty.where, dA, G, I, Dnrow){
   nvar <- length(beta)
   H <- I
-  H[penalty.where, penalty.where] <- H[penalty.where, penalty.where] + G
-
   A <- I + dA
-  A[penalty.where, penalty.where] <- A[penalty.where, penalty.where] + G
+
+  if(Dnrow !=0){
+    H[penalty.where, penalty.where] <- H[penalty.where, penalty.where] + G
+    A[penalty.where, penalty.where] <- A[penalty.where, penalty.where] + G
+  }
 
 
   zero <- penalty.where[beta[penalty.where]==0]
@@ -51,11 +53,15 @@ df.f <- function(beta, penalty.where, dA, G, I){
     df = 0
     var = rep(0, nvar*nvar)
   }else if(length(zero) ==0){
-    df  <- sum( diag((solve(H)%*%I)))
+    if(Dnrow!=0) {
+      df  <- sum( diag((solve(H)%*%I)))
+    } else df <- nvar
     var <-  (solve(A)%*%I%*%solve(A))
   } else{
-    df  <- sum( diag((solve(H[-zero, -zero])%*%I[-zero, -zero])))
-    var[-zero, -zero] <-  (solve(A[-zero, -zero])%*%I[-zero, -zero]%*%solve(A[-zero, -zero]))
+    if(Dnrow!=0){
+      df  <- sum( diag((solve(H[-zero, -zero])%*%I[-zero, -zero])))
+    } else df <- nvar - length(zero)
+    vaer[-zero, -zero] <-  (solve(A[-zero, -zero])%*%I[-zero, -zero]%*%solve(A[-zero, -zero]))
   }
    res <- list(df=df, var=as.vector(var), A = as.vector(A))
   return(res)

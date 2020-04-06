@@ -265,7 +265,7 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
       else dA[i] = nused*penalty_f[i]/fabs(newbeta[i]);
     }
 
-    List df_var = df_f(newbeta, penalty_where, dA, G, imat);
+    List df_var = df_f(newbeta, penalty_where, dA, G, imat, Dnrow);
 
     df[ilam] = df_var["df"];
     NumericVector tmpvar = df_var["var"];
