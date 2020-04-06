@@ -234,7 +234,7 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
 
 
       if(Dnrow == 0){
-        newbeta = wshoot1(V, Y, beta, pen, penalty_f, lambda[ilam], alpha, maxiter, eps, nused);
+        newbeta = wshoot1(V, yy, beta, pen, penalty_f, lambda[ilam], alpha, maxiter, eps, nused);
       } else{
       Ystar.fill(0);
       for(i=0; i<nvar; i++) Ystar(i) = yy(i);
