@@ -293,13 +293,13 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
                            control = control, weights=weights, method=method,
                            pcols = pcols, pattr = pattr, assign = assign, npcols = npcols, tuning.method = tuning.method,
                            sm = sm,  gamma = gamma, alpha = alpha, theta = theta, lambda = lambda, lambda.min.ratio = lambda.min.ratio, nlambda = nlambda, penalty = penalty,
-                           sparse.what = sparse, argvals = argvals, group.multiplier = group.multiplier, cv.fit=FALSE)
+                          L2penalty = L2penalty, sparse.what = sparse, argvals = argvals, group.multiplier = group.multiplier, cv.fit=FALSE)
 
     if(tuning.method == "cv"){
       sel <- cv.fcoxph(fit0, x = X, y = Y, strats = strats, cluster = cluster, init=init, weights = weights, offset = offset, control = control, lambda = lambda, lambda.min.ratio = lambda.min.ratio,nfolds = nfolds, foldid = foldid,
                   method = method, parallel = FALSE, ncluster=ncluster, pcols = pcols, pattr = pattr, assign = assign, npcols = npcols, tuning.method = tuning.method,
                   sm = sm,  gamma = gamma, alpha = alpha, theta = theta, nlambda = nlambda, penalty = penalty,
-                  sparse.what = sparse, argvals = argvals, group.multiplier = group.multiplier)
+                  L2penalty = L2penalty, sparse.what = sparse, argvals = argvals, group.multiplier = group.multiplier)
 
     } else if (tuning.method == "aic") {
       sel <- which.min(-2*fit0$loglik + 2*fit0$df)

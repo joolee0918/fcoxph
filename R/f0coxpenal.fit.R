@@ -9,7 +9,7 @@
 fcoxpenal.fit <- function(x, y, strata, offset, init, control,
                           weights, method,
                           pcols, pattr, assign, npcols, tuning.method, sm, alpha, gamma, theta, lambda, lambda.min.ratio, nlambda = NULL,
-                          penalty, sparse.what, argvals, group.multiplier,
+                          penalty, L2penalty, sparse.what, argvals, group.multiplier,
                           cv.fit = FALSE)
 {
   eps <- control$eps
@@ -387,7 +387,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
       thetalist[[i]] <- Theta[iter]
       lambdalist[[i]] <- 0
 
-      if(thetalist[[i]]== 0){
+      if(L2penalty == "none"){
         D[[i]] <- 0
         Dstar <- 0
         Dncol <- 0
@@ -408,8 +408,12 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
         G <- sm[[1]]$S[[1]]*thetalist[[1]]/(1-thetalist[[1]])
         nystar <- nvar + Dnrow
       }
-
     }
+
+    if(Dnrow!=0) Dstar[,penalty.where] <- as.matrix(bdiag(lapply(1:m, function(i) D[[i]]*sqrt(thetalist[[i]]/(1-thetalist[[i]])) )))
+
+
+
 
     ### initial values estimated without sparse penalty
     if (andersen) { coxfit0 <- .C(survival:::Cagfit5b,
@@ -452,7 +456,6 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
     init <- coxfit0$coef
 
     fit.beta <- matrix(0, nvar, nlambda)
-    if(!is.null(Dstar)) Dstar[,penalty.where] <- as.matrix(bdiag(lapply(1:m, function(i) D[[i]]*sqrt(thetalist[[i]]/(1-thetalist[[i]])) )))
 
 
     if(andersen){
