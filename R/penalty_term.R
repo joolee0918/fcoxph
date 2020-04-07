@@ -157,7 +157,7 @@ pterm1 <- function (sm, theta, lambda)
 {
 
 
-  if(is.null(theta)) theta <- rev(c(0.0015, 0.01, 0.1, 0.25, 0.5, 0.725 ,0.95, 0.99, 0.995, 0.9995))
+  if(is.null(theta)) theta <- rev(c(0.5, 0.75, 0.95, 0.99, 0.999))
   #theta <- 0
   W <- sm$X
   D <- sm$S[[1]]
@@ -225,7 +225,7 @@ f_override <- function (...)
 
 
 control.fcoxph <- function (eps = 1e-06, eps2 = 1e-04, toler.chol = .Machine$double.eps^0.75,
-          iter.max = 100, toler.inf = sqrt(eps), outer.max = 10, timefix = TRUE)
+          iter.max = 100, toler.inf = sqrt(eps), outer.max = 5, timefix = TRUE)
 {
   if (iter.max < 0)
     stop("Invalid value for iterations")
