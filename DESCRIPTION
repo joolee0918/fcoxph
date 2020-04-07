@@ -1,13 +1,12 @@
 Package: fcoxph
-Type: Package
-Title: What the Package Does (Title Case)
+Title: Functional linear Cox regression model
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
+Author: person("Jooyoung", "Lee", email = "joolee0918@gmail.com", role = c("aut", "cre"))
+Maintainer: Jooyoung Lee <joolee0918@gmail.comt>
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
-Depends: R (>= 3.5.0), survival, refund, grpreg, ncpen
-License: What license is it under?
+Depends: R (>= 3.5.0), survival, refund
+License: GPL-2
 Encoding: UTF-8
 LazyData: true
 Imports: 
@@ -19,13 +18,10 @@ Imports:
     refund,
     mgcv,
     fda,
-    grpreg,
-    gglasso,
     Rcpp,
     parallel,
     doParallel,
-    foreach,
-    glmnet
+    foreach
 RoxygenNote: 6.1.1
 LinkingTo: 
-    Rcpp, RcppArmadillo
+    Rcpp, RcppArmadillo, survival, refund
