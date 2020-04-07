@@ -61,7 +61,7 @@ df.f <- function(beta, penalty.where, dA, G, I, Dnrow){
     if(Dnrow!=0){
       df  <- sum( diag((solve(H[-zero, -zero])%*%I[-zero, -zero])))
     } else df <- nvar - length(zero)
-    var[-zero, -zero] <-  (solve(A[-zero, -zero])%*%I[-zero, -zero]%*%solve(A[-zero, -zero]))
+    var[-zero, -zero] <-  (solve(A)%*%I%*%solve(A))[-zero, -zero]
   }
    res <- list(df=df, var=as.vector(var), A = as.vector(A))
   return(res)
