@@ -77,7 +77,7 @@ fcoxph <- function (formula, data, weights, na.action, init, control, knots = NU
       x$names
     })
 
-    nm <- smooth <- smooth.data <- argvals <- theta <- lambda <- list()
+    nm <- smooth <- smooth.terms <- argvals <- theta <- lambda <- list()
     for(i in 1:length(fterms)){
       nm[[i]] <- fterms[[i]]$names
       smooth[[i]] <- fterms[[i]]$sm
