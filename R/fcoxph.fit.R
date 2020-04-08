@@ -396,7 +396,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
         fit$var <- matrix(0, nvar, nvar)
 
         if(length(zero) ==0) fit$var <- solve(A)%*%B%*%solve(A)
-        else fit$var[-zero, -zero] <- solve(A[-zero, -zero])%*%B[-zero, -zero]%*%solve(A[-zero, -zero])
+        else fit$var[-zero, -zero] <- (solve(A)%*%B%*%solve(A))[-zero, -zero]
       }
     }
 
@@ -415,12 +415,28 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     fit$pterms <- pterms
   }
 
+
+    for (i in 1:length(sm)) {
+      tmpid <- pcols[[i]]
+      start <- 1
+      idx <- tmpid[start:(start + length(pcols[[i]]) -1)]
+      names(fit$coefficients)[idx] <- paste(sm[[i]]$label,1:length(idx), sep = ".")
+      sm[[i]]$first.para <- min(idx)
+      sm[[i]]$last.para <- max(idx)
+      start <- start + length(idx)
+    }
+
   }
+
 
   fit$n <- data.n
   fit$nevent <- sum(Y[,ncol(Y)])
   fit$terms <- Terms
   fit$assign <- assign
+  fit$assign2 <- pcol
+  fit$smooth <- sm
+
+
 
   if (model) {
     if (length(timetrans)) {
