@@ -404,12 +404,15 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     fit$penalty <- fit$penalty
     fit$loglik0 <- fit0$loglik0
 
+    fit$aic <-  -2*fit0$loglik + 2*fit0$df
+    fit$bic <- -2*fit0$loglik + log(data.n)*fit0$df
+
     if(sel%%length(lambda) ==0) lambda.where <- length(lambda)
     else lambda.where <- sel%%length(lambda)
     fit$penalty.par <- c(theta = theta[ceiling(sel/length(lambda))], lambda = lambda[lambda.where])
     fit$lambda <- fit0$lambda
     fit$theta <- fit0$theta
-    fit$pterms
+    fit$pterms <- pterms
   }
 
   }
@@ -418,8 +421,26 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
   fit$nevent <- sum(Y[,ncol(Y)])
   fit$terms <- Terms
   fit$assign <- assign
+
+  if (model) {
+    if (length(timetrans)) {
+      # Fix up the model frame -- still in the thinking stage
+      mf[[".surv."]]   <- Y
+      mf[[".strata."]] <- strats
+      stop("'model=TRUE' not supported for models with tt terms")
+    }
+    fit$model <- mf
+  }
+  if (x)  {
+    fit$x <- X
+    if (length(strats)) {
+      if (length(timetrans)) fit$strata <- strats
+      else     fit$strata <- strata.keep
+    }
+  }
+  if (y)  fit$y <- Y
+
   class(fit) <- fit$class
-  fit$class <- NULL
 
   return(fit)
 }
