@@ -102,7 +102,8 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
 
  names <- paste0(basistype, "(", tindname,  ", ", "by = ", LXname, ")")
 
- res <- list(names=names, X=X, sm = smooth[[1]], argvals = argvals)
+ res <- list(names=names, X=X, sm = smooth[[1]], argvals = argvals, data = data, xind = xind[1,], L = L, tindname=tindname,
+             LXname=LXname)
   return(res)
 }
 

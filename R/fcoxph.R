@@ -9,7 +9,7 @@ fcoxph <- function (formula, data, weights, na.action, init, control, knots = NU
                     L2penalty = c("none", "smooth"), theta = switch(L2penalty, none = 0, ridge = NULL, smooth = NULL), gamma = 0.5, lambda = NULL, lambda.min.ratio = 0.001, nlambda = NULL,
                     alpha = switch(penalty, lasso = 0, SCAD = 3.7, MCP = 3, gBridge=0),
                     sparse = c("none", "local"),  group.multiplier=NULL, tuning.method = c("cv", "aic", "bic", "gcv"), nfolds = 10, foldid = NULL,
-                    method = "breslow", parallel = FALSE, ncluster = NULL, x = TRUE, model = FALSE, y = TRUE, ...)
+                    method = "breslow", parallel = FALSE, ncluster = NULL, x = FALSE, model = TRUE, y = TRUE, ...)
 {
 
   call <- match.call()
@@ -77,10 +77,13 @@ fcoxph <- function (formula, data, weights, na.action, init, control, knots = NU
       x$names
     })
 
-    nm <- term.smooth <- argvals <- theta <- lambda <- list()
+    nm <- smooth <- smooth.data <- argvals <- theta <- lambda <- list()
     for(i in 1:length(fterms)){
       nm[[i]] <- fterms[[i]]$names
-      term.smooth[[i]] <- fterms[[i]]$sm
+      smooth[[i]] <- fterms[[i]]$sm
+      smooth.terms[[i]] <- list(data = fterms[[i]]$data, xind = fterms[[i]]$xind[1,], L = fterms[[i]]$L, tindname=fterms[[i]]$tindname,
+                                LXname=fterms[[i]]$LXname)
+
       argvals[[i]] <- fterms[[i]]$argvals
      }
 
@@ -146,7 +149,7 @@ on.exit({
 
   newfrml <- formula(paste(newfrml, paste(newtrmstrings, collapse = "+")))
   environment(newfrml) <- newfrmlenv
-  pfrdata <- refund:::list2df(as.list(newfrmlenv))
+  fcoxphdata <- refund:::list2df(as.list(newfrmlenv))
   datameans <- sapply(as.list(newfrmlenv), function(x) {
     if (is.numeric(x) | is.logical(x)) {
       mean(x)
@@ -161,7 +164,7 @@ on.exit({
   newcall$formula <- newfrml
   newcall$fitter <- NULL
   newcall <- pryr::modify_call(newcall, dots)
-  newcall$data <- quote(pfrdata)
+  newcall$data <- quote(fcoxphdata)
   newcall$na.action <- na.omit_pcox
 
 
@@ -174,12 +177,22 @@ on.exit({
     }else{
     newcall$eps <-  newcall$knots <- NULL
     newcall$argvals <- argvals
-    newcall$sm <- term.smooth
+    newcall$sm <- smooth
     newcall[[1]] <- as.symbol("fcoxph.fit")
 }
   res <- eval(newcall)
 
+  termtype <- rep("par", length(terms))
+  for (i in 1:length(specials))
+    termtype[specials[[i]]-1] <- names(specials)[i]
 
+
+  fcoxterm <- list(formula = formula,
+              responsename = responsename, nobs = nobs,
+              termnames = names(terms),
+              termtype = termtype, datameans=datameans, ft = smooth.terms)
+
+  res$fcoxph <- fcoxterm
   return(res)
 
 }
