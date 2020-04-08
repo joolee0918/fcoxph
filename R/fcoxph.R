@@ -178,22 +178,23 @@ on.exit({
     newcall[[1]] <- as.symbol("fcoxph.fit")
 }
   res <- eval(newcall)
-  res$smooth <- term.smooth
 
   for (i in 1:length(term.smooth)) {
     if (!is.null(term.smooth[[i]])) {
       idxs <- res$assign2[[i]]
       start <- 1
-        idxs.j <- idxs[start:(start + ncol(smooth[[i]]$X) -
+        idxs.j <- idxs[start:(start + ncol(term.smooth[[i]]$X) -
                                 1)]
-        names(res$coefficients)[idxs.j] <- paste(smooth[[i]]$label,
+        names(res$coefficients)[idxs.j] <- paste(term.smooth[[i]]$label,
                                                  1:length(idxs.j), sep = ".")
-        smooth[[i]]$first.para <- min(idxs.j)
-        smooth[[i]]$last.para <- max(idxs.j)
+        term.smooth[[i]]$first.para <- min(idxs.j)
+        term.smooth[[i]]$last.para <- max(idxs.j)
         start <- start + length(idxs.j)
     }
   }
 
+
+  res$smooth <- term.smooth
 
 
   return(res)
