@@ -433,7 +433,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
   fit$nevent <- sum(Y[,ncol(Y)])
   fit$terms <- Terms
   fit$assign <- assign
-  fit$assign2 <- pcol
+  fit$assign2 <- pcols
   fit$smooth <- sm
 
 
