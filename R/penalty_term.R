@@ -97,7 +97,7 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
  if(sparse == "none") X <- pterm(smooth[[1]], theta,  method = tuning.method, eps = 1e-06, n=n)
  else X <- pterm1(smooth[[1]], theta, lambda)
 
- smooth[[1]]$X <- NULL
+ #smooth[[1]]$X <- NULL
  if(dots$bs!="ps") smooth[[1]]$S[[1]] <- fda::eval.penalty(basis,int2Lfd(m))/M^(3)
 
  names <- paste0(basistype, "(", tindname,  ", ", "by = ", LXname, ")")

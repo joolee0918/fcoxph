@@ -34,9 +34,6 @@ fcoxph <- function (formula, data, weights, na.action, init, control, knots = NU
     where.par <- numeric(0)
   }
   responsename <- attr(tf, "variables")[2][[1]]
-  #yNme <- as.character(responsename)[-1]
-  #xNms <- allVars[!allVars %in% yNm]
-
   newfrml <- paste(refund:::safeDeparse(responsename), "~", sep = "")
   newfrmlenv <- new.env()
   evalenv <- if ("data" %in% names(call))
@@ -60,8 +57,8 @@ fcoxph <- function (formula, data, weights, na.action, init, control, knots = NU
   newtrmstrings <- attr(tf, "term.labels")
 
   assign("s", f_override, envir = parent.env(newfrmlenv))
-  assign("te", f_override, envir = parent.env(newfrmlenv))
-  assign("t2", f_override, envir = parent.env(newfrmlenv))
+#  assign("te", f_override, envir = parent.env(newfrmlenv))
+#  assign("t2", f_override, envir = parent.env(newfrmlenv))
 
   where.refund <- c( where.fs,where.fp)
    if (length(where.refund)) {
@@ -115,6 +112,7 @@ fcoxph <- function (formula, data, weights, na.action, init, control, knots = NU
       invisible(NULL)
     })
   }
+
 
   varmap <- vector(mode = "list",   length = length(trmstrings))
   if (length(where.par)) {
@@ -181,6 +179,21 @@ on.exit({
 }
   res <- eval(newcall)
   res$smooth <- term.smooth
+
+  for (i in 1:length(term.smooth)) {
+    if (!is.null(term.smooth[[i]])) {
+      idxs <- res$assign2[[i]]
+      start <- 1
+        idxs.j <- idxs[start:(start + ncol(smooth[[i]]$X) -
+                                1)]
+        names(res$coefficients)[idxs.j] <- paste(smooth[[i]]$label,
+                                                 1:length(idxs.j), sep = ".")
+        smooth[[i]]$first.para <- min(idxs.j)
+        smooth[[i]]$last.para <- max(idxs.j)
+        start <- start + length(idxs.j)
+    }
+  }
+
 
 
   return(res)
