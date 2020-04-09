@@ -1,6 +1,6 @@
 
 #' @export
-plot.fcoxph <- function (x, rug = TRUE, se = TRUE, pages = 0,
+plot.fcoxph <- function (x, rug = TRUE, se = TRUE, pages = 0, select = NULL,
                           scale = -1, n = 100,
                           jit = FALSE, xlab = NULL, ylab = NULL,
                           main = NULL, ylim = NULL, xlim = NULL,

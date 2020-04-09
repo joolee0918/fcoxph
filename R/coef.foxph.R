@@ -18,7 +18,7 @@ else {
   dat <- data.frame(x = xx)
   names(dat) <- x$smooth[[i]]$term
 }
-  X <- mgcv::PredictMat(x, dat)
+  X <- mgcv::PredictMat(x$smooth[[i]], dat)
 
   first <- x$smooth[[i]]$first.para
   last <- x$smooth[[i]]$last.para
