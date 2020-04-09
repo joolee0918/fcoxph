@@ -33,12 +33,17 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
   basistype = "s"
 
   nbasis <- dots$k
-  norder <- 4
-  M <- nbasis-norder
+
   if(is.null(dots$m)) m<- 2
   else if(length(dots$m)==1) m <- dots$m
   else if(length(dots$m)==2) m <- dots$m[2]
-  basis <- fda::create.bspline.basis(xrange, nbasis=nbasis, norder=4)
+   if(length(dots$m)==1) {
+     norder <- dots$m[1]+1
+   } else{
+     norder <- 4
+   }
+  M <- nbasis-norder
+  basis <- fda::create.bspline.basis(xrange, nbasis=nbasis, norder=norder)
 
   newcall <- list(as.symbol(basistype))
 
@@ -88,7 +93,7 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
   newcall <- c(newcall, dots)
 
   smooth <- mgcv::smoothCon(eval(as.call(newcall)), data = data,
-                            knots = NULL, absorb.cons = TRUE, n=nrow(LX))
+                            knots = c(xrange[1], basis$params, xrange[2]), absorb.cons = TRUE, n=nrow(LX))
   if (length(smooth) > 1) {
     stop("We don't yet support terms with multiple smooth objects.")
   }

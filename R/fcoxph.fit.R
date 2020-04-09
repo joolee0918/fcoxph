@@ -322,7 +322,6 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     nvar <- length(fit$coefficients)
     fit$var <- matrix(fit0$var[,sel], nvar, nvar)
     fit$A <- matrix(fit0$A[,sel], nvar, nvar)
-    fit$I <- matrix(fit0$I[,sel], nvar, nvar)
     fit$u <- fit0$u[, sel]
     zero <- penalty.where[fit$coefficients[penalty.where]==0]
 
@@ -402,9 +401,8 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
       }
     }
 
-    fit$loglik <- fit0$loglik[sel]
     fit$penalty <- fit$penalty
-    fit$loglik0 <- fit0$loglik0
+    fit$loglik <- c(fit0$loglik0, fit0$loglik[sel])
 
     fit$aic <-  -2*fit0$loglik + 2*fit0$df
     fit$bic <- -2*fit0$loglik + log(data.n)*fit0$df

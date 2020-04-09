@@ -377,7 +377,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
 
   ## Fitting
-  var <- A <- I <- matrix(0, ncol = L*nlambda, nrow=nvar*nvar)
+  var <- A <- matrix(0, ncol = L*nlambda, nrow=nvar*nvar)
   df <- loglik <-  penalty <- rep(0, L*nlambda)
   coef <-  u <-  matrix(0, ncol = L*nlambda, nrow=nvar)
   for(iter in 1:L){
@@ -479,7 +479,6 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
     loglik[((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)] <- fit$loglik
     var[, ((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)] <- fit$var
     A[, ((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)] <- fit$A
-    I[, ((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)] <- fit$I
 
     coef[, ((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)] <- fit$beta
     u[, ((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)] <- fit$u
@@ -498,7 +497,6 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
            df=df,
            var = var,
            A = A,
-           I = I,
            u = u,
            loglik0 = loglik0,
            loglik = loglik,

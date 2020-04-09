@@ -45,7 +45,7 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
   NumericVector mu(M+1), theta(M+1);
   NumericMatrix fit_beta(nvar, nlambda);
   NumericVector df(nlambda), logl(nlambda);
-  NumericMatrix var(nvar*nvar, nlambda), A(nvar*nvar, nlambda), I(nvar*nvar, nlambda);
+  NumericMatrix var(nvar*nvar, nlambda), A(nvar*nvar, nlambda);
   NumericVector dA(nvar);
   NumericMatrix covar = clone(covar2);
   IntegerVector strata = clone(strata2);
@@ -292,12 +292,11 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
     NumericVector tmpA = df_var["A"];
     var(_, ilam) = tmpvar;
     A(_, ilam) = tmpA;
-    I(_, ilam) = imat;
     logl[ilam] = loglik;
   }
   Rcpp::List res = List::create(Named("loglik")= logl,
                                 Named("beta") = fit_beta,
-                                Named("df")=df, Named("var")=var, Named("A") = A, Named("I") = I, Named("u") = u);
+                                Named("df")=df, Named("var")=var, Named("A") = A,  Named("u") = u);
 
   return(res);
 

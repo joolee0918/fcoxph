@@ -30,11 +30,12 @@ coef.fcoxph <-  function (x,  n=100){
                                                          X)))
 
   fit[[i]] <- as.data.frame(fit[[i]])
-  colnames(fit[[i]])[-1] <- c("value", "se")
+  colnames(fit[[i]]) <- c("s", "value", "se")
   if(!is.null(x$naive.var)) colnames(fit[[i]])[4] <- c("naive.se")
 
-  names(fit[[i]]) <- x$smooth[[i]]$term
    }
+
+   names(fit) <- sapply(1:m, function(i) x$smooth[[i]]$term)
 
    return(fit)
 }
