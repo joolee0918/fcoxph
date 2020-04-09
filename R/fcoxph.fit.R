@@ -321,6 +321,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     fit$history <- fit0$beta
     nvar <- length(fit$coefficients)
     fit$var <- matrix(fit0$var[,sel], nvar, nvar)
+    fit$A <- matrix(fit0$A[,sel], nvar, nvar)
     fit$u <- fit0$u[, sel]
     zero <- penalty.where[fit$coefficients[penalty.where]==0]
 
