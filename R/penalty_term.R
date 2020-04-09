@@ -93,7 +93,7 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
   newcall <- c(newcall, dots)
 
   smooth <- mgcv::smoothCon(eval(as.call(newcall)), data = data,
-                            knots = c(xrange[1], basis$params, xrange[2]), absorb.cons = TRUE, n=nrow(LX))
+                            knots = NULL, absorb.cons = TRUE, n=nrow(LX))
   if (length(smooth) > 1) {
     stop("We don't yet support terms with multiple smooth objects.")
   }
