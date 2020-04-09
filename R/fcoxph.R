@@ -197,5 +197,7 @@ on.exit({
   res$fcoxph <- fcoxterm
   return(res)
 
+  class(fit) <- res$class
+
 }
 

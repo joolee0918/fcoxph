@@ -413,6 +413,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     fit$lambda <- fit0$lambda
     fit$theta <- fit0$theta
     fit$pterms <- pterms
+
   }
 
 
@@ -456,7 +457,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
   }
   if (y)  fit$y <- Y
 
-  class(fit) <- fit$class
+  class(fit) <- c('fcoxph', 'fcoxph.penal')
 
   return(fit)
 }
