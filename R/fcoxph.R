@@ -9,7 +9,7 @@ fcoxph <- function (formula, data, weights, na.action, init, control, knots = NU
                     L2penalty = c("none", "smooth"), theta = switch(L2penalty, none = 0, ridge = NULL, smooth = NULL), gamma = 0.5, lambda = NULL, lambda.min.ratio = 0.001, nlambda = NULL,
                     alpha = switch(penalty, lasso = 0, SCAD = 3.7, MCP = 3, gBridge=0),
                     sparse = c("none", "local"),  group.multiplier=NULL, tuning.method = c("cv", "aic", "bic", "gcv"), nfolds = 10, foldid = NULL,
-                    method = "breslow", parallel = FALSE, ncluster = NULL, x = FALSE, model = TRUE, y = TRUE, ...)
+                    method = "breslow", parallel = FALSE, ncluster = NULL, x = FALSE, model = FALSE, y = TRUE, ...)
 {
 
   call <- match.call()
