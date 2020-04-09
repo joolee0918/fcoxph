@@ -8,7 +8,7 @@ coef.fcoxph <-  function (x,  n){
    raw <- x$fcoxph$fs[[i]]$xind
    xx <- seq(min(raw), max(raw), length = n)
 
-   if (x$by != "NA") {
+   if (x$smooth[[i]]$by != "NA") {
   by <- rep(1, n)
   dat <- data.frame(x = xx, by = by)
   names(dat) <- c(x$smooth[[i]]$term, x$smooth[[i]]$by)

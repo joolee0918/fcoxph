@@ -69,7 +69,7 @@ plot.fcoxph <- function (x, rug = TRUE, se = TRUE, pages = 0,
         rm(P)
       }
     }
-  n.plots <- n.para
+  n.plots <-  0
   if (m > 0)
     for (i in 1:m) n.plots <- n.plots + as.numeric(pd[[i]]$plot.me)
   if (n.plots == 0)
