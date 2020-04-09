@@ -1,5 +1,4 @@
 
-#'
 #' @export
 plot.fcoxph <- function (x, rug = TRUE, se = TRUE, pages = 0,
                           scale = -1, n = 100,
