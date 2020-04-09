@@ -218,7 +218,7 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
       penalty_f.fill(0);
 
       if(pen == 3) {
-      mu= muf(pbeta, gamma, lambda[ilam], M, d);
+      mu= muf(pbeta, M, d);
 
       for(j=0; j<(M+1); j++){
         if(mu[j] == 0) theta[j] = 1e10;
@@ -265,7 +265,7 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
     penalty_f.fill(0);
 
     if(pen == 3) {
-      mu= muf(pbeta, gamma, lambda[ilam], M, d);
+      mu= muf(pbeta,  M, d);
 
       for(j=0; j<(M+1); j++){
         if(mu[j] == 0) theta[j] = 1e10;
