@@ -322,6 +322,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     nvar <- length(fit$coefficients)
     fit$var <- matrix(fit0$var[,sel], nvar, nvar)
     fit$A <- matrix(fit0$A[,sel], nvar, nvar)
+    fit$I <- matrix(fit0$I[,sel], nvar, nvar)
     fit$u <- fit0$u[, sel]
     zero <- penalty.where[fit$coefficients[penalty.where]==0]
 
@@ -347,8 +348,8 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
         newstrat[data.n] <- 1
 
         # sort the data
-        x <- X[ord,]
-        y <- Y[ord,]
+        xx <- X[ord,]
+        yy <- Y[ord,]
 
         if (is.null(weights)) weights <- rep(1, data.n)
         temp2 = sum(weights)
@@ -357,8 +358,8 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
         if (ny==2) {
           resid <- .C(survival:::Ccoxscore, as.integer(data.n),
                       as.integer(nvar),
-                      as.double(y),
-                      x=as.double(x),
+                      as.double(yy),
+                      x=as.double(xx),
                       as.integer(newstrat),
                       as.double(score),
                       as.double(weights[ord]),
@@ -370,8 +371,8 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
           resid<- .C(survival:::Cagscore,
                      as.integer(data.n),
                      as.integer(nvar),
-                     as.double(y),
-                     as.double(x),
+                     as.double(yy),
+                     as.double(xx),
                      as.integer(newstrat),
                      as.double(score),
                      as.double(weights[ord]),
