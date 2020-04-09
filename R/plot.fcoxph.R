@@ -1,25 +1,10 @@
 
+#' @export
 plot.fcoxph <- function (x, rug = TRUE, se = TRUE, pages = 0,
                           scale = -1, n = 100,
                           jit = FALSE, xlab = NULL, ylab = NULL,
                           main = NULL, ylim = NULL, xlim = NULL,
-                          shade = FALSE, shade.col = "gray80", shift = 0, scheme) {
-  sub.edf <- function(lab, edf) {
-    pos <- regexpr(":", lab)[1]
-    if (pos < 0) {
-      pos <- nchar(lab) - 1
-      lab <- paste(substr(lab, start = 1, stop = pos),
-                   ",", round(edf, digits = 2), ")", sep = "")
-    }
-    else {
-      lab1 <- substr(lab, start = 1, stop = pos - 2)
-      lab2 <- substr(lab, start = pos - 1, stop = nchar(lab))
-      lab <- paste(lab1, ",", round(edf, digits = 2), lab2,
-                   sep = "")
-    }
-    lab
-  }
-
+                          shade = FALSE, shade.col = "gray80", shift = 0, scheme, ...) {
   m <- length(x$smooth)
 
   order <- if (is.list(x$pterms))
@@ -53,9 +38,9 @@ plot.fcoxph <- function (x, rug = TRUE, se = TRUE, pages = 0,
       P <- refund:::plot.mgcv.smooth(x$smooth[[i]], P = NULL, data = x$fcoxph$fs[[i]]$data,
                 se = se,
                 scale = scale, n = n, jit = jit, xlab = xlab, ylab = ylab,
-                main = main, label = term.lab, ylim = ylim, xlim = xlim,
+                main = main, label = x$smooth[[i]]$label, ylim = ylim, xlim = xlim,
                 shade = shade, shade.col = shade.col, shift=shift, scheme=scheme[i],
-                se1.mult = se1.mult, se2.mult = se2.mult,...)
+                se1.mult = se1.mult, se2.mult = se2.mult, ...)
       if (is.null(P))
         pd[[i]] <- list(plot.me = FALSE)
       else if (is.null(P$fit)) {

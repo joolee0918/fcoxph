@@ -1,4 +1,6 @@
-coef.func <-  function (x,  n){
+
+#' @export
+coef.fcoxph <-  function (x,  n){
 
    m <- length(x$smooth)
    fit <- sd.fit <- vector(mode = "list", length=m)
