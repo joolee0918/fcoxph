@@ -192,7 +192,7 @@ on.exit({
   fcoxterm <- list(formula = formula,
               responsename = responsename, nobs = nobs,
               termnames = names(terms),
-              termtype = termtype, datameans=datameans, ft = smooth.terms)
+              termtype = termtype, datameans=datameans, fs = smooth.terms)
 
   res$fcoxph <- fcoxterm
   return(res)

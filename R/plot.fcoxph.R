@@ -49,7 +49,7 @@ plot.fcoxph <- function (x, rug = TRUE, se = TRUE, pages = 0,
       first <- x$smooth[[i]]$first.para
       last <- x$smooth[[i]]$last.para
       attr(x$smooth[[i]], "coefficients") <- x$coefficients[first:last]
-      P <- refund:::plot.mgcv.smooth(x$smooth[[i]], P = NULL, data = x$fcoxph$ft[[i]]$data,
+      P <- refund:::plot.mgcv.smooth(x$smooth[[i]], P = NULL, data = x$fcoxph$fs[[i]]$data,
                 se = se,
                 scale = scale, n = n, jit = jit, xlab = xlab, ylab = ylab,
                 main = main, label = term.lab, ylim = ylim, xlim = xlim,
