@@ -222,7 +222,7 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
 
       for(j=0; j<(M+1); j++){
         if(mu[j] == 0) theta[j] = 1e10;
-        else theta[j] = pow(mu[j], 1-1/gamma);
+        else theta[j] = gamma*pow(mu[j], gamma-1);
       }
 
       for(k=0; k<n_npvar; k++){
@@ -269,7 +269,7 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
 
       for(j=0; j<(M+1); j++){
         if(mu[j] == 0) theta[j] = 1e10;
-        else theta[j] = pow(mu[j], 1-1/gamma);
+        else theta[j] = gamma*pow(mu[j], gamma-1);
       }
 
       for(k=0; k<n_npvar; k++){
@@ -279,11 +279,10 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
       for(k=0; k<n_npvar; k++) penalty_f[penalty_where[k]-1] = 1;
     }
 
-
     dA.fill(0);
     for(i=0; i<nvar; i++) if(newbeta[i]!=0) {
-      if(pen==2) dA[i] = nused*penalty_f[i]/fabs(newbeta[i]) - nused*1/alpha;
-      else dA[i] = nused*penalty_f[i]/fabs(newbeta[i]);
+      if(pen==2) dA[i] = nused* lambda[ilam]*penalty_f[i]/fabs(newbeta[i]) - nused*1/alpha;
+      else dA[i] = nused* lambda[ilam]*penalty_f[i]/fabs(newbeta[i]);
     }
 
     List df_var = df_f(newbeta, penalty_where, dA, G, imat, Dnrow);

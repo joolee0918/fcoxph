@@ -110,17 +110,16 @@ NumericVector wshoot (arma::mat x, arma::vec y, NumericVector init, NumericVecto
 }
 
 
-NumericVector muf(NumericVector b, double gamma, double lambda, int M, int d)
+NumericVector muf(NumericVector b, int M, int d)
 {
   double tmpb;
   NumericVector mu(M+1);
-  double tau = pow(lambda, 1/(1-gamma))*pow(gamma, gamma/(1-gamma))*(1-gamma);
 
   for(int j=0; j<(M+1); j++){
     tmpb = 0;
     for(int k=0; k<d; k++) tmpb += fabs(b[j+k]);
 
-    mu[j] += pow((1/gamma-1)/tau, gamma)*pow(tmpb, gamma);
+    mu[j] = tmpb;
   }
 
   return(mu);
