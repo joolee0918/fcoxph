@@ -380,17 +380,18 @@ List fagfit_cpp(NumericMatrix surv2,
       if(pen == 3) {
         mu= muf(pbeta, gamma, lambda[ilam], M, d);
 
-      for(j=0; j<(M+1); j++){
-        if(mu[j] == 0) theta[j] = 1e10;
-        else theta[j] = pow(mu[j], 1-1/gamma);
-      }
+        for(j=0; j<(M+1); j++){
+          if(mu[j] == 0) theta[j] = 1e10;
+          else theta[j] = gamma*pow(mu[j], gamma-1);
+        }
 
-      for(k=0; k<n_npvar; k++){
-        for(j=0; j<(M+1); j++) penalty_f[penalty_where[k]-1] += theta[j]*H(j, k);
-      }
-      }else{
+        for(k=0; k<n_npvar; k++){
+          for(j=0; j<(M+1); j++) penalty_f[penalty_where[k]-1] += theta[j]*H(j, k);
+        }
+      } else{
         for(k=0; k<n_npvar; k++) penalty_f[penalty_where[k]-1] = 1;
       }
+
 
      if(Dnrow==0){
        newbeta = wshoot1(V0, yy, beta, pen, penalty_f, lambda[ilam], alpha, maxiter, eps, nused);
@@ -415,6 +416,27 @@ List fagfit_cpp(NumericMatrix surv2,
     }
 
     for(i=0; i<nvar; i++) fit_beta(i,ilam) = newbeta[i];
+
+    for(i=0; i<n_npvar; i++){
+      pbeta[i] = newbeta(penalty_where[i]-1);
+    }
+
+    penalty_f.fill(0);
+
+    if(pen == 3) {
+      mu= muf(pbeta, gamma, lambda[ilam], M, d);
+
+      for(j=0; j<(M+1); j++){
+        if(mu[j] == 0) theta[j] = 1e10;
+        else theta[j] = gamma*pow(mu[j], gamma-1);
+      }
+
+      for(k=0; k<n_npvar; k++){
+        for(j=0; j<(M+1); j++) penalty_f[penalty_where[k]-1] += theta[j]*H(j, k);
+      }
+    } else{
+      for(k=0; k<n_npvar; k++) penalty_f[penalty_where[k]-1] = 1;
+    }
 
     dA.fill(0);
     for(i=0; i<nvar; i++) if(newbeta[i]!=0) {
