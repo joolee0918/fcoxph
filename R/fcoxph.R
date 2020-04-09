@@ -60,7 +60,7 @@ fcoxph <- function (formula, data, weights, na.action, init, control, knots = NU
 #  assign("te", f_override, envir = parent.env(newfrmlenv))
 #  assign("t2", f_override, envir = parent.env(newfrmlenv))
 
-  where.refund <- c( where.fs,where.fp)
+  where.refund <- c(where.fs, where.fp)
    if (length(where.refund)) {
        fterms <- lapply(terms[where.refund], function(x) {
          newx <- match.call(fs, call = x)
@@ -77,16 +77,6 @@ fcoxph <- function (formula, data, weights, na.action, init, control, knots = NU
       x$names
     })
 
-    nm <- smooth <- smooth.terms <- argvals <- theta <- lambda <- list()
-    for(i in 1:length(fterms)){
-      nm[[i]] <- fterms[[i]]$names
-      smooth[[i]] <- fterms[[i]]$sm
-      smooth.terms[[i]] <- list(data = fterms[[i]]$data, xind = fterms[[i]]$xind, L = fterms[[i]]$L, tindname=fterms[[i]]$tindname,
-                                LXname=fterms[[i]]$LXname)
-
-      argvals[[i]] <- fterms[[i]]$argvals
-     }
-
     lapply(fterms, function(x) {
         assign(x = x$names, x$X, envir = newfrmlenv)
         invisible(NULL)
@@ -96,25 +86,37 @@ fcoxph <- function (formula, data, weights, na.action, init, control, knots = NU
 
 
   where.mgcv <- c(where.s)
-  if (length(where.mgcv)) {
-    if ("data" %in% names(call))
-      frmlenv <- list2env(eval(call$data), frmlenv)
-    lapply(terms[where.mgcv], function(x) {
-      nms <- if (!is.null(names(x))) {
-        all.vars(x[names(x) == ""])
-      }
-      else all.vars(x)
-      sapply(nms, function(nm) {
-        stopifnot(length(get(nm, envir = frmlenv)) ==
-                    nobs)
-        assign(x = nm, value = get(nm, envir = frmlenv),
-               envir = newfrmlenv)
+  if (length(where.mgcv)) stop("s term has not been implemented yet")
+#  if (length(where.mgcv)) {
+#    if ("data" %in% names(call))
+#      frmlenv <- list2env(eval(call$data), frmlenv)
+#    lapply(terms[where.mgcv], function(x) {
+#      nms <- if (!is.null(names(x))) {
+#        all.vars(x[names(x) == ""])
+#      }
+#      else all.vars(x)
+#      sapply(nms, function(nm) {
+#        stopifnot(length(get(nm, envir = frmlenv)) ==
+#                    nobs)
+#        assign(x = nm, value = get(nm, envir = frmlenv),
+#               envir = newfrmlenv)
+#
+#        invisible(NULL)
+#      })
+#      invisible(NULL)
+#    })
+#  }
 
-        invisible(NULL)
-      })
-      invisible(NULL)
-    })
+  nm <- smooth <- smooth.terms <- argvals <- theta <- lambda <- vector(mode = "list", length = length(trmstrings))
+  for(i in 1:length(trmstrings)){
+    nm[[i]] <- fterms[[i]]$names
+    smooth[[i]] <- fterms[[i]]$sm
+    smooth.terms[[i]] <- list(data = fterms[[i]]$data, xind = fterms[[i]]$xind, L = fterms[[i]]$L, tindname=fterms[[i]]$tindname,
+                              LXname=fterms[[i]]$LXname)
+
+    argvals[[i]] <- fterms[[i]]$argvals
   }
+
 
 
   varmap <- vector(mode = "list",   length = length(trmstrings))
