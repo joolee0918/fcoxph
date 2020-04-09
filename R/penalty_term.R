@@ -37,7 +37,7 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
   if(is.null(dots$m)) m<- 2
   else if(length(dots$m)==1) m <- dots$m
   else if(length(dots$m)==2) m <- dots$m[2]
-   if(length(dots$m)==1) {
+   if(length(dots$m)==2) {
      norder <- dots$m[1]+1
    } else{
      norder <- 4
