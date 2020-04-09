@@ -1,7 +1,7 @@
 
 #' @importFrom mgcv PredictMat
 #' @export
-coef.fcoxph <-  function (x,  n){
+coef.fcoxph <-  function (x,  n=100){
 
    m <- length(x$smooth)
    fit <- vector(mode = "list", length=m)
@@ -26,7 +26,7 @@ coef.fcoxph <-  function (x,  n){
   fit[[i]]$value <- X %*% p
   fit[[i]]$se <- sqrt(pmax(0, rowSums((X %*% x$var[first:last, first:last, drop = FALSE]) *
                                    X)))
-  if(x$naive.var)  fit[[i]]$naive.se <- sqrt(pmax(0, rowSums((X %*% x$naive.var[first:last, first:last, drop = FALSE]) *
+  if(!is.null(x$naive.var))  fit[[i]]$naive.se <- sqrt(pmax(0, rowSums((X %*% x$naive.var[first:last, first:last, drop = FALSE]) *
                                                          X)))
 
   fit[[i]] <- as.data.frame(fit[[i]])

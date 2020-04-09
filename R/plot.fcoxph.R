@@ -145,7 +145,7 @@ plot.fcoxph <- function (x, rug = TRUE, se = TRUE, pages = 0, select = NULL,
   if (m > 0)
     for (i in 1:m) if (pd[[i]]$plot.me && (is.null(select) ||
                                            i == select)) {
-      refund:::plot.mgcv.smooth(x$smooth[[i]], P = pd[[i]], partial.resids = NULL,
+      refund:::plot.mgcv.smooth(x$smooth[[i]], P = pd[[i]],
            rug = rug, se = se, scale = scale, n = n,
            jit = jit,
            xlab = xlab, ylab = ylab, main = main, ylim = ylim,
