@@ -77,6 +77,18 @@ fcoxph <- function (formula, data, weights, na.action, init, control, knots = NU
       x$names
     })
 
+    nm <- smooth <- smooth.terms <- argvals <- theta <- lambda <- vector(mode = "list", length = length(fterms))
+    for(i in 1:length(fterms)){
+      nm[[i]] <- fterms[[i]]$names
+      smooth[[i]] <- fterms[[i]]$sm
+      smooth.terms[[i]] <- list(data = fterms[[i]]$data, xind = fterms[[i]]$xind, L = fterms[[i]]$L, tindname=fterms[[i]]$tindname,
+                                LXname=fterms[[i]]$LXname)
+
+      argvals[[i]] <- fterms[[i]]$argvals
+    }
+
+
+
     lapply(fterms, function(x) {
         assign(x = x$names, x$X, envir = newfrmlenv)
         invisible(NULL)
@@ -106,16 +118,6 @@ fcoxph <- function (formula, data, weights, na.action, init, control, knots = NU
 #      invisible(NULL)
 #    })
 #  }
-
-  nm <- smooth <- smooth.terms <- argvals <- theta <- lambda <- vector(mode = "list", length = length(trmstrings))
-  for(i in 1:length(trmstrings)){
-    nm[[i]] <- fterms[[i]]$names
-    smooth[[i]] <- fterms[[i]]$sm
-    smooth.terms[[i]] <- list(data = fterms[[i]]$data, xind = fterms[[i]]$xind, L = fterms[[i]]$L, tindname=fterms[[i]]$tindname,
-                              LXname=fterms[[i]]$LXname)
-
-    argvals[[i]] <- fterms[[i]]$argvals
-  }
 
 
 
