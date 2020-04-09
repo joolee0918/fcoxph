@@ -3,7 +3,7 @@
 df.f <- function(beta, penalty.where, dA, G, I, Dnrow){
   nvar <- length(beta)
   H <- I
-  A <- I + dA
+  A <- I + diag(dA)
 
   if(Dnrow !=0){
     H[penalty.where, penalty.where] <- H[penalty.where, penalty.where] + G
