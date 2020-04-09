@@ -157,6 +157,5 @@ plot.fcoxph <- function (x, rug = TRUE, se = TRUE, pages = 0, select = NULL,
     par(oldpar)
   invisible(pd)
 
-  return(list(beta.fit = fit, beta.sd = se.fit))
 }
 
