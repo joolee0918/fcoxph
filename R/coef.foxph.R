@@ -1,4 +1,5 @@
 
+#' @importFrom mgcv PredictMat
 #' @export
 coef.fcoxph <-  function (x,  n){
 
@@ -17,17 +18,21 @@ else {
   dat <- data.frame(x = xx)
   names(dat) <- x$smooth[[i]]$term
 }
-  X <- PredictMat(x, dat)
+  X <- mgcv::PredictMat(x, dat)
 
   first <- x$smooth[[i]]$first.para
   last <- x$smooth[[i]]$last.para
   p <- x$coefficients[first:last]
-  fit[[i]] <- X %*% p
-  se.fit[[i]] <- sqrt(pmax(0, rowSums((X %*% x$var[first:last, first:last, drop = FALSE]) *
+  fit[[i]]$s <- dat$x
+  fit[[i]]$value <- X %*% p
+  fit[[i]]$se <- sqrt(pmax(0, rowSums((X %*% x$var[first:last, first:last, drop = FALSE]) *
                                    X)))
+  if(x$naive.var)  fit[[i]]$naive.se <- sqrt(pmax(0, rowSums((X %*% x$naive.var[first:last, first:last, drop = FALSE]) *
+                                                         X)))
 
-  names(p) <- x$smooth[[i]]$term
+  fit[[i]] <- as.data.frame(fit[[i]])
+  names(fit[[i]]) <- x$smooth[[i]]$term
    }
 
-   return(p)
+   return(fit)
 }
