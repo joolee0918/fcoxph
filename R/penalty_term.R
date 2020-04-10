@@ -110,7 +110,7 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
   if(dots$bs!="ps") smooth$S <- fda::eval.penalty(beta.basis,int2Lfd(m))/M^(3)
   else {
     smooth$D<- apply(dmat, 2, diff, 1, 2)
-    smooth$S <- t(D)%*%D
+    smooth$S <- t(smooth$D)%*%smooth$D
   }
 
   smooth$bs.dim <- nbasis
