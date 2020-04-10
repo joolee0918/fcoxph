@@ -41,7 +41,6 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
   beta.basismat = fda::eval.basis(xind, beta.basis)
 
   smooth <- list()
-  smooth$X <- LX %*%beta.basismat
   smooth$xind <- xind
 
   newcall <- list(as.symbol(basistype))
@@ -98,6 +97,7 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
   #}
 
 
+  smooth$X <- LX %*%beta.basismat
 
   ## Penalty
   dmat <- diag(nbasis)
