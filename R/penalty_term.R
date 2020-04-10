@@ -35,7 +35,7 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
 
   nbasis <- dots$k
   norder <- m[1] + 1
-  m <- m[2]
+  mm <- m[2]
   M <- nbasis-norder
   beta.basis <- fda::create.bspline.basis(xrange, nbasis=nbasis, norder=norder)
   beta.basismat = fda::eval.basis(xind, beta.basis)
@@ -104,9 +104,9 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
   ## Penalty
   dmat <- diag(nbasis)
 
-  if(dots$bs!="ps") smooth$S <- fda::eval.penalty(beta.basis,int2Lfd(m))/M^(3)
+  if(dots$bs!="ps") smooth$S <- fda::eval.penalty(beta.basis,int2Lfd(mm))/M^(3)
   else {
-    smooth$D<- apply(dmat, 2, diff, 1, m)
+    smooth$D<- apply(dmat, 2, diff, 1, mm)
     smooth$S <- t(smooth$D)%*%smooth$D/16
   }
 
