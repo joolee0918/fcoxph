@@ -4,7 +4,7 @@
 #' @export
 fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapezoidal", "riemann"),
                 L = NULL, presmooth = NULL, presmooth.opts = NULL, sparse = c("none", "local"), tuning.method=c("aic", "bic", "gcv"),
-                theta = NULL, lambda = NULL, penalty = c("lasso", "MCP", "gBridge"),
+                theta = NULL, lambda = NULL, penalty = c("lasso", "MCP", "gBridge"), m = c(3,2),
           ...)
 {
   dots <- list(...)
@@ -34,18 +34,15 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
   basistype = "s"
 
   nbasis <- dots$k
-
-  if(is.null(dots$m)) m<- 2
-  else if(length(dots$m)==1) m <- dots$m
-  else if(length(dots$m)==2) m <- dots$m[2]
-   if(length(dots$m)==2) {
-     norder <- dots$m[1]+2
-   } else{
-     norder <- 4
-   }
+  norder <- m[1] + 1
+  m <- m[2]
   M <- nbasis-norder
   beta.basis <- fda::create.bspline.basis(xrange, nbasis=nbasis, norder=norder)
-  beta.basismat = eval.basis(xind, beta.basis)
+  beta.basismat = fda::eval.basis(xind, beta.basis)
+
+  smooth <- list()
+  smooth$X <- LX %*%beta.basismat
+  smooth$xind <- xind
 
   newcall <- list(as.symbol(basistype))
 
@@ -101,15 +98,13 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
   #}
 
 
-  smooth <- list()
-  smooth$X <- LX %*%beta.basismat
 
   ## Penalty
   dmat <- diag(nbasis)
 
   if(dots$bs!="ps") smooth$S <- fda::eval.penalty(beta.basis,int2Lfd(m))/M^(3)
   else {
-    smooth$D<- apply(dmat, 2, diff, 1, 2)
+    smooth$D<- apply(dmat, 2, diff, 1, m)
     smooth$S <- t(smooth$D)%*%smooth$D/16
   }
 
@@ -190,7 +185,7 @@ pterm1 <- function (sm, theta, lambda)
 {
 
 
-  if(is.null(theta)) theta <- rev(c(0.1, 0.5, 0.75, 0.95, 0.999))
+  if(is.null(theta)) theta <- rev(c(0.001, 0.15, 0.5, 0.95, 0.999))
   #theta <- 0
   W <- sm$X
   #D <- sm$S[[1]]
