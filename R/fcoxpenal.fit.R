@@ -385,7 +385,8 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
       thetalist[[i]] <- Theta[iter]
       lambdalist[[i]] <- 0
 
-      G <- sm[[1]]$S[[1]]*thetalist[[1]]/(1-thetalist[[1]])
+      #G <- sm[[1]]$S[[1]]*thetalist[[1]]/(1-thetalist[[1]])
+      G <- sm[[1]]$S*thetalist[[1]]/(1-thetalist[[1]])
 
       if(L2penalty == "none"){
         D[[i]] <- 0
@@ -395,7 +396,8 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
         nystar <- nvar
       } else{
         if(is.null(sm[[i]]$D)) {
-          eig = eigen(sm[[i]]$S[[1]])
+          #eig = eigen(sm[[i]]$S[[1]])
+          eig = eigen(sm[[i]]$S)
           eig$values[eig$values < 0] = 0
           D[[i]]   = eig$vectors%*%diag(sqrt(eig$values))%*%t(eig$vectors)
         }else {

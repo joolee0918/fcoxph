@@ -27,10 +27,11 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
   n = nrow(X)
   nt = ncol(X)
   integration <- match.arg(integration)
-  tindname <- paste(deparse(substitute(X)), ".smat", sep = "")
 
-  LXname <- paste("L.", deparse(substitute(X)), sep = "")
-  basistype = "s"
+  #tindname <- paste(deparse(substitute(X)), ".smat", sep = "")
+
+  #LXname <- paste("L.", deparse(substitute(X)), sep = "")
+  #basistype = "s"
 
   nbasis <- dots$k
 
@@ -38,12 +39,13 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
   else if(length(dots$m)==1) m <- dots$m
   else if(length(dots$m)==2) m <- dots$m[2]
    if(length(dots$m)==2) {
-     norder <- dots$m[1]+1
+     norder <- dots$m[1]+2
    } else{
      norder <- 4
    }
   M <- nbasis-norder
-  basis <- fda::create.bspline.basis(xrange, nbasis=nbasis, norder=norder)
+  beta.basis <- fda::create.bspline.basis(xrange, nbasis=nbasis, norder=norder)
+  beta.basismat = eval.basis(xind, beta.basis)
 
   newcall <- list(as.symbol(basistype))
 
@@ -86,29 +88,54 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
   newcall <- c(newcall, by=as.symbol(substitute(LXname)))
 
   data <- list(xind, LX)
-  names(data) <- c(tindname, LXname)
-  #print(head(data))
-  splinefun <- as.symbol(basistype)
+  #names(data) <- c(tindname, LXname)
 
-  newcall <- c(newcall, dots)
+  #splinefun <- as.symbol(basistype)
 
-  smooth <- mgcv::smoothCon(eval(as.call(newcall)), data = data,
-                            knots = NULL, absorb.cons = TRUE, n=nrow(LX))
-  if (length(smooth) > 1) {
-    stop("We don't yet support terms with multiple smooth objects.")
+  #newcall <- c(newcall, dots)
+
+  #smooth <- mgcv::smoothCon(eval(as.call(newcall)), data = data,
+  #                          knots = NULL, absorb.cons = TRUE, n=nrow(LX))
+  #if (length(smooth) > 1) {
+  #  stop("We don't yet support terms with multiple smooth objects.")
+  #}
+
+
+  smooth <- list()
+  smooth$X <- (L * data$X) %*%beta.basismat
+
+  ## Penalty
+  dmat <- diag(nbasis)
+
+  if(dots$bs!="ps") smooth$S <- fda::eval.penalty(beta.basis,int2Lfd(m))/M^(3)
+  else {
+    smooth$D<- apply(dmat, 2, diff, 1, 2)
+    smooth$S <- t(D)%*%D
   }
 
+  smooth$bs.dim <- nbasis
 
- if(sparse == "none") X <- pterm(smooth[[1]], theta,  method = tuning.method, eps = 1e-06, n=n)
- else X <- pterm1(smooth[[1]], theta, lambda)
+  tindname <- paste(deparse(substitute(X)), ".smat", sep = "")
+  smooth$label <- tindname
+ #if(sparse == "none") X <- pterm(smooth[[1]], theta,  method = tuning.method, eps = 1e-06, n=n)
+ #else X <- pterm1(smooth[[1]], theta, lambda)
 
- smooth[[1]]$X <- NULL
- if(dots$bs!="ps") smooth[[1]]$S[[1]] <- fda::eval.penalty(basis,int2Lfd(m))/M^(3)
+ #smooth[[1]]$X <- NULL
+ #if(dots$bs!="ps") smooth[[1]]$S[[1]] <- fda::eval.penalty(basis,int2Lfd(m))/M^(3)
+
+  if(sparse == "none") X <- pterm(smooth, theta,  method = tuning.method, eps = 1e-06, n=n)
+  else X <- pterm1(smooth, theta, lambda)
+
+  smooth$X <- NULL
+  #if(dots$bs!="ps") smooth$S <- fda::eval.penalty(basis,int2Lfd(m))/M^(3)
+
 
  names <- paste0(basistype, "(", tindname,  ", ", "by = ", LXname, ")")
 
- res <- list(names=names, X=X, sm = smooth[[1]], argvals = argvals, data = data, xind = xind[1,], L = L, tindname=tindname,
-             LXname=LXname)
+# res <- list(names=names, X=X, sm = smooth[[1]], argvals = argvals, data = data, xind = xind[1,], L = L, tindname=tindname,
+#             LXname=LXname)
+ res <- list(names=names, X=X, sm = smooth, argvals = argvals, data = data, xind = xind[1,], L = L, tindname=tindname,
+                        LXname=LXname)
   return(res)
 }
 
@@ -126,7 +153,8 @@ pterm <- function (sm, theta, method = c("aic", "bic", "gcv", "fixed"),
   }
 
   W <- sm$X
-  D <- as.matrix(sm$S[[1]])
+  #D <- as.matrix(sm$S[[1]])
+  D <- as.matrix(sm$S)
 
   pfun.lFunc <- function(coef, theta, nevent, D) {
     lambda <- ifelse(theta <= 0, 0, theta/(1 - theta))
@@ -166,7 +194,8 @@ pterm1 <- function (sm, theta, lambda)
   if(is.null(theta)) theta <- rev(c(0.5, 0.75, 0.95, 0.99, 0.999))
   #theta <- 0
   W <- sm$X
-  D <- sm$S[[1]]
+  #D <- sm$S[[1]]
+  D <- sm$S
 
   pfun.lFunc <- function(coef, theta, lambda,  penalty.f, init,  penalty, D) {
 

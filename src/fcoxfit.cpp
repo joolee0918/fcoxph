@@ -281,7 +281,7 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
 
     dA.fill(0);
     for(i=0; i<nvar; i++) if(newbeta[i]!=0) {
-      if(pen==2) dA[i] = nused* lambda[ilam]*penalty_f[i]/fabs(newbeta[i]) - nused*1/alpha;
+      if(pen==2) dA[i] = nused* lambda[ilam]*penalty_f[i]/fabs(newbeta[i]) -1/alpha;
       else dA[i] = nused* lambda[ilam]*penalty_f[i]/fabs(newbeta[i]);
     }
 
