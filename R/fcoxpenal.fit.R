@@ -209,8 +209,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
   parmlist <- lapply(pattr, function(x,eps) c(x$cparm, eps2=eps), sqrt(eps))
 
 
-  beta.basis <- lapply(1:m, function(i) fda::create.bspline.basis(rangeval=c(argvals[[i]][1], argvals[[i]][length(argvals[[i]])]), nbasis=sm[[i]]$bs.dim))
-  B <- as.vector(sapply(1:m, function(i) inprod(beta.basis[[i]])))
+  beta.basis <- lapply(1:m, function(i) sm[[i]]$beta.basis)
 
   keep.extra <- extralist <- lapply(pattr, function(x) x$pparm)
   iterlist <- thetalist <- lambdalist <-  D <- vector('list', length(cfun))
@@ -371,8 +370,8 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
 
   ## Broup band matrix
-  d <- 4
-  M <- sm[[1]]$bs.dim - d
+  d <- sm[[1]]$m[1] + 1
+  M <- sm[[1]]$beta.basis$nbasis - d
   H <- as.matrix(Matrix::bandSparse(M+1, M+d, rep(list(rep(1, M+1)), d), k=seq(0, d-1)))
 
 
