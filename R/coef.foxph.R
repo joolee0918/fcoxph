@@ -13,7 +13,7 @@ coef.fcoxph <-  function (x,  n=100){
   last <- x$smooth[[i]]$last.para
   p <- x$coefficients[first:last]
   beta.basis <- x$smooth[[i]]$beta.basis
-  X <- fda::eval.basis(xind, beta.basis)
+  X <- fda::eval.basis(xx, beta.basis)
 
 
   fit[[i]]$s <- xx
