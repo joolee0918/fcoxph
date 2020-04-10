@@ -28,10 +28,10 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
   nt = ncol(X)
   integration <- match.arg(integration)
 
-  #tindname <- paste(deparse(substitute(X)), ".smat", sep = "")
+  tindname <- paste(deparse(substitute(X)), ".smat", sep = "")
 
-  #LXname <- paste("L.", deparse(substitute(X)), sep = "")
-  #basistype = "s"
+  LXname <- paste("L.", deparse(substitute(X)), sep = "")
+  basistype = "s"
 
   nbasis <- dots$k
 
@@ -115,7 +115,6 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
 
   smooth$bs.dim <- nbasis
 
-  tindname <- paste(deparse(substitute(X)), ".smat", sep = "")
   smooth$label <- tindname
  #if(sparse == "none") X <- pterm(smooth[[1]], theta,  method = tuning.method, eps = 1e-06, n=n)
  #else X <- pterm1(smooth[[1]], theta, lambda)
