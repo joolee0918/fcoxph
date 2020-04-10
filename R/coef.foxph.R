@@ -1,13 +1,32 @@
 
 #' @importFrom mgcv PredictMat
-#' #' @importFrom fda fd
+#' @importFrom fda fd
+
+
 #' @export
-coef.fcoxph <-  function (x,  n=100){
+T1.hat = function(beta)
+{
+  T1n = length(beta)
+  t1hatfuntemp=1
+  if(sum(abs(beta)[1:T1n])==0){t1hatfuntemp=0}else{
+    for(t1i in 1:(T1n-1))
+    {
+      if(beta[t1i]!=0 && sum(abs(beta)[(t1i+1):T1n])==0)
+      {t1hatfuntemp = t1i/(T1n-1)}
+    }}
+  return(t1hatfuntemp)
+}
+
+
+#' @export
+coef.fcoxph <-  function (x, n=NULL){
 
    m <- length(x$smooth)
    fit <- vector(mode = "list", length=m)
+
    for(i in 1:m){
-   xx <- seq(x$smooth[[i]]$beta.basis$rangeval[1], x$smooth[[i]]$beta.basis$rangeval[2], length = n)
+     if(is.null) n <-  x$smooth[[i]]$beta.basis$nbasis - x$smooth[[i]]$m[1] + 1
+     xx <- seq(x$smooth[[i]]$beta.basis$rangeval[1], x$smooth[[i]]$beta.basis$rangeval[2], length = n)
 
   first <- x$smooth[[i]]$first.para
   last <- x$smooth[[i]]$last.para

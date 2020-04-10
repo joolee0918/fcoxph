@@ -30,7 +30,7 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
 
   tindname <- paste(deparse(substitute(X)), ".smat", sep = "")
 
-  LXname <- paste("L.", deparse(substitute(X)), sep = "")
+  LXname <- paste("B.", ".smat", sep = "")
   basistype = "s"
 
   nbasis <- dots$k
@@ -42,6 +42,7 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
 
   smooth <- list()
   smooth$xind <- xind
+  smooth$term <- tindname
   smooth$m <- m
 
   newcall <- list(as.symbol(basistype))
@@ -111,7 +112,7 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
 
   smooth$beta.basis <- beta.basis
 
-  smooth$label <- tindname
+
  #if(sparse == "none") X <- pterm(smooth[[1]], theta,  method = tuning.method, eps = 1e-06, n=n)
  #else X <- pterm1(smooth[[1]], theta, lambda)
 
@@ -126,6 +127,7 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
 
 
  names <- paste0(basistype, "(", tindname,  ", ", "by = ", LXname, ")")
+ smooth$label <- names
 
 # res <- list(names=names, X=X, sm = smooth[[1]], argvals = argvals, data = data, xind = xind[1,], L = L, tindname=tindname,
 #             LXname=LXname)
