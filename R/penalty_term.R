@@ -190,7 +190,7 @@ pterm1 <- function (sm, theta, lambda)
 {
 
 
-  if(is.null(theta)) theta <- rev(c(0.5, 0.75, 0.95, 0.99, 0.999))
+  if(is.null(theta)) theta <- rev(c(0.1, 0.5, 0.75, 0.95, 0.999))
   #theta <- 0
   W <- sm$X
   #D <- sm$S[[1]]
