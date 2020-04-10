@@ -313,7 +313,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
   S <-coxfit$u
 
   if(is.null(lambda)) {
-    lambda.max <- max(S[penalty.where])/n
+    lambda.max <- max(abs(S[penalty.where]))/n
     p.lambda <-  exp(seq(log(lambda.max),log(lambda.min.ratio*lambda.max),len=nlambda))
     if(penalty=="gBridge") p.lambda <- p.lambda*30
   }else {
