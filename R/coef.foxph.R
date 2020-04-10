@@ -25,7 +25,7 @@ coef.fcoxph <-  function (x, n=NULL){
    fit <- vector(mode = "list", length=m)
 
    for(i in 1:m){
-     if(is.null) n <-  x$smooth[[i]]$beta.basis$nbasis - x$smooth[[i]]$m[1] + 1
+     if(is.null(n)) n <-  x$smooth[[i]]$beta.basis$nbasis - x$smooth[[i]]$m[1] + 1
      xx <- seq(x$smooth[[i]]$beta.basis$rangeval[1], x$smooth[[i]]$beta.basis$rangeval[2], length = n)
 
   first <- x$smooth[[i]]$first.para
