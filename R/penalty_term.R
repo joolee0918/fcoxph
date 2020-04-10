@@ -102,7 +102,7 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
 
 
   smooth <- list()
-  smooth$X <- (L * data$X) %*%beta.basismat
+  smooth$X <- LX %*%beta.basismat
 
   ## Penalty
   dmat <- diag(nbasis)
