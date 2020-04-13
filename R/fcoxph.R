@@ -81,9 +81,6 @@ fcoxph <- function (formula, data, weights, na.action, init, control, knots = NU
     for(i in 1:length(fterms)){
       nm[[i]] <- fterms[[i]]$names
       smooth[[i]] <- fterms[[i]]$sm
-      smooth.terms[[i]] <- list(data = fterms[[i]]$data, xind = fterms[[i]]$xind, L = fterms[[i]]$L, tindname=fterms[[i]]$tindname,
-                                LXname=fterms[[i]]$LXname)
-
       argvals[[i]] <- fterms[[i]]$argvals
     }
 
@@ -194,11 +191,10 @@ on.exit({
   fcoxterm <- list(formula = formula,
               responsename = responsename, nobs = nobs,
               termnames = names(terms),
-              termtype = termtype, datameans=datameans, fs = smooth.terms)
+              termtype = termtype, datameans=datameans)
 
   res$fcoxph <- fcoxterm
   return(res)
-
   class(fit) <- res$class
 
 }

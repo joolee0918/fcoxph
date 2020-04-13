@@ -30,8 +30,8 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
 
   tindname <- paste(deparse(substitute(X)), ".smat", sep = "")
 
-  LXname <- paste("B.", ".smat", sep = "")
-  basistype = "s"
+  LXname <- paste("B", ".smat", sep = "")
+  basistype = "fs"
 
   nbasis <- dots$k
   norder <- m[1] + 1
@@ -78,24 +78,7 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
 
   LX <- L * X
 
-  newcall <- c(newcall, as.symbol(substitute(tindname)))
-  newcall <- c(newcall, by=as.symbol(substitute(LXname)))
-
-  data <- list(xind, LX)
-  #names(data) <- c(tindname, LXname)
-
-  #splinefun <- as.symbol(basistype)
-
-  #newcall <- c(newcall, dots)
-
-  #smooth <- mgcv::smoothCon(eval(as.call(newcall)), data = data,
-  #                          knots = NULL, absorb.cons = TRUE, n=nrow(LX))
-  #if (length(smooth) > 1) {
-  #  stop("We don't yet support terms with multiple smooth objects.")
-  #}
-
-
-  smooth$X <- LX %*%beta.basismat
+ smooth$X <- LX %*%beta.basismat
 
   ## Penalty
   dmat <- diag(nbasis)
@@ -109,12 +92,6 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
   smooth$beta.basis <- beta.basis
 
 
- #if(sparse == "none") X <- pterm(smooth[[1]], theta,  method = tuning.method, eps = 1e-06, n=n)
- #else X <- pterm1(smooth[[1]], theta, lambda)
-
- #smooth[[1]]$X <- NULL
- #if(dots$bs!="ps") smooth[[1]]$S[[1]] <- fda::eval.penalty(basis,int2Lfd(m))/M^(3)
-
   if(sparse == "none") X <- pterm(smooth, theta,  method = tuning.method, eps = 1e-06, n=n)
   else X <- pterm1(smooth, theta, lambda)
 
@@ -122,14 +99,11 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
   #if(dots$bs!="ps") smooth$S <- fda::eval.penalty(basis,int2Lfd(m))/M^(3)
 
 
- names <- paste0(basistype, "(", tindname,  ", ", "by = ", LXname, ")")
- smooth$label <- names
- smooth$plot.me <- TRUE
+  names <- paste0(basistype, "(", tindname,  ", ", "by = ", LXname, ")")
+  smooth$label <- names
+  smooth$plot.me <- TRUE
 
-# res <- list(names=names, X=X, sm = smooth[[1]], argvals = argvals, data = data, xind = xind[1,], L = L, tindname=tindname,
-#             LXname=LXname)
- res <- list(names=names, X=X, sm = smooth, argvals = argvals, data = data, xind = xind[1,], L = L, tindname=tindname,
-                        LXname=LXname)
+  res <- list(names=names, X=X, sm = smooth, argvals = argvals)
   return(res)
 }
 
