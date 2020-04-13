@@ -272,7 +272,7 @@ plot.coef.smooth <- function (x, P = NULL, label = "", se1.mult = 1,
     }
   }
   if (is.null(P)) {
-    if (!x$plot.me || x$dim > 2)
+    if (!x$plot.me)
       return(NULL)
 
       raw <- x$xind
