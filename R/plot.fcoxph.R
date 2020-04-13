@@ -4,7 +4,7 @@ plot.fcoxph <- function (x, rug = TRUE, se = TRUE, pages = 0, select = NULL,
                           scale = -1, n = 100,
                           jit = FALSE, xlab = NULL, ylab = NULL,
                           main = NULL, ylim = NULL, xlim = NULL,
-                          shade = FALSE, shade.col = "gray80", shift = 0, scheme =0, ...) {
+                          shade = FALSE, shade.col = "gray80", shift = 0, trans = I, scheme =0, ...) {
   m <- length(x$smooth)
 
   order <- if (is.list(x$pterms))
@@ -35,11 +35,11 @@ plot.fcoxph <- function (x, rug = TRUE, se = TRUE, pages = 0, select = NULL,
       first <- x$smooth[[i]]$first.para
       last <- x$smooth[[i]]$last.para
       attr(x$smooth[[i]], "coefficients") <- x$coefficients[first:last]
-      P <- refund:::plot.mgcv.smooth(x$smooth[[i]], P = NULL, data = x$fcoxph$fs[[i]]$data,
+      P <- plot.coef.smooth(x$smooth[[i]], P = NULL,
                 se = se,
                 scale = scale, n = n, jit = jit, xlab = xlab, ylab = ylab,
                 main = main, label = x$smooth[[i]]$label, ylim = ylim, xlim = xlim,
-                shade = shade, shade.col = shade.col, shift=shift, scheme=scheme[i],
+                shade = shade, shade.col = shade.col, shift=shift, trans = trans, scheme=scheme[i],
                 se1.mult = se1.mult, se2.mult = se2.mult, ...)
       if (is.null(P))
         pd[[i]] <- list(plot.me = FALSE)
@@ -145,12 +145,12 @@ plot.fcoxph <- function (x, rug = TRUE, se = TRUE, pages = 0, select = NULL,
   if (m > 0)
     for (i in 1:m) if (pd[[i]]$plot.me && (is.null(select) ||
                                            i == select)) {
-      refund:::plot.mgcv.smooth(x$smooth[[i]], P = pd[[i]],
+     plot.coef.smooth(x$smooth[[i]], P = pd[[i]],
            rug = rug, se = se, scale = scale, n = n,
            jit = jit,
            xlab = xlab, ylab = ylab, main = main, ylim = ylim,
            xlim = xlim, shade = shade,
-           shade.col = shade.col, shift = shift,
+           shade.col = shade.col, shift = shift, trans = trans,
            scheme = scheme[i], ...)
     }
    if (pages > 0)
@@ -158,4 +158,209 @@ plot.fcoxph <- function (x, rug = TRUE, se = TRUE, pages = 0, select = NULL,
   invisible(pd)
 
 }
+
+
+plot.coef.smooth <- function (x, P = NULL, label = "", se1.mult = 1,
+                              se2.mult = 2, rug = TRUE, se = TRUE,
+                              scale = -1, n = 100,
+                              jit = FALSE, xlab = NULL, ylab = NULL, main = NULL, ylim = NULL,
+                              xlim = NULL,  shade = FALSE, shade.col = "gray80",
+                              shift = 0, trans = I, scheme = 0, ...) {
+  sp.contour <- function(x, y, z, zse, xlab = "", ylab = "",
+                         zlab = "", titleOnly = FALSE, se.plot = TRUE, se.mult = 1,
+                         trans = I, shift = 0, ...) {
+    gap <- median(zse, na.rm = TRUE)
+    zr <- max(trans(z + zse + shift), na.rm = TRUE) - min(trans(z -
+                                                                  zse + shift), na.rm = TRUE)
+    n <- 10
+    while (n > 1 && zr/n < 2.5 * gap) n <- n - 1
+    zrange <- c(min(trans(z - zse + shift), na.rm = TRUE),
+                max(trans(z + zse + shift), na.rm = TRUE))
+    zlev <- pretty(zrange, n)
+    yrange <- range(y)
+    yr <- yrange[2] - yrange[1]
+    xrange <- range(x)
+    xr <- xrange[2] - xrange[1]
+    ypos <- yrange[2] + yr/10
+    args <- as.list(substitute(list(...)))[-1]
+    args$x <- substitute(x)
+    args$y <- substitute(y)
+    args$type = "n"
+    args$xlab <- args$ylab <- ""
+    args$axes <- FALSE
+    do.call("plot", args)
+    cs <- (yr/10)/strheight(zlab)
+    if (cs > 1)
+      cs <- 1
+    tl <- strwidth(zlab)
+    if (tl * cs > 3 * xr/10)
+      cs <- (3 * xr/10)/tl
+    args <- as.list(substitute(list(...)))[-1]
+    n.args <- names(args)
+    zz <- trans(z + shift)
+    args$x <- substitute(x)
+    args$y <- substitute(y)
+    args$z <- substitute(zz)
+    if (!"levels" %in% n.args)
+      args$levels <- substitute(zlev)
+    if (!"lwd" %in% n.args)
+      args$lwd <- 2
+    if (!"labcex" %in% n.args)
+      args$labcex <- cs * 0.65
+    if (!"axes" %in% n.args)
+      args$axes <- FALSE
+    if (!"add" %in% n.args)
+      args$add <- TRUE
+    do.call("contour", args)
+    if (is.null(args$cex.main))
+      cm <- 1
+    else cm <- args$cex.main
+    if (titleOnly)
+      title(zlab, cex.main = cm)
+    else {
+      xpos <- xrange[1] + 3 * xr/10
+      xl <- c(xpos, xpos + xr/10)
+      yl <- c(ypos, ypos)
+      lines(xl, yl, xpd = TRUE, lwd = args$lwd)
+      text(xpos + xr/10, ypos, zlab, xpd = TRUE, pos = 4,
+           cex = cs * cm, off = 0.5 * cs * cm)
+    }
+    if (is.null(args$cex.axis))
+      cma <- 1
+    else cma <- args$cex.axis
+    axis(1, cex.axis = cs * cma)
+    axis(2, cex.axis = cs * cma)
+    box()
+    if (is.null(args$cex.lab))
+      cma <- 1
+    else cma <- args$cex.lab
+    mtext(xlab, 1, 2.5, cex = cs * cma)
+    mtext(ylab, 2, 2.5, cex = cs * cma)
+    if (!"lwd" %in% n.args)
+      args$lwd <- 1
+    if (!"lty" %in% n.args)
+      args$lty <- 2
+    if (!"col" %in% n.args)
+      args$col <- 2
+    if (!"labcex" %in% n.args)
+      args$labcex <- cs * 0.5
+    zz <- trans(z + zse + shift)
+    args$z <- substitute(zz)
+    do.call("contour", args)
+    if (!titleOnly) {
+      xpos <- xrange[1]
+      xl <- c(xpos, xpos + xr/10)
+      lines(xl, yl, xpd = TRUE, lty = args$lty, col = args$col)
+      text(xpos + xr/10, ypos, paste("-", round(se.mult),
+                                     "se", sep = ""), xpd = TRUE, pos = 4, cex = cs *
+             cm, off = 0.5 * cs * cm)
+    }
+    if (!"lty" %in% n.args)
+      args$lty <- 3
+    if (!"col" %in% n.args)
+      args$col <- 3
+    zz <- trans(z - zse + shift)
+    args$z <- substitute(zz)
+    do.call("contour", args)
+    if (!titleOnly) {
+      xpos <- xrange[2] - xr/5
+      xl <- c(xpos, xpos + xr/10)
+      lines(xl, yl, xpd = TRUE, lty = args$lty, col = args$col)
+      text(xpos + xr/10, ypos, paste("+", round(se.mult),
+                                     "se", sep = ""), xpd = TRUE, pos = 4, cex = cs *
+             cm, off = 0.5 * cs * cm)
+    }
+  }
+  if (is.null(P)) {
+    if (!x$plot.me || x$dim > 2)
+      return(NULL)
+
+      raw <- x$xind
+      if (is.null(xlim))
+        xx <- seq(x$beta.basis$rangeval[1], x$beta.basis$rangeval[2], length = n)
+      else xx <- seq(xlim[1], xlim[2], length = n)
+      beta.basis <- x$beta.basis
+      X <- fda::eval.basis(xx, beta.basis)
+
+       if (is.null(xlab))
+        xlabel <- x$term
+      else xlabel <- xlab
+      if (is.null(ylab))
+        ylabel <- label
+      else ylabel <- ylab
+      if (is.null(xlim))
+        xlim <- range(xx)
+      return(list(X = X, x = xx, scale = TRUE, se = TRUE,
+                  raw = raw, xlab = xlabel, ylab = ylabel, main = main,
+                  se.mult = se1.mult, xlim = xlim))
+  }
+  else {
+    if (se) {
+        if (scheme == 1)
+          shade <- TRUE
+        ul <- P$fit + P$se
+        ll <- P$fit - P$se
+        if (scale == 0 && is.null(ylim)) {
+          ylimit <- c(min(ll), max(ul))
+           }
+        if (!is.null(ylim))
+          ylimit <- ylim
+        if (shade) {
+          plot(P$x, trans(P$fit + shift), type = "n",
+               xlab = P$xlab, ylim = trans(ylimit + shift),
+               xlim = P$xlim, ylab = P$ylab, main = P$main,
+               ...)
+          polygon(c(P$x, P$x[n:1], P$x[1]), trans(c(ul,
+                                                    ll[n:1], ul[1]) + shift), col = shade.col,
+                  border = NA)
+          lines(P$x, trans(P$fit + shift), ...)
+        }
+        else {
+          plot(P$x, trans(P$fit + shift), type = "l",
+               xlab = P$xlab, ylim = trans(ylimit + shift),
+               xlim = P$xlim, ylab = P$ylab, main = P$main,
+               ...)
+          if (is.null(list(...)[["lty"]])) {
+            lines(P$x, trans(ul + shift), lty = 2, ...)
+            lines(P$x, trans(ll + shift), lty = 2, ...)
+          }
+          else {
+            lines(P$x, trans(ul + shift), ...)
+            lines(P$x, trans(ll + shift), ...)
+          }
+        }
+         if (rug) {
+          if (jit)
+            rug(jitter(as.numeric(P$raw)), ...)
+          else rug(as.numeric(P$raw), ...)
+        }
+
+      else {
+        warning("no automatic plotting for smooths of more than two variables")
+      }
+    }
+    else {
+        if (scale == 0 && is.null(ylim)) {
+          ylimit <- range(P$fit)
+        }
+        if (!is.null(ylim))
+          ylimit <- ylim
+        plot(P$x, trans(P$fit + shift), type = "l", xlab = P$xlab,
+             ylab = P$ylab, ylim = trans(ylimit + shift),
+             xlim = P$xlim, main = P$main, ...)
+        if (rug) {
+          if (jit)
+            rug(jitter(as.numeric(P$raw)), ...)
+          else rug(as.numeric(P$raw), ...)
+        }
+       else {
+        warning("no automatic plotting for smooths of more than one variable")
+      }
+    }
+  }
+}
+
+
+
+
 
