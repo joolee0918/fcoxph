@@ -3,7 +3,7 @@
 
 #' @export
 fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapezoidal", "riemann"),
-                L = NULL, presmooth = NULL, presmooth.opts = NULL, sparse = c("none", "local"), tuning.method=c("aic", "bic", "gcv"),
+                presmooth = NULL, presmooth.opts = NULL, sparse = c("none", "local"), tuning.method=c("aic", "bic", "gcv"),
                 theta = NULL, lambda = NULL, penalty = c("lasso", "MCP", "gBridge"), m = c(3,2),
           ...)
 {
@@ -62,10 +62,6 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
                                                        ], method = presmooth, options = presmooth.opts)
     X <- prep.func(newX = X)
   }
-  if (!is.null(L)) {
-    stopifnot(nrow(L) == n, ncol(L) == nt)
-  }
-  else {
     L <- switch(integration, simpson = {
       ((xind[, nt] - xind[, 1])/nt)/3 * matrix(c(1, rep(c(4,
                                                           2), length = nt - 2), 1), nrow = n, ncol = nt,
@@ -79,7 +75,7 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
       diffs <- t(apply(xind, 1, diff))
       cbind(rep(mean(diffs), n), diffs)
     })
-  }
+
   LX <- L * X
 
   newcall <- c(newcall, as.symbol(substitute(tindname)))
