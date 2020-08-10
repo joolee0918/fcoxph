@@ -58,7 +58,7 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
     stopifnot(nrow(xind) == n)
   }
   if (!is.null(presmooth)) {
-    prep.func = refund::create.prep.func(X, argvals = xind[1,
+    prep.func = refund:::create.prep.func(X, argvals = xind[1,
                                                        ], method = presmooth, options = presmooth.opts)
     X <- prep.func(newX = X)
   }
