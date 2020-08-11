@@ -79,7 +79,7 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
   LX <- as.matrix(L * X)
 
  smooth$X <- LX %*%beta.basismat
- smooth$beta_factor <- as.matrix(L[1,])%*%beta.basismat
+ smooth$beta_factor <- as.vector(L[1,]%*%beta.basismat)
 
   ## Penalty
   dmat <- diag(nbasis)
