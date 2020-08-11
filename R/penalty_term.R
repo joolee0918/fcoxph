@@ -31,7 +31,7 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
   tindname <- paste(deparse(substitute(X)), ".smat", sep = "")
 
   LXname <- paste("B", ".smat", sep = "")
-  basistype = "fs"
+  basistype = "s"
 
   nbasis <- dots$k
   norder <- m[1] + 1
@@ -76,14 +76,15 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
       cbind(rep(mean(diffs), n), diffs)
     })
 
-  LX <- L * X
+  LX <- as.matrix(L * X)
 
  smooth$X <- LX %*%beta.basismat
+ smooth$beta_factor <- as.matrix(L[1,])%*%beta.basismat
 
   ## Penalty
   dmat <- diag(nbasis)
 
-  if(dots$bs!="ps") smooth$S <- fda::eval.penalty(beta.basis,int2Lfd(mm))/M^(3)
+  if(dots$bs!="ps") smooth$S <- fda::eval.penalty(beta.basis, fda::int2Lfd(mm))/M^(3)
   else {
     smooth$D<- apply(dmat, 2, diff, 1, mm)
     smooth$S <- t(smooth$D)%*%smooth$D/16
@@ -103,7 +104,8 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
   smooth$label <- names
   smooth$plot.me <- TRUE
 
-  res <- list(names=names, X=X, sm = smooth, argvals = argvals)
+  res <- list(names=names, X=X, sm = smooth, argvals = argvals, xind = xind[1,], L = L, tindname=tindname,
+              LXname=LXname )
   return(res)
 }
 

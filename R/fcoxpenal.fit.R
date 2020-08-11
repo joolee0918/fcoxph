@@ -312,17 +312,6 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
   S <-coxfit$u
 
-  if(is.null(lambda)) {
-    lambda.max <- max(abs(S[penalty.where]))/n
-    p.lambda <-  exp(seq(log(lambda.max),log(lambda.min.ratio*lambda.max),len=nlambda))
-    if(penalty=="gBridge") p.lambda <- p.lambda*30
-  }else {
-    p.lambda <- lambda
-  }
-
-  nlambda <- length(p.lambda)
-
-
   ## Fit without sparse penalty for initial parameter
 
   if (andersen) {
@@ -369,7 +358,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
   loglik0 <- coxfit$loglik
 
 
-  ## Broup band matrix
+  ## Group band matrix
   d <- sm[[1]]$m[1] + 1
   M <- sm[[1]]$beta.basis$nbasis - d
   H <- as.matrix(Matrix::bandSparse(M+1, M+d, rep(list(rep(1, M+1)), d), k=seq(0, d-1)))
@@ -392,6 +381,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
         Dstar <- as.matrix(0)
         Dncol <- 0
         Dnrow <- 0
+        wbeta <- 1
         nystar <- nvar
       } else{
         if(is.null(sm[[i]]$D)) {
@@ -405,12 +395,23 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
         Dncol <- sum(sapply(D, ncol))
         Dnrow <- sum(sapply(D, nrow))
         Dstar <- matrix(0, nrow=Dnrow, ncol=nvar)
+        wbeta <- rep(1, nvar)
         nystar <- nvar + Dnrow
       }
     }
 
-    if(Dnrow!=0) Dstar[,penalty.where] <- as.matrix(bdiag(lapply(1:m, function(i) D[[i]]*sqrt(thetalist[[i]]/(1-thetalist[[i]])) )))
+    if(Dnrow!=0) {
+      Dstar[,penalty.where] <- as.matrix(bdiag(lapply(1:m, function(i) D[[i]]*sqrt(thetalist[[i]]/(1-thetalist[[i]])) )))
+      wbeta[penalty.where] <- sapply(1:m, function(i) sm[[i]]$beta_factor)
+    }
 
+    if(is.null(lambda)) {
+      lambda.max <- max(abs(S[penalty.where]*wbeta[penalty.where]))/n
+      p.lambda <-  exp(seq(log(lambda.max),log(lambda.min.ratio*lambda.max),len=nlambda))
+      if(penalty=="gBridge") p.lambda <- p.lambda*30
+    }else {
+      p.lambda <- lambda
+    }
 
 
 
@@ -464,7 +465,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
                          as.integer(method=="efron"),
                          as.integer(control$iter.max),
                          as.double(control$eps),
-                         H, Dstar, G,  p.lambda, alpha,
+                         H, Dstar, G,  wbeta, p.lambda, alpha,
                          gamma,  M, d, n.nonpar,  Dnrow, pen, penalty.where, chol, df.f)
 
     } else{
@@ -472,7 +473,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
      fit <- fcoxfit_cpp(stime,   sstat, xx[sorted,],
                        as.double(offset[sorted]), weights[sorted],
                        as.integer(cox.newstrat), as.integer(control$iter.max), as.double(control$eps),
-                       H, Dstar, G, as.integer(method=="efron"), init,  p.lambda, alpha,
+                       H, Dstar, G, wbeta, as.integer(method=="efron"), init,  p.lambda, alpha,
                        gamma,  M, d, n.nonpar,  Dnrow, pen, penalty.where, chol, df.f)
     }
 
