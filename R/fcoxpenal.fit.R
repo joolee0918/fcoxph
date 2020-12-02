@@ -24,7 +24,6 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
   # Get the list of sort indices, but don't sort the data itself
   if (ncol(y) ==3) {
-    case.n <- sum(Y[,3])
     if (length(strata) ==0) {
       sort.end  <- order(-y[,2]) -1L
       sort.start<- order(-y[,1]) -1L
@@ -45,7 +44,6 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
     status <- y[,3]
     andersen <- TRUE
   }else {
-    case.n <- sum(Y[,2])
     if (length(strata) ==0) {
       sort <- order(-y[,1], y[,2]) -1L
       newstrat <- as.integer(n)
@@ -381,6 +379,8 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
   var <- A <- matrix(0, ncol = L*nlambda, nrow=nvar*nvar)
   df <- loglik <-  penalty <- rep(0, L*nlambda)
   coef <-  u <-  matrix(0, ncol = L*nlambda, nrow=nvar)
+
+
   for(iter in 1:L){
     for(i in 1:m){
       thetalist[[i]] <- Theta[iter]
@@ -415,7 +415,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
     if(Dnrow!=0) {
       Dstar[,penalty.where] <- as.matrix(bdiag(lapply(1:m, function(i) D[[i]]*sqrt(thetalist[[i]]/(1-thetalist[[i]])) )))
-      wbeta[penalty.where] <- sapply(1:m, function(i) sm[[i]]$beta_factor)
+      #wbeta[penalty.where] <- sapply(1:m, function(i) sm[[i]]$beta_factor)
     }
 
 
@@ -510,8 +510,8 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
            lambda = p.lambda,
            theta = Theta,
            H = H,
-           case.n = case.n,
            pterms = pterms, assign2=assign,
+           varnames = varnames,
            class = c('fcoxph.penal','fcoxph'))
     }
 

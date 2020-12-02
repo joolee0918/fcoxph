@@ -262,7 +262,6 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
       pbeta[i] = newbeta(penalty_where[i]-1);
     }
 
-    Rcout<<pbeta<<"\n";
 
     penalty_f.fill(0);
 

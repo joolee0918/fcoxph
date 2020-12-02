@@ -86,7 +86,7 @@ fs <- function(X, argvals = NULL, xind = NULL, breaks = NULL, integration = c("s
   ## Penalty
   dmat <- diag(nbasis)
 
-  if(dots$bs!="ps") smooth$S <- fda::eval.penalty(beta.basis, fda::int2Lfd(mm))/M^(3)
+  if(dots$bs!="ps") smooth$S <- fda::eval.penalty(beta.basis, fda::int2Lfd(mm))
   else {
     smooth$D<- apply(dmat, 2, diff, 1, mm)
     smooth$S <- t(smooth$D)%*%smooth$D/16
@@ -167,7 +167,7 @@ pterm1 <- function (sm, theta, lambda)
   #theta <- 0
   W <- sm$X
   #D <- sm$S[[1]]
-  D <- sm$S
+  D <- as.matrix(sm$S)
 
   pfun.lFunc <- function(coef, theta, lambda,  penalty.f, init,  penalty, D) {
 
