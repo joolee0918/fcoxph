@@ -56,7 +56,12 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     stop(paste("Cox model doesn't support \"", type,
                "\" survival data", sep=''))
   data.n <- nrow(Y)   #remember this before any time transforms
+
   if (control$timefix) Y <- aeqSurv(Y)
+  if (ncol(Y)==2) {
+    case.n = sum(Y[,2])
+  } else case.n = sum(Y[,3])
+
   if (length(attr(Terms, 'variables')) > 2) { # a ~1 formula has length 2
     ytemp <- survival:::terms.inner(formula[1:2])
     xtemp <- survival:::terms.inner(formula[-2])
@@ -108,6 +113,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     else stop("The tt argument must contain a function or list of functions")
 
     if (ncol(Y)==2) {
+
       if (length(strats)==0) {
         sorted <- order(-Y[,1], Y[,2])
         newstrat <- rep.int(0L, nrow(Y))
@@ -318,6 +324,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     fit <- list()
 
     fit$coefficients <- fit0$beta[, sel]
+    names(fit$coefficients) <- fit0$varnames
     fit$history <- fit0$beta
     nvar <- length(fit$coefficients)
     fit$var <- matrix(fit0$var[,sel], nvar, nvar)

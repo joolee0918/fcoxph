@@ -24,6 +24,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
   # Get the list of sort indices, but don't sort the data itself
   if (ncol(y) ==3) {
+    case.n <- sum(Y[,3])
     if (length(strata) ==0) {
       sort.end  <- order(-y[,2]) -1L
       sort.start<- order(-y[,1]) -1L
@@ -44,6 +45,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
     status <- y[,3]
     andersen <- TRUE
   }else {
+    case.n <- sum(Y[,2])
     if (length(strata) ==0) {
       sort <- order(-y[,1], y[,2]) -1L
       newstrat <- as.integer(n)
@@ -312,6 +314,17 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
   S <-coxfit$u
 
+  if(is.null(lambda)) {
+    lambda.max <- max(abs(S[penalty.where]))/n
+    p.lambda <-  exp(seq(log(lambda.max),log(lambda.min.ratio*lambda.max),len=nlambda))
+    if(penalty=="gBridge") p.lambda <- p.lambda*30
+  }else {
+    p.lambda <- lambda
+  }
+
+  nlambda <- length(p.lambda)
+
+
   ## Fit without sparse penalty for initial parameter
 
   if (andersen) {
@@ -405,15 +418,6 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
       wbeta[penalty.where] <- sapply(1:m, function(i) sm[[i]]$beta_factor)
     }
 
-    if(is.null(lambda)) {
-      lambda.max <- max(abs(S[penalty.where]*wbeta[penalty.where]))/n
-      p.lambda <-  exp(seq(log(lambda.max),log(lambda.min.ratio*lambda.max),len=nlambda))
-      if(penalty=="gBridge") p.lambda <- p.lambda*30
-    }else {
-      p.lambda <- lambda
-    }
-
-
 
     ### initial values estimated without sparse penalty
     if (andersen) { coxfit0 <- .C(survival:::Cagfit5b,
@@ -506,13 +510,11 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
            lambda = p.lambda,
            theta = Theta,
            H = H,
+           case.n = case.n,
            pterms = pterms, assign2=assign,
            class = c('fcoxph.penal','fcoxph'))
     }
 
 
   }
-
-
-
 

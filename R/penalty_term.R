@@ -2,13 +2,12 @@
 #' @importFrom fda eval.penalty
 
 #' @export
-fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapezoidal", "riemann"),
+fs <- function(X, argvals = NULL, xind = NULL, breaks = NULL, integration = c("simpson","trapezoidal", "riemann"),
                 presmooth = NULL, presmooth.opts = NULL, sparse = c("none", "local"), tuning.method=c("aic", "bic", "gcv"),
                 theta = NULL, lambda = NULL, penalty = c("lasso", "MCP", "gBridge"), m = c(3,2),
           ...)
 {
   dots <- list(...)
-  dots.unmatched <- names(dots)[!(names(dots) %in% names(formals(mgcv::s)))]
 
   if (!is.null(xind)) {
     cat("Argument xind is placed by argvals. xind will not be supported in the next\n        version of refund.")
@@ -33,11 +32,15 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
   LXname <- paste("B", ".smat", sep = "")
   basistype = "s"
 
-  nbasis <- dots$k
   norder <- m[1] + 1
   mm <- m[2]
+  if(is.null(breaks))
+    nbasis <- dots$k
+  else
+    nbasis <- norder + length(breaks) - 2
+
   M <- nbasis-norder
-  beta.basis <- fda::create.bspline.basis(xrange, nbasis=nbasis, norder=norder)
+  beta.basis <- fda::create.bspline.basis(xrange, nbasis=nbasis, norder=norder, breaks=breaks)
   beta.basismat = fda::eval.basis(xind, beta.basis)
 
   smooth <- list()
@@ -58,8 +61,7 @@ fs <- function(X, argvals = NULL, xind = NULL, integration = c("simpson","trapez
     stopifnot(nrow(xind) == n)
   }
   if (!is.null(presmooth)) {
-    prep.func = refund:::create.prep.func(X, argvals = xind[1,
-                                                       ], method = presmooth, options = presmooth.opts)
+    prep.func = refund:::create.prep.func(X, argvals = xind[1, ], method = presmooth, options = presmooth.opts)
     X <- prep.func(newX = X)
   }
     L <- switch(integration, simpson = {

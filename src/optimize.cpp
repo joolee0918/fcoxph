@@ -39,7 +39,7 @@ NumericVector wshoot1 (arma::mat x, arma::vec y, NumericVector init, int pen, Nu
 
 
   for(i=0; i<ncol; i++) {
-    lams[i] = lambda*weight[i];
+    lams[i] = lambda*weight[i]*wbeta[i];
     oldbeta[i] = init[i];
     tmpbeta[i] = oldbeta[i];
   }
@@ -50,9 +50,9 @@ NumericVector wshoot1 (arma::mat x, arma::vec y, NumericVector init, int pen, Nu
       if(fabs(s) <= lams[j]) tmpbeta[j] = 0.0;
       else {
         if(pen==2){
-          if(1/fabs(tmpbeta[j]) > 1/(lams[j]*alpha)) tmpbeta[j] = (-s)/(Q(j,j)/n + lams[j]/fabs(wbeta[j]*tmpbeta[j]) - 1/alpha); // MCP
+          if(1/fabs(tmpbeta[j]) > 1/(lams[j]*alpha)) tmpbeta[j] = (-s)/(Q(j,j)/n + lams[j]/fabs(tmpbeta[j]) - 1/alpha); // MCP
           else tmpbeta[j] = (-s)/(Q(j,j)/n);
-        }else tmpbeta[j] = (-s)/(Q(j,j)/n + lams[j]/fabs(wbeta[j]*tmpbeta[j])); //LASSO + gBridge
+        }else tmpbeta[j] = (-s)/(Q(j,j)/n + lams[j]/fabs(tmpbeta[j])); //LASSO + gBridge
       }
     }
     eps = max(abs(tmpbeta-oldbeta));

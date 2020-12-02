@@ -262,6 +262,8 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
       pbeta[i] = newbeta(penalty_where[i]-1);
     }
 
+    Rcout<<pbeta<<"\n";
+
     penalty_f.fill(0);
 
     if(pen == 3) {
@@ -281,8 +283,8 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
 
     dA.fill(0);
     for(i=0; i<nvar; i++) if(newbeta[i]!=0) {
-      if(pen==2) dA[i] = nused* lambda[ilam]*penalty_f[i]/fabs(newbeta[i]*wbeta[i]) -1/alpha;
-      else dA[i] = nused* lambda[ilam]*penalty_f[i]/fabs(newbeta[i]*wbeta[i]);
+      if(pen==2) dA[i] = nused*lambda[ilam]*penalty_f[i]*wbeta[i]/fabs(newbeta[i]) -nused*1/alpha;
+      else dA[i] = nused*lambda[ilam]*penalty_f[i]*wbeta[i]/fabs(newbeta[i]);
     }
 
     List df_var = df_f(newbeta, penalty_where, dA, G, imat, Dnrow);
