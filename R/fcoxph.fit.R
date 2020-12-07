@@ -318,7 +318,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     }else if(tuning.method == "gcv") {
       minv[i] <- min(-fit0$loglik[[i]]/(data.n*(1-fit0$df[[i]]/data.n)^2) )
       sel[i] <- which.min(-fit0$loglik[[i]]/(data.n*(1-fit0$df[[i]]/data.n)^2) )
-    }else {
+    }else if(tuning.method == "all")
       minv1[i] <- .min(-2*fit0$loglik[[i]] + 2*fit0$df[[i]])
       minv2[i] <- min(-2*fit0$loglik[[i]]+ log(data.n)*fit0$df[[i]])
       minv3[i] <- min(-fit0$loglik[[i]]/(data.n*(1-fit0$df[[i]]/data.n)^2) )
@@ -328,7 +328,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     }
     }
 
-    if(is.null(tuning.method)){
+    if(tuning.method %in% c("aic", "bic", "gcv")){
       fminv.all[1] <- min(minv1)
       fminv.all[2] <- min(minv2)
       fminv.all[3] <- min(minv3)
@@ -439,6 +439,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
 
     fit$aic <-  -2*fit0$loglik[[fsel]][sel[fsel]] + 2*fit0$df[[fsel]][sel[fsel]]
     fit$bic <- -2*fit0$loglik[[fsel]][sel[fsel]] + log(data.n)*fit0$df[[fsel]][sel[fsel]]
+    fit$gcv <- -fit0$loglik[[fsel]][sel[fsel]]/(data.n*(1-fit0$df[[fsel]][sel[fsel]]/data.n)^2)
 
     fit$penalty.par <- c(theta = theta[fsel], lambda = lambda[sel[fsel]])
     fit$lambda <- fit0$lambda
@@ -546,6 +547,8 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
 
     fit$aic <-  -2*fit0$loglik[[fsel]][sel[fsel]] + 2*fit0$df[[fsel]][sel[fsel]]
     fit$bic <- -2*fit0$loglik[[fsel]][sel[fsel]] + log(data.n)*fit0$df[[fsel]][sel[fsel]]
+    fit$gcv <- -fit0$loglik[[fsel]][sel[fsel]]/(data.n*(1-fit0$df[[fsel]][sel[fsel]]/data.n)^2)
+
 
     if(sel%%length(lambda) ==0) lambda.where <- length(lambda)
     else lambda.where <- sel%%length(lambda)
