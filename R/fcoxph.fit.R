@@ -451,7 +451,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
 
 
     fit.all <- lapply(1:3, function(k){
-    fminv <- fmin.all[k]
+    fminv <- fminv.all[k]
     fsel <- fsel.all[k]
     sel <- get(paste0("sel"),k)
 
