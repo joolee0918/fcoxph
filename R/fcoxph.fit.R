@@ -461,6 +461,8 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     fit <- list()
 
     fit$coefficients <- fit0$beta[[fsel]][, sel[fsel]]
+    print(fit$coefficients)
+    print(fit0$varnames)
     names(fit$coefficients) <- fit0$varnames
     fit$history <- fit0$beta
     nvar <- length(fit$coefficients)
