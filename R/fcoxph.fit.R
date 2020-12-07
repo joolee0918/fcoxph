@@ -442,8 +442,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     fit$theta <- fit0$theta
     fit$pterms <- pterms
 
-    }
-  } else{
+    } else{
 
 
     fit.all <- lapply(1:3, function(k){
