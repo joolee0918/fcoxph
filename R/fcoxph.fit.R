@@ -340,6 +340,8 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     fsel <- which.min(minv) # choose theta
     }
 
+    print(fsel)
+    print(sel)
     if(!is.null(tuning.method)){
 
     fit <- list()
@@ -429,15 +431,13 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
       }
     }
 
-    fit$penalty <- fit$penalty
-    fit$loglik <- c(fit0$loglik0, fit0$loglik[sel])
+
+    fit$loglik <- c(fit0$loglik0, fit0$loglik[[fsel]][sel[fsel]])
 
     fit$aic <-  -2*fit0$loglik[[fsel]][sel[fsel]] + 2*fit0$df[[fsel]][sel[fsel]]
     fit$bic <- -2*fit0$loglik[[fsel]][sel[fsel]] + log(data.n)*fit0$df[[fsel]][sel[fsel]]
 
-    if(sel%%length(lambda) ==0) lambda.where <- length(lambda)
-    else lambda.where <- sel%%length(lambda)
-    fit$penalty.par <- c(theta = theta[ceiling(sel/length(lambda))], lambda = lambda[lambda.where])
+    fit$penalty.par <- c(theta = theta[fsel], lambda = lambda[sel[fsel]])
     fit$lambda <- fit0$lambda
     fit$theta <- fit0$theta
     fit$pterms <- pterms
@@ -537,8 +537,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
       }
     }
 
-    fit$penalty <- fit$penalty
-    fit$loglik <- c(fit0$loglik0, fit0$loglik[sel])
+    fit$loglik <- c(fit0$loglik0, fit0$loglik[[fsel]][sel[fsel]])
 
     fit$aic <-  -2*fit0$loglik[[fsel]][sel[fsel]] + 2*fit0$df[[fsel]][sel[fsel]]
     fit$bic <- -2*fit0$loglik[[fsel]][sel[fsel]] + log(data.n)*fit0$df[[fsel]][sel[fsel]]
