@@ -307,6 +307,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     fit$theta <- fit$theta
     fit$pterms <- pterms
 
+    class(fit) <- c('fcoxph', 'fcoxph.penal')
 
   }else if(sparse != "none"){
 
