@@ -495,9 +495,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
     loglik[[iter]] <- fit$loglik
     var[[iter]] <- fit$var
     A[[iter]]<- fit$A
-
     coef[[iter]]<- fit$beta
-    u[[iter]]<- fit$u
 
 
 
@@ -513,7 +511,6 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
            df=df,
            var = var,
            A = A,
-           u = u,
            loglik0 = loglik0,
            loglik = loglik,
            penalty = penalty,

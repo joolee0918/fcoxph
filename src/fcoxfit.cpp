@@ -296,6 +296,7 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
     A(_, ilam) = tmpA;
     logl[ilam] = loglik;
 
+
     for(i=0; i<nvar; i++) fbeta[i]=fabs(newbeta[i]);
     sumbeta = sum(fbeta);
     if(sumbeta==0) {
@@ -306,7 +307,7 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
   Rcpp::List res = List::create(Named("fnlam") = ilam+1,
                                 Named("loglik")= logl,
                                 Named("beta") = fit_beta,
-                                Named("df")=df, Named("var")=var, Named("A") = A,  Named("u") = u);
+                                Named("df")=df, Named("var")=var, Named("A") = A);
 
   return(res);
 

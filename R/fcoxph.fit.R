@@ -342,9 +342,6 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
 
     if(!is.null(tuning.method)){
 
-    print(fsel)
-    print(sel[fsel])
-
     fit <- list()
 
     fit$coefficients <- fit0$beta[[fsel]][, sel[fsel]]
@@ -353,9 +350,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     nvar <- length(fit$coefficients)
     fit$var <- matrix(fit0$var[[fsel]][,sel[fsel]], nvar, nvar)
     fit$A <- matrix(fit0$A[[fsel]][,sel[fsel]], nvar, nvar)
-    print(length(fit0$u))
-    print(fit0$u[[fsel]])
-    fit$u <- fit0$u[[fsel]][, sel[fsel]]
+
     zero <- penalty.where[fit$coefficients[penalty.where]==0]
 
     if (robust && !is.null(fit$coefficients) && !all(is.na(fit$coefficients))) {
