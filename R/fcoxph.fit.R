@@ -342,7 +342,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
 
     print(fsel)
     print(sel)
-    if(!is.null(tuning.method)){
+    if(tuning.method %in% c("aic", "bic", "gcv"){
 
     fit <- list()
 
@@ -549,17 +549,13 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     fit$bic <- -2*fit0$loglik[[fsel]][sel[fsel]] + log(data.n)*fit0$df[[fsel]][sel[fsel]]
     fit$gcv <- -fit0$loglik[[fsel]][sel[fsel]]/(data.n*(1-fit0$df[[fsel]][sel[fsel]]/data.n)^2)
 
-
-    if(sel%%length(lambda) ==0) lambda.where <- length(lambda)
-    else lambda.where <- sel%%length(lambda)
-    fit$penalty.par <- c(theta = theta[ceiling(sel/length(lambda))], lambda = lambda[lambda.where])
+    fit$penalty.par <- c(theta = theta[fsel], lambda = lambda[sel[fsel]])
     fit$lambda <- fit0$lambda
     fit$theta <- fit0$theta
     fit$pterms <- pterms
     })
     fit <- fit.all
     names(fit) <- c("aic", "bic", "gcv")
-  }
   }
 
 
