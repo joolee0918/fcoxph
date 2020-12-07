@@ -306,7 +306,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     theta <- fit0$theta
 
     minv <- sel <- minv1 <- minv2 <- minv3 <- sel1 <- sel2 <- sel3 <- rep(0, length(theta))
-    fmin.all <- fsel.all <- rep(0, 3)
+    fminv.all <- fsel.all <- rep(0, 3)
     for(i in 1:length(theta)){
 
     if (tuning.method == "aic") {
