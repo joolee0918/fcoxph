@@ -218,7 +218,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
     L <- length(theta)
     Theta <- theta
   }else {
-    L <- control$outer.max
+    L <- length(parmlist[[1]]$theta)
     Theta <- parmlist[[1]]$theta
   }
 
