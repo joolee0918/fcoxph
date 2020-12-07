@@ -490,12 +490,12 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
   # coef[, ((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)] <- fit$beta
   #  u[, ((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)] <- fit$u
 
-
-    df[[iter]] <- fit$df
-    loglik[[iter]] <- fit$loglik
-    var[[iter]] <- fit$var
-    A[[iter]]<- fit$A
-    coef[[iter]]<- fit$beta
+    fnlam[[iter]] <- fit$fnlam
+    df[[iter]] <- fit$df[1:fit$fnlam]
+    loglik[[iter]] <- fit$loglik[1:fit$fnlam]
+    var[[iter]] <- fit$var[,1:fit$fnlam]
+    A[[iter]]<- fit$A[,1:fit$fnlam]
+    coef[[iter]]<- fit$beta[,1:fit$fnlam]
 
 
 
