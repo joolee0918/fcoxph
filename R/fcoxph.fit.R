@@ -340,10 +340,10 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     fsel <- which.min(minv) # choose theta
     }
 
-    print(fsel)
-    print(sel)
 
     if(tuning.method %in% c("aic", "bic", "gcv")){
+      print(fsel)
+      print(sel)
 
     fit <- list()
 
@@ -454,6 +454,9 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     fminv <- fmin.all[k]
     fsel <- fsel.all[k]
     sel <- get(paste0("sel"),k)
+
+    print(fsel)
+    print(sel)
 
     fit <- list()
 
