@@ -342,8 +342,6 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
 
 
     if(tuning.method %in% c("aic", "bic", "gcv")){
-      print(fsel)
-      print(sel)
 
     fit <- list()
 
@@ -447,6 +445,19 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     fit$theta <- fit0$theta
     fit$pterms <- pterms
 
+    for (i in 1:length(sm)) {
+      tmpid <- pcols[[i]]
+      start <- 1
+      idx <- tmpid[start:(start + length(pcols[[i]]) -1)]
+      sm[[i]]$first.para <- min(idx)
+      sm[[i]]$last.para <- max(idx)
+      start <- start + length(idx)
+    }
+
+    fit$smooth <- sm
+
+    class(fit) <- c('fcoxph', 'fcoxph.penal')
+
     } else{
 
 
@@ -455,14 +466,10 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     fsel <- fsel.all[k]
     sel <- get(paste0("sel",k))
 
-    print(fsel)
-    print(sel)
 
     fit <- list()
 
     fit$coefficients <- fit0$beta[[fsel]][, sel[fsel]]
-    print(fit$coefficients)
-    print(fit0$varnames)
     names(fit$coefficients) <- fit0$varnames
     fit$history <- fit0$beta
     nvar <- length(fit$coefficients)
@@ -559,11 +566,6 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     fit$lambda <- fit0$lambda
     fit$theta <- fit0$theta
     fit$pterms <- pterms
-    return(fit)
-    })
-    fit <- fit.all
-    names(fit) <- c("aic", "bic", "gcv")
-  }
 
 
     for (i in 1:length(sm)) {
@@ -575,6 +577,15 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
       start <- start + length(idx)
     }
 
+    fit$smooth <- sm
+    class(fit) <- c('fcoxph', 'fcoxph.penal')
+    return(fit)
+
+    })
+    fit <- fit.all
+    names(fit) <- c("aic", "bic", "gcv")
+    }
+
   }
 
 
@@ -583,7 +594,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
   fit$terms <- Terms
   fit$assign <- assign
   fit$assign2 <- pcols
-  fit$smooth <- sm
+
 
 
 
@@ -605,7 +616,6 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
   }
   if (y)  fit$y <- Y
 
-  class(fit) <- c('fcoxph', 'fcoxph.penal')
 
   return(fit)
 
