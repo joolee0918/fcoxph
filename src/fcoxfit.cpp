@@ -304,7 +304,7 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
       break;
     }
   }
-  Rcpp::List res = List::create(Named("fnlam") = ilam+1,
+  Rcpp::List res = List::create(Named("fnlam") = fnlam+1,
                                 Named("loglik")= logl,
                                 Named("beta") = fit_beta,
                                 Named("df")=df, Named("var")=var, Named("A") = A);
