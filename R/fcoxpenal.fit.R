@@ -378,7 +378,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
   ## Fitting
   var <- A <- vector(mode="list")
-  df <- loglik <-  penalty <- vector(mode="list")
+  df <- loglik <-  penalty <- fnlam <- vector(mode="list")
   coef <-  u <-  vector(mode="list")
 
 
