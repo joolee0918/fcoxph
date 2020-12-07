@@ -328,7 +328,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     }
     }
 
-    if(tuning.method %in% c("aic", "bic", "gcv")){
+    if(tuning.method =="all"){
       fminv.all[1] <- min(minv1)
       fminv.all[2] <- min(minv2)
       fminv.all[3] <- min(minv3)
