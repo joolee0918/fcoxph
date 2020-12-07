@@ -342,6 +342,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
 
     print(fsel)
     print(sel)
+
     if(tuning.method %in% c("aic", "bic", "gcv")){
 
     fit <- list()
