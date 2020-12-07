@@ -35,7 +35,7 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
   nvar  = covar2.ncol();
   int n_pvar = nvar - n_npvar;
 
-  NumericVector beta(nvar), newbeta(nvar), fbeta(nvar), means(nvar),  pbeta(n_npvar);
+  NumericVector beta(nvar), newbeta(nvar), fbeta(n_npvar), means(nvar),  pbeta(n_npvar);
   NumericVector penalty_f(nvar);
   NumericVector a(nvar), a2(nvar), u(nvar), u2(nvar);
   NumericMatrix imat(nvar, nvar), cmat(nvar, nvar), cmat2(nvar, nvar), V(nvar, nvar);
@@ -297,7 +297,7 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
     logl[ilam] = loglik;
 
 
-    for(i=0; i<nvar; i++) fbeta[i]=fabs(newbeta[i]);
+    for(k=0; k<n_npvar; k++) fbeta[k]=fabs(pbeta[k]);
     sumbeta = sum(fbeta);
     if(sumbeta==0) {
       fnlam = ilam;
