@@ -493,6 +493,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
     fnlam[[iter]] <- fit$fnlam
     df[[iter]] <- fit$df[1:fit$fnlam]
     loglik[[iter]] <- fit$loglik[1:fit$fnlam]
+    print(fit$fnalm)
     var[[iter]] <- fit$var[,1:fit$fnlam]
     A[[iter]]<- fit$A[,1:fit$fnlam]
     coef[[iter]]<- fit$beta[,1:fit$fnlam]

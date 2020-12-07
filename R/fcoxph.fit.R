@@ -293,6 +293,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
                          control,
                          weights=weights, method=method,
                          row.names(mf), pcols, pattr, assign)
+
   }else if(sparse != "none"){
 
     fit0 <- fcoxpenal.fit(x = X, y =Y, strata = strats,  offset = offset, init=init,
@@ -326,7 +327,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
       sel2[i] <- which.min(-2*fit0$loglik[[i]]+ log(data.n)*fit0$df[[i]]) #+ 0.5*fit0$df*log(length(penalty.where)))
       sel3[i] <-  which.min(-fit0$loglik[[i]]/(data.n*(1-fit0$df[[i]]/data.n)^2) )
     }
-    }
+
 
     if(tuning.method =="all"){
       fminv.all[1] <- min(minv1)
@@ -586,6 +587,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     names(fit) <- c("aic", "bic", "gcv")
     }
 
+  }
   }
 
 
