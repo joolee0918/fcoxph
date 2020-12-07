@@ -559,6 +559,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     fit$lambda <- fit0$lambda
     fit$theta <- fit0$theta
     fit$pterms <- pterms
+    return(fit)
     })
     fit <- fit.all
     names(fit) <- c("aic", "bic", "gcv")
