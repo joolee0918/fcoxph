@@ -4,15 +4,17 @@
 
 
 #' @export
-T1.hat = function(beta)
+T1.hat = function(coef.res)
 {
+  knots <- coef.res[,1]
+  beta <- coef.res[,2]
   T1n = length(beta)
-  t1hatfuntemp=1
-  if(sum(abs(beta)[1:T1n])==0){t1hatfuntemp=0}else{
+  t1hatfuntemp=knots[T1n]
+  if(sum(abs(beta)[1:T1n])==0){t1hatfuntemp=knots[1]}else{
     for(t1i in 1:(T1n-1))
     {
       if(beta[t1i]!=0 && sum(abs(beta)[(t1i+1):T1n])==0)
-      {t1hatfuntemp = t1i/(T1n-1)}
+      {t1hatfuntemp = knots[t1i+1]}
     }}
   return(t1hatfuntemp)
 }
