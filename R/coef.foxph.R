@@ -1,6 +1,6 @@
 
 #' @importFrom mgcv PredictMat
-#' @importFrom fda fd
+#' @importFrom fda fd eval.fd
 
 
 #' @export
@@ -36,7 +36,7 @@ coef.fcoxph <-  function (x, n=NULL){
   betafd <- fda::fd(coef=p,basisobj=beta.basis)
 
   fit[[i]]$s <- xx
-  fit[[i]]$value <- eval.fd(xx, betafd)
+  fit[[i]]$value <- fda::eval.fd(xx, betafd)
   fit[[i]]$se <- sqrt(pmax(0, rowSums((X %*% x$var[first:last, first:last, drop = FALSE]) *
                                    X)))
   if(!is.null(x$naive.var))  fit[[i]]$naive.se <- sqrt(pmax(0, rowSums((X %*% x$naive.var[first:last, first:last, drop = FALSE]) *

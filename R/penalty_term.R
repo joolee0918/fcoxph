@@ -2,7 +2,7 @@
 #' @importFrom fda eval.penalty
 
 #' @export
-fs <- function(X, argvals = NULL, xind = NULL, breaks = NULL, integration = c("simpson","trapezoidal", "riemann"),
+fs <- function(X, argvals = NULL, xind = NULL, breaks = NULL, integration = c("dlm", "simpson","trapezoidal", "riemann"),
                 presmooth = NULL, presmooth.opts = NULL, sparse = c("none", "local"), tuning.method=c("aic", "bic", "gcv"),
                 theta = NULL, lambda = NULL, penalty = c("lasso", "MCP", "gBridge"), m = c(3,2),
           ...)
@@ -64,7 +64,9 @@ fs <- function(X, argvals = NULL, xind = NULL, breaks = NULL, integration = c("s
     prep.func = refund:::create.prep.func(X, argvals = xind[1, ], method = presmooth, options = presmooth.opts)
     X <- prep.func(newX = X)
   }
-    L <- switch(integration, simpson = {
+    L <- switch(integration, dlm={
+      matrix(1, nrow=n, ncol=nt)
+    }, simpson = {
       ((xind[, nt] - xind[, 1])/nt)/3 * matrix(c(1, rep(c(4,
                                                           2), length = nt - 2), 1), nrow = n, ncol = nt,
                                                byrow = T)
@@ -86,7 +88,7 @@ fs <- function(X, argvals = NULL, xind = NULL, breaks = NULL, integration = c("s
   ## Penalty
   dmat <- diag(nbasis)
 
-  if(dots$bs!="ps") smooth$S <- fda::eval.penalty(beta.basis, fda::int2Lfd(mm))
+  if(dots$bs!="ps") smooth$S <- fda::eval.penalty(beta.basis, fda::int2Lfd(mm))/M^3
   else {
     smooth$D<- apply(dmat, 2, diff, 1, mm)
     smooth$S <- t(smooth$D)%*%smooth$D/16
@@ -163,7 +165,7 @@ pterm1 <- function (sm, theta, lambda)
 {
 
 
-  if(is.null(theta)) theta <- rev(c(0.25, 0.5, 0.75, 0.95, 0.999))
+  if(is.null(theta)) theta <- rev(c(0.001, 0.05, 0.25, 0.5, 0.75, 0.95, 0.999))
   #theta <- 0
   W <- sm$X
   #D <- sm$S[[1]]

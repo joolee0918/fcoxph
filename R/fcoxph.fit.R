@@ -313,6 +313,10 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
       sel <- which.min(-2*fit0$loglik + log(data.n)*fit0$df) #+ 0.5*fit0$df*log(length(penalty.where)))
     }else if(tuning.method == "gcv") {
       sel <- which.min(-fit0$loglik/(data.n*(1-fit0$df/data.n)^2) )
+    }else {
+      sel.aic <- which.min(-2*fit0$loglik + 2*fit0$df)
+      sel.bic <- which.min(-2*fit0$loglik + log(data.n)*fit0$df) #+ 0.5*fit0$df*log(length(penalty.where)))
+      sel.gcv <- which.min(-fit0$loglik/(data.n*(1-fit0$df/data.n)^2) )
     }
 
 
@@ -320,7 +324,10 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     theta <- fit0$theta
 
 
-
+    if(is.null(tuning.method)){
+      fit <- vector("list", length = 3)
+      fit[[1]]
+    }
     fit <- list()
 
     fit$coefficients <- fit0$beta[, sel]
@@ -411,8 +418,8 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     fit$penalty <- fit$penalty
     fit$loglik <- c(fit0$loglik0, fit0$loglik[sel])
 
-    fit$aic <-  -2*fit0$loglik + 2*fit0$df
-    fit$bic <- -2*fit0$loglik + log(data.n)*fit0$df
+    fit$aic <-  -2*fit0$loglik[sel] + 2*fit0$df[sel]
+    fit$bic <- -2*fit0$loglik[sel] + log(data.n)*fit0$df[sel]
 
     if(sel%%length(lambda) ==0) lambda.where <- length(lambda)
     else lambda.where <- sel%%length(lambda)
