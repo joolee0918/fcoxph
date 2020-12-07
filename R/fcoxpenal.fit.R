@@ -320,6 +320,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
     p.lambda <- lambda
   }
 
+  p.lambda <- sort(p.lambda)
   nlambda <- length(p.lambda)
 
 
@@ -376,9 +377,9 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
 
 
   ## Fitting
-  var <- A <- matrix(0, ncol = L*nlambda, nrow=nvar*nvar)
-  df <- loglik <-  penalty <- rep(0, L*nlambda)
-  coef <-  u <-  matrix(0, ncol = L*nlambda, nrow=nvar)
+  var <- A <- vector(mode="list")
+  df <- loglik <-  penalty <- vector(mode="list")
+  coef <-  u <-  vector(mode="list")
 
 
   for(iter in 1:L){
@@ -481,17 +482,26 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
                        gamma,  M, d, n.nonpar,  Dnrow, pen, penalty.where, chol, df.f)
     }
 
-    df[((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)]  <- fit$df
-    loglik[((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)] <- fit$loglik
-    var[, ((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)] <- fit$var
-    A[, ((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)] <- fit$A
+  #  df[((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)]  <- fit$df
+  #  loglik[((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)] <- fit$loglik
+  #  var[, ((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)] <- fit$var
+  #  A[, ((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)] <- fit$A
 
-    coef[, ((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)] <- fit$beta
-    u[, ((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)] <- fit$u
+  # coef[, ((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)] <- fit$beta
+  #  u[, ((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)] <- fit$u
+
+
+    df[[iter]] <- fit$df
+    loglik[[iter]] <- fit$loglik
+    var[[iter]] <- fit$var
+    A[[iter]]<- fit$A
+
+    coef[[iter]]<- fit$beta
+    u[[iter]]<- fit$u
 
 
 
-   for(i in 1:nlambda)  penalty[((iter-1)*nlambda+1): ((iter-1)*nlambda + nlambda)] <- as.numeric(t(fit$beta[penalty.where,i])%*%G%*%fit$beta[penalty.where,i]/2)+ sum(as.numeric(n*p.lambda[i]*sqrt(H%*%abs(fit$beta[penalty.where,i]))))
+   penalty[[iter]] <- sapply(1: nlambda, function(i) as.numeric(t(fit$beta[penalty.where,i])%*%G%*%fit$beta[penalty.where,i]/2)+ sum(as.numeric(n*p.lambda[i]*sqrt(H%*%abs(fit$beta[penalty.where,i])))) )
 
 
     }

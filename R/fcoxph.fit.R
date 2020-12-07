@@ -301,42 +301,56 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
                            sm = sm,  gamma = gamma, alpha = alpha, theta = theta, lambda = lambda, lambda.min.ratio = lambda.min.ratio, nlambda = nlambda, penalty = penalty,
                           L2penalty = L2penalty, sparse.what = sparse, argvals = argvals, group.multiplier = group.multiplier, cv.fit=FALSE)
 
-    if(tuning.method == "cv"){
-      sel <- cv.fcoxph(fit0, x = X, y = Y, strats = strats, cluster = cluster, init=init, weights = weights, offset = offset, control = control, lambda = lambda, lambda.min.ratio = lambda.min.ratio,nfolds = nfolds, foldid = foldid,
-                  method = method, parallel = FALSE, ncluster=ncluster, pcols = pcols, pattr = pattr, assign = assign, npcols = npcols, tuning.method = tuning.method,
-                  sm = sm,  gamma = gamma, alpha = alpha, theta = theta, nlambda = nlambda, penalty = penalty,
-                  L2penalty = L2penalty, sparse.what = sparse, argvals = argvals, group.multiplier = group.multiplier)
-
-    } else if (tuning.method == "aic") {
-      sel <- which.min(-2*fit0$loglik + 2*fit0$df)
-    }else if (tuning.method == "bic") {
-      sel <- which.min(-2*fit0$loglik + log(data.n)*fit0$df) #+ 0.5*fit0$df*log(length(penalty.where)))
-    }else if(tuning.method == "gcv") {
-      sel <- which.min(-fit0$loglik/(data.n*(1-fit0$df/data.n)^2) )
-    }else {
-      sel.aic <- which.min(-2*fit0$loglik + 2*fit0$df)
-      sel.bic <- which.min(-2*fit0$loglik + log(data.n)*fit0$df) #+ 0.5*fit0$df*log(length(penalty.where)))
-      sel.gcv <- which.min(-fit0$loglik/(data.n*(1-fit0$df/data.n)^2) )
-    }
-
 
     lambda <- fit0$lambda
     theta <- fit0$theta
 
+    minv <- sel <- minv1 <- minv2 <- minv3 <- sel1 <- sel2 <- sel3 <- rep(0, length(theta))
+    fmin.all <- fsel.all <- rep(0, 3)
+    for(i in 1:length(theta)){
+
+    if (tuning.method == "aic") {
+      minv[i] <- min(-2*fit0$loglik[[i]] + 2*fit0$df[[i]])
+      sel[i] <- which.min(-2*fit0$loglik[[i]] + 2*fit0$df[[i]]) # choose lambda given theta
+    }else if (tuning.method == "bic") {
+      minv[i] <- min(-2*fit0$loglik[[i]]+ log(data.n)*fit0$df[[i]])
+      sel[i] <- which.min(-2*fit0$loglik[[i]]+ log(data.n)*fit0$df[[i]]) #+ 0.5*fit0$df*log(length(penalty.where)))
+    }else if(tuning.method == "gcv") {
+      minv[i] <- min(-fit0$loglik[[i]]/(data.n*(1-fit0$df[[i]]/data.n)^2) )
+      sel[i] <- which.min(-fit0$loglik[[i]]/(data.n*(1-fit0$df[[i]]/data.n)^2) )
+    }else {
+      minv1[i] <- .min(-2*fit0$loglik[[i]] + 2*fit0$df[[i]])
+      minv2[i] <- min(-2*fit0$loglik[[i]]+ log(data.n)*fit0$df[[i]])
+      minv3[i] <- min(-fit0$loglik[[i]]/(data.n*(1-fit0$df[[i]]/data.n)^2) )
+      sel1[i] <- which.min(-2*fit0$loglik[[i]] + 2*fit0$df[[i]])
+      sel2[i] <- which.min(-2*fit0$loglik[[i]]+ log(data.n)*fit0$df[[i]]) #+ 0.5*fit0$df*log(length(penalty.where)))
+      sel3[i] <-  which.min(-fit0$loglik[[i]]/(data.n*(1-fit0$df[[i]]/data.n)^2) )
+    }
+    }
 
     if(is.null(tuning.method)){
-      fit <- vector("list", length = 3)
-      fit[[1]]
+      fminv.all[1] <- min(minv1)
+      fminv.all[2] <- min(minv2)
+      fminv.all[3] <- min(minv3)
+      fsel.all[1] <- which.min(minv1)
+      fsel.all[2] <- which.min(minv2)
+      fsel.all[3] <- which.min(minv3)
+    } else{
+    fminv <- min(minv)
+    fsel <- which.min(minv) # choose theta
     }
+
+    if(!is.null(tuning.method)){
+
     fit <- list()
 
-    fit$coefficients <- fit0$beta[, sel]
+    fit$coefficients <- fit0$beta[[fsel]][, sel[fsel]]
     names(fit$coefficients) <- fit0$varnames
     fit$history <- fit0$beta
     nvar <- length(fit$coefficients)
-    fit$var <- matrix(fit0$var[,sel], nvar, nvar)
-    fit$A <- matrix(fit0$A[,sel], nvar, nvar)
-    fit$u <- fit0$u[, sel]
+    fit$var <- matrix(fit0$var[[fsel]][,sel[fsel]], nvar, nvar)
+    fit$A <- matrix(fit0$A[[fsel]][,sel[fsel]], nvar, nvar)
+    fit$u <- fit0$u[[fsel]][, sel[fsel]]
     zero <- penalty.where[fit$coefficients[penalty.where]==0]
 
     if (robust && !is.null(fit$coefficients) && !all(is.na(fit$coefficients))) {
@@ -406,7 +420,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
 
         rr <- rr * weights
 
-        A <- matrix(fit0$A[,sel], nvar, nvar)
+        A <- matrix(fit0$A[[fsel]][,sel[fsel]], nvar, nvar)
         B <- t(rr)%*%rr
         fit$var <- matrix(0, nvar, nvar)
 
@@ -418,8 +432,8 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     fit$penalty <- fit$penalty
     fit$loglik <- c(fit0$loglik0, fit0$loglik[sel])
 
-    fit$aic <-  -2*fit0$loglik[sel] + 2*fit0$df[sel]
-    fit$bic <- -2*fit0$loglik[sel] + log(data.n)*fit0$df[sel]
+    fit$aic <-  -2*fit0$loglik[[fsel]][sel[fsel]] + 2*fit0$df[[fsel]][sel[fsel]]
+    fit$bic <- -2*fit0$loglik[[fsel]][sel[fsel]] + log(data.n)*fit0$df[[fsel]][sel[fsel]]
 
     if(sel%%length(lambda) ==0) lambda.where <- length(lambda)
     else lambda.where <- sel%%length(lambda)
@@ -428,6 +442,118 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     fit$theta <- fit0$theta
     fit$pterms <- pterms
 
+    }
+  } else{
+
+
+    fit.all <- lapply(1:3, function(k){
+    fminv <- fmin.all[k]
+    fsel <- fsel.all[k]
+    sel <- get(paste0("sel"),k)
+
+    fit <- list()
+
+    fit$coefficients <- fit0$beta[[fsel]][, sel[fsel]]
+    names(fit$coefficients) <- fit0$varnames
+    fit$history <- fit0$beta
+    nvar <- length(fit$coefficients)
+    fit$var <- matrix(fit0$var[[fsel]][,sel[fsel]], nvar, nvar)
+    fit$A <- matrix(fit0$A[[fsel]][,sel[fsel]], nvar, nvar)
+    fit$u <- fit0$u[[fsel]][, sel[fsel]]
+    zero <- penalty.where[fit$coefficients[penalty.where]==0]
+
+    if (robust && !is.null(fit$coefficients) && !all(is.na(fit$coefficients))) {
+
+      fit$naive.var <- fit$var
+
+      if(length(zero) == nvar) {
+        fit$var = rep(0, nvar*nvar)
+      }else{
+        ny <- ncol(Y)
+        nstrat <- as.numeric(strats)
+
+        status <- Y[,ny,drop=TRUE]
+
+        if (is.null(strats)) {
+          ord <- order(Y[,ny-1], -status)
+          newstrat <- rep(0,data.n)
+        }else {
+          ord <- order(nstrat, Y[,ny-1], -status)
+          newstrat <- c(diff(as.numeric(nstrat[ord]))!=0 ,1)
+        }
+        newstrat[data.n] <- 1
+
+        # sort the data
+        xx <- X[ord,]
+        yy <- Y[ord,]
+
+        if (is.null(weights)) weights <- rep(1, data.n)
+        temp2 = sum(weights)
+        means = sapply(1:nvar, function(i) sum(weights*X[, i])/temp2)
+        score <- exp(c(as.matrix(X) %*% fit$coefficients) + offset - sum(fit$coefficients*means))[ord]
+        if (ny==2) {
+          resid <- .C(survival:::Ccoxscore, as.integer(data.n),
+                      as.integer(nvar),
+                      as.double(yy),
+                      x=as.double(xx),
+                      as.integer(newstrat),
+                      as.double(score),
+                      as.double(weights[ord]),
+                      as.integer(method=='efron'),
+                      resid= double(n*nvar),
+                      double(2*nvar))$resid
+        }
+        else {
+          resid<- .C(survival:::Cagscore,
+                     as.integer(data.n),
+                     as.integer(nvar),
+                     as.double(yy),
+                     as.double(xx),
+                     as.integer(newstrat),
+                     as.double(score),
+                     as.double(weights[ord]),
+                     as.integer(method=='efron'),
+                     resid=double(n*nvar),
+                     double(nvar*6))$resid
+        }
+
+        if (nvar >1) {
+          rr <- matrix(0, data.n, nvar)
+          rr[ord,] <- matrix(resid, ncol=nvar)
+        }else rr[ord] <- resid
+
+        if (!missing(cluster)) {
+          if (length(cluster) !=data.n) stop("Wrong length for 'cluster'")
+          rr <- drop(rowsum(rr, cluster))
+        }
+
+        rr <- rr * weights
+
+        A <- matrix(fit0$A[[fsel]][,sel[fsel]], nvar, nvar)
+        B <- t(rr)%*%rr
+        fit$var <- matrix(0, nvar, nvar)
+
+        if(length(zero) ==0) fit$var <- solve(A)%*%B%*%solve(A)
+        else fit$var[-zero, -zero] <- (solve(A)%*%B%*%solve(A))[-zero, -zero]
+      }
+    }
+
+    fit$penalty <- fit$penalty
+    fit$loglik <- c(fit0$loglik0, fit0$loglik[sel])
+
+    fit$aic <-  -2*fit0$loglik[[fsel]][sel[fsel]] + 2*fit0$df[[fsel]][sel[fsel]]
+    fit$bic <- -2*fit0$loglik[[fsel]][sel[fsel]] + log(data.n)*fit0$df[[fsel]][sel[fsel]]
+
+    if(sel%%length(lambda) ==0) lambda.where <- length(lambda)
+    else lambda.where <- sel%%length(lambda)
+    fit$penalty.par <- c(theta = theta[ceiling(sel/length(lambda))], lambda = lambda[lambda.where])
+    fit$lambda <- fit0$lambda
+    fit$theta <- fit0$theta
+    fit$pterms <- pterms
+    })
+    fit <- fit.all
+    names(fit) <- c("aic", "bic", "gcv")
+  }
   }
 
 
@@ -474,5 +600,6 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
   class(fit) <- c('fcoxph', 'fcoxph.penal')
 
   return(fit)
+
 }
 

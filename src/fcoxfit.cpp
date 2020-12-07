@@ -23,9 +23,10 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
   double denom, dtime, deadwt, denom2, wtave;
   double loglik;
   double error;
+  double sumbeta;
 
 
-  int i, j, k, person, ilam, iter;
+  int i, j, k, person, ilam, iter, fnlam;
   int nused, nvar;
   int ndead, nrisk;
 
@@ -34,7 +35,7 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
   nvar  = covar2.ncol();
   int n_pvar = nvar - n_npvar;
 
-  NumericVector beta(nvar), newbeta(nvar), means(nvar),  pbeta(n_npvar);
+  NumericVector beta(nvar), newbeta(nvar), fbeta(nvar), means(nvar),  pbeta(n_npvar);
   NumericVector penalty_f(nvar);
   NumericVector a(nvar), a2(nvar), u(nvar), u2(nvar);
   NumericMatrix imat(nvar, nvar), cmat(nvar, nvar), cmat2(nvar, nvar), V(nvar, nvar);
@@ -294,8 +295,16 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
     var(_, ilam) = tmpvar;
     A(_, ilam) = tmpA;
     logl[ilam] = loglik;
+
+    for(i=0; i<nvar; i++) fbeta[i]=fabs(newbeta[i]);
+    sumbeta = sum(fbeta);
+    if(sumbeta==0) {
+      fnlam = ilam;
+      break;
+    }
   }
-  Rcpp::List res = List::create(Named("loglik")= logl,
+  Rcpp::List res = List::create(Names("fnlam") = ilam+1,
+                                Named("loglik")= logl,
                                 Named("beta") = fit_beta,
                                 Named("df")=df, Named("var")=var, Named("A") = A,  Named("u") = u);
 
