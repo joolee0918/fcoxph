@@ -319,7 +319,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
       minv[i] <- min(-fit0$loglik[[i]]/(data.n*(1-fit0$df[[i]]/data.n)^2) )
       sel[i] <- which.min(-fit0$loglik[[i]]/(data.n*(1-fit0$df[[i]]/data.n)^2) )
     }else if(tuning.method == "all")
-      minv1[i] <- .min(-2*fit0$loglik[[i]] + 2*fit0$df[[i]])
+      minv1[i] <- min(-2*fit0$loglik[[i]] + 2*fit0$df[[i]])
       minv2[i] <- min(-2*fit0$loglik[[i]]+ log(data.n)*fit0$df[[i]])
       minv3[i] <- min(-fit0$loglik[[i]]/(data.n*(1-fit0$df[[i]]/data.n)^2) )
       sel1[i] <- which.min(-2*fit0$loglik[[i]] + 2*fit0$df[[i]])
