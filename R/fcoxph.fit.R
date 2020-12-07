@@ -538,6 +538,8 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     }
 
     fit$loglik <- c(fit0$loglik0, fit0$loglik[[fsel]][sel[fsel]])
+    fit$loglik.all <- fit0$loglik
+    fit$df.all <- fit0$df
 
     fit$aic <-  -2*fit0$loglik[[fsel]][sel[fsel]] + 2*fit0$df[[fsel]][sel[fsel]]
     fit$bic <- -2*fit0$loglik[[fsel]][sel[fsel]] + log(data.n)*fit0$df[[fsel]][sel[fsel]]
