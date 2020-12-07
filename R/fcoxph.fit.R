@@ -569,7 +569,6 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
       tmpid <- pcols[[i]]
       start <- 1
       idx <- tmpid[start:(start + length(pcols[[i]]) -1)]
-      names(fit$coefficients)[idx] <- paste(sm[[i]]$label,1:length(idx), sep = ".")
       sm[[i]]$first.para <- min(idx)
       sm[[i]]$last.para <- max(idx)
       start <- start + length(idx)
