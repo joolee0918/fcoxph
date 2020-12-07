@@ -294,6 +294,20 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
                          weights=weights, method=method,
                          row.names(mf), pcols, pattr, assign)
 
+    for (i in 1:length(sm)) {
+      tmpid <- pcols[[i]]
+      start <- 1
+      idx <- tmpid[start:(start + length(pcols[[i]]) -1)]
+      sm[[i]]$first.para <- min(idx)
+      sm[[i]]$last.para <- max(idx)
+      start <- start + length(idx)
+    }
+
+    fit$smooth <- sm
+    fit$theta <- fit$theta
+    fit$pterms <- pterms
+
+
   }else if(sparse != "none"){
 
     fit0 <- fcoxpenal.fit(x = X, y =Y, strata = strats,  offset = offset, init=init,

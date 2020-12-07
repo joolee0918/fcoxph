@@ -253,8 +253,6 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
 
       }
       error = max(abs(newbeta - beta));
-      Rcout<<"newbeta "<<newbeta<<"\n";
-      Rcout<<"error "<<error<<"\n";
       for(i=0; i<nvar; i++) beta[i] = newbeta[i];
 
     }
