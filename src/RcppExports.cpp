@@ -191,6 +191,27 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// wshoot1
+NumericVector wshoot1(arma::mat x, arma::vec y, NumericVector init, int pen, NumericVector weight, NumericVector wbeta, double lambda, double alpha, int maxiter, double tol, int n);
+RcppExport SEXP _fcoxph_wshoot1(SEXP xSEXP, SEXP ySEXP, SEXP initSEXP, SEXP penSEXP, SEXP weightSEXP, SEXP wbetaSEXP, SEXP lambdaSEXP, SEXP alphaSEXP, SEXP maxiterSEXP, SEXP tolSEXP, SEXP nSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type x(xSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type init(initSEXP);
+    Rcpp::traits::input_parameter< int >::type pen(penSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type weight(weightSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type wbeta(wbetaSEXP);
+    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< int >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    rcpp_result_gen = Rcpp::wrap(wshoot1(x, y, init, pen, weight, wbeta, lambda, alpha, maxiter, tol, n));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_fcoxph_fagfit_init", (DL_FUNC) &_fcoxph_fagfit_init, 10},
@@ -201,6 +222,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_fcoxph_fcox_score", (DL_FUNC) &_fcoxph_fcox_score, 8},
     {"_fcoxph_fagfit_cpp", (DL_FUNC) &_fcoxph_fagfit_cpp, 26},
     {"_fcoxph_fcoxfit_cpp", (DL_FUNC) &_fcoxph_fcoxfit_cpp, 25},
+    {"_fcoxph_wshoot1", (DL_FUNC) &_fcoxph_wshoot1, 11},
     {NULL, NULL, 0}
 };
 

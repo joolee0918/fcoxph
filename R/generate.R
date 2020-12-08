@@ -39,7 +39,8 @@ data.generator <- function(N, lam, alp, gamma1, gamma2, rangeval, probC, tau, nk
     return(tmp)
   }
 
-
+  G1 <- matrix(0,nbasis,1)
+  for(j in 1:nbasis) G1[j] <- inner.prod(beta.func,data.basis,j)
 
     if (probC == 0) {
       CC <- rep(tau, N)
@@ -53,7 +54,7 @@ data.generator <- function(N, lam, alp, gamma1, gamma2, rangeval, probC, tau, nk
     W1 <- rbinom(N, 1, 0.5)
     W2 <- rnorm(N, 0, 1)
     X <- cMat1%*%t(basismat)
-    Xbeta <- X%*%t(beta.func(obs))
+    Xbeta <- cMat1 %*% G1
 
     event <- lapply(1:N, function(i) getdata.f(id = i, W1 = W1[i], W2 = W2[i], Xbeta = Xbeta[i],
                                                tau = CC[i], lam = lam, alp = alp, gamma1 = gamma1, gamma2 = gamma2))

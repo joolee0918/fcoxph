@@ -20,6 +20,7 @@ double ss2(int j, NumericVector tmpb, arma::mat Q, arma::vec B, int n)
   return(s);
 }
 
+//[[Rcpp::export()]]
 NumericVector wshoot1 (arma::mat x, arma::vec y, NumericVector init, int pen, NumericVector weight, NumericVector wbeta, double lambda, double alpha, int maxiter, double tol, int n)
 {
   int nrow = x.n_rows;
