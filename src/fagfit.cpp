@@ -14,6 +14,7 @@ using namespace Rcpp;
 List fagfit_cpp(NumericMatrix surv2,
                  NumericMatrix covar2,   IntegerVector strata2, NumericVector weights, NumericVector offset,
                  NumericVector ibeta, IntegerVector sort1, IntegerVector sort2, int method, int maxiter, double eps,
+                 NumericMatrix H, NumericMatrix Dstar, NumericMatrix G,  NumericVector lambda, double alpha,
                  double gamma, int M, int d, int n_npvar, int Dnrow, int pen,  IntegerVector penalty_where, Function f, Function df_f) {
 
 
@@ -393,7 +394,7 @@ List fagfit_cpp(NumericMatrix surv2,
 
 
      if(Dnrow==0){
-       newbeta = wshoot1(V0, yy, beta, pen, penalty_f,  lambda[ilam], alpha, maxiter, eps, nused);
+       newbeta = wshoot1(V0, yy, beta, pen, penalty_f, lambda[ilam], alpha, maxiter, eps, nused);
      }else{
       Ystar.fill(0);
       for(i=0; i<nvar; i++) Ystar(i) = yy(i);
@@ -407,7 +408,7 @@ List fagfit_cpp(NumericMatrix surv2,
         }
       }
 
-      newbeta = wshoot1(Vstar, Ystar, beta, pen, penalty_f,  lambda[ilam], alpha, maxiter, eps, nused);
+      newbeta = wshoot1(Vstar, Ystar, beta, pen, penalty_f, lambda[ilam], alpha, maxiter, eps, nused);
      }
       error = max(abs(newbeta - beta));
 
