@@ -12,7 +12,7 @@ using namespace Rcpp;
 double ss2(int j, NumericVector tmpb, arma::mat Q, arma::vec B, int n);
 NumericVector wshoot (arma::mat x, arma::vec y, NumericVector init, NumericVector weight, double lambda, int maxiter, double tol, int n);
 NumericVector muf(NumericVector b, int M, int d);
-NumericVector wshoot1 (arma::mat x, arma::vec y, NumericVector init, int penalty, NumericVector weight, NumericVector wbeta, double lambda, double alpha, int maxiter, double tol, int n);
+NumericVector wshoot1 (arma::mat x, arma::vec y, NumericVector init, int penalty, NumericVector weight, double lambda, double alpha, int maxiter, double tol, int n);
 
 #endif
 

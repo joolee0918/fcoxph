@@ -395,7 +395,6 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
         Dstar <- as.matrix(0)
         Dncol <- 0
         Dnrow <- 0
-        wbeta <- 1
         nystar <- nvar
       } else{
         if(is.null(sm[[i]]$D)) {
@@ -409,7 +408,6 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
         Dncol <- sum(sapply(D, ncol))
         Dnrow <- sum(sapply(D, nrow))
         Dstar <- matrix(0, nrow=Dnrow, ncol=nvar)
-        wbeta <- rep(1, nvar)
         nystar <- nvar + Dnrow
       }
     }
@@ -470,7 +468,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
                          as.integer(method=="efron"),
                          as.integer(control$iter.max),
                          as.double(control$eps),
-                         H, Dstar, G,  wbeta, p.lambda, alpha,
+                         H, Dstar, G,  p.lambda, alpha,
                          gamma,  M, d, n.nonpar,  Dnrow, pen, penalty.where, chol, df.f)
 
     } else{
@@ -478,7 +476,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
      fit <- fcoxfit_cpp(stime,   sstat, xx[sorted,],
                        as.double(offset[sorted]), weights[sorted],
                        as.integer(cox.newstrat), as.integer(control$iter.max), as.double(control$eps),
-                       H, Dstar, G, wbeta, as.integer(method=="efron"), init,  p.lambda, alpha,
+                       H, Dstar, G, as.integer(method=="efron"), init,  p.lambda, alpha,
                        gamma,  M, d, n.nonpar,  Dnrow, pen, penalty.where, chol, df.f)
     }
 

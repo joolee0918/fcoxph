@@ -21,7 +21,7 @@ double ss2(int j, NumericVector tmpb, arma::mat Q, arma::vec B, int n)
 }
 
 //[[Rcpp::export()]]
-NumericVector wshoot1 (arma::mat x, arma::vec y, NumericVector init, int pen, NumericVector weight, NumericVector wbeta, double lambda, double alpha, int maxiter, double tol, int n)
+NumericVector wshoot1 (arma::mat x, arma::vec y, NumericVector init, int pen, NumericVector weight, double lambda, double alpha, int maxiter, double tol, int n)
 {
   int nrow = x.n_rows;
   int ncol = x.n_cols;
@@ -40,7 +40,7 @@ NumericVector wshoot1 (arma::mat x, arma::vec y, NumericVector init, int pen, Nu
 
 
   for(i=0; i<ncol; i++) {
-    lams[i] = lambda*weight[i]*wbeta[i];
+    lams[i] = lambda*weight[i];
     oldbeta[i] = init[i];
     tmpbeta[i] = oldbeta[i];
   }

@@ -15,7 +15,7 @@ using namespace Rcpp;
 List fcoxfit_cpp(NumericVector time,   IntegerVector status,
                  NumericMatrix covar2,    NumericVector offset, NumericVector weights,
                  IntegerVector strata2, int maxiter, double eps,
-                 NumericMatrix H, NumericMatrix Dstar, NumericMatrix G, NumericVector wbeta, int method, NumericVector ibeta,  NumericVector lambda, double alpha,
+                 NumericMatrix H, NumericMatrix Dstar, NumericMatrix G, int method, NumericVector ibeta,  NumericVector lambda, double alpha,
                  double gamma, int M, int d, int n_npvar,  int Dnrow, int pen, IntegerVector penalty_where, Function f, Function df_f) {
 
 
@@ -235,7 +235,7 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
 
 
       if(Dnrow == 0){
-        newbeta = wshoot1(V0, yy, beta, pen, penalty_f, wbeta, lambda[ilam], alpha, maxiter, eps, nused);
+        newbeta = wshoot1(V0, yy, beta, pen, penalty_f,  lambda[ilam], alpha, maxiter, eps, nused);
       } else{
       Ystar.fill(0);
       for(i=0; i<nvar; i++) Ystar(i) = yy(i);
@@ -249,7 +249,7 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
         }
       }
 
-      newbeta = wshoot1(Vstar, Ystar, beta, pen, penalty_f, wbeta, lambda[ilam], alpha, maxiter, eps, nused);
+      newbeta = wshoot1(Vstar, Ystar, beta, pen, penalty_f,  lambda[ilam], alpha, maxiter, eps, nused);
 
       }
       error = max(abs(newbeta - beta));
@@ -283,8 +283,8 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
 
     dA.fill(0);
     for(i=0; i<nvar; i++) if(newbeta[i]!=0) {
-      if(pen==2) dA[i] = nused*lambda[ilam]*penalty_f[i]*wbeta[i]/fabs(newbeta[i]) -nused*1/alpha;
-      else dA[i] = nused*lambda[ilam]*penalty_f[i]*wbeta[i]/fabs(newbeta[i]);
+      if(pen==2) dA[i] = nused*lambda[ilam]*penalty_f[i]/fabs(newbeta[i]) -nused*1/alpha;
+      else dA[i] = nused*lambda[ilam]*penalty_f[i]/fabs(newbeta[i]);
     }
 
     List df_var = df_f(newbeta, penalty_where, dA, G, imat, Dnrow);

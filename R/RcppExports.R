@@ -25,15 +25,15 @@ fcox_score <- function(n, nvar, y, covar2, strata, score, weights, method) {
     .Call(`_fcoxph_fcox_score`, n, nvar, y, covar2, strata, score, weights, method)
 }
 
-fagfit_cpp <- function(surv2, covar2, strata2, weights, offset, ibeta, sort1, sort2, method, maxiter, eps, H, Dstar, G, wbeta, lambda, alpha, gamma, M, d, n_npvar, Dnrow, pen, penalty_where, f, df_f) {
-    .Call(`_fcoxph_fagfit_cpp`, surv2, covar2, strata2, weights, offset, ibeta, sort1, sort2, method, maxiter, eps, H, Dstar, G, wbeta, lambda, alpha, gamma, M, d, n_npvar, Dnrow, pen, penalty_where, f, df_f)
+fagfit_cpp <- function(surv2, covar2, strata2, weights, offset, ibeta, sort1, sort2, method, maxiter, eps, gamma, M, d, n_npvar, Dnrow, pen, penalty_where, f, df_f) {
+    .Call(`_fcoxph_fagfit_cpp`, surv2, covar2, strata2, weights, offset, ibeta, sort1, sort2, method, maxiter, eps, gamma, M, d, n_npvar, Dnrow, pen, penalty_where, f, df_f)
 }
 
-fcoxfit_cpp <- function(time, status, covar2, offset, weights, strata2, maxiter, eps, H, Dstar, G, wbeta, method, ibeta, lambda, alpha, gamma, M, d, n_npvar, Dnrow, pen, penalty_where, f, df_f) {
-    .Call(`_fcoxph_fcoxfit_cpp`, time, status, covar2, offset, weights, strata2, maxiter, eps, H, Dstar, G, wbeta, method, ibeta, lambda, alpha, gamma, M, d, n_npvar, Dnrow, pen, penalty_where, f, df_f)
+fcoxfit_cpp <- function(time, status, covar2, offset, weights, strata2, maxiter, eps, H, Dstar, G, method, ibeta, lambda, alpha, gamma, M, d, n_npvar, Dnrow, pen, penalty_where, f, df_f) {
+    .Call(`_fcoxph_fcoxfit_cpp`, time, status, covar2, offset, weights, strata2, maxiter, eps, H, Dstar, G, method, ibeta, lambda, alpha, gamma, M, d, n_npvar, Dnrow, pen, penalty_where, f, df_f)
 }
 
-wshoot1 <- function(x, y, init, pen, weight, wbeta, lambda, alpha, maxiter, tol, n) {
-    .Call(`_fcoxph_wshoot1`, x, y, init, pen, weight, wbeta, lambda, alpha, maxiter, tol, n)
+wshoot1 <- function(x, y, init, pen, weight, lambda, alpha, maxiter, tol, n) {
+    .Call(`_fcoxph_wshoot1`, x, y, init, pen, weight, lambda, alpha, maxiter, tol, n)
 }
 
