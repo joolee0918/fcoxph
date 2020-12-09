@@ -16,7 +16,7 @@ data.generator <- function(N, lam, alp, gamma1, gamma2, rangeval, probC, tau, nk
   knots    = seq(rangeval[1],rangeval[2], length.out = nknots)
   nbasis=nknots + norder - 2
   data.basis <- fda::create.bspline.basis(knots, nbasis=nbasis, norder=norder)
-  obs = seq(rangeval[1], rangeval[2], length.out = p)[-1]
+  obs = seq(rangeval[1], rangeval[2], length.out = p)
   basismat = eval.basis(obs, data.basis)
 
   getdata.f <- function(id,  tau, lam, alp, gamma1, gamma2, W1, W2, Xbeta) {
