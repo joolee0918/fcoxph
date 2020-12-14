@@ -77,7 +77,8 @@ fs <- function(X, argvals = NULL, xind = NULL, breaks = NULL, integration = c("d
                                                                                   1)])
     }, riemann = {
       diffs <- t(apply(xind, 1, diff))
-      cbind(rep(mean(diffs), n), diffs)
+      if(xind[1]==0) cbind(rep(mean(diffs), n), diffs)
+      else cbind(rep(xind[1], n), diffs)
     })
 
   LX <- as.matrix(L * X)
