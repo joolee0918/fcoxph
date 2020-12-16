@@ -485,6 +485,8 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     nvar <- length(fit$coefficients)
     fit$var <- matrix(fit0$var[[fsel]][,sel[fsel]], nvar, nvar)
     fit$A <- matrix(fit0$A[[fsel]][,sel[fsel]], nvar, nvar)
+    fit$I <- matrix(fit0$I[[fsel]][,sel[fsel]], nvar, nvar)
+    fit$P <- fit0$P[[fsel]][,sel[fsel]]
     fit$u <- fit0$u[[fsel]][, sel[fsel]]
 
     zero <- penalty.where[fit$coefficients[penalty.where]==0]
@@ -519,7 +521,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
         means = sapply(1:nvar, function(i) sum(weights*X[, i])/temp2)
         score <- exp(c(as.matrix(X) %*% fit$coefficients) + offset - sum(fit$coefficients*means))[ord]
         if (ny==2) {
-          resid <- .C(survival:::Ccoxscore2,
+          resid <- .Call(survival:::Ccoxscore2,
                       as.double(yy),
                       as.double(xx),
                       as.integer(newstrat),
@@ -528,7 +530,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
                       as.integer(method=='efron'))
         }
         else {
-          resid<- .C(survival:::Cagscore2,
+          resid<- .Call(survival:::Cagscore2,
                      as.double(yy),
                      as.double(xx),
                      as.integer(newstrat),
@@ -551,6 +553,8 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
 
         A <- matrix(fit0$A[[fsel]][,sel[fsel]], nvar, nvar)
         B <- t(rr)%*%rr
+        C <- colSums(rr)
+        B <- B - t(C)%*%C
         fit$var <- matrix(0, nvar, nvar)
 
         if(length(zero) ==0) fit$var <- solve(A)%*%B%*%solve(A)
