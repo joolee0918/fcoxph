@@ -388,7 +388,7 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
       lambdalist[[i]] <- 0
 
       #G <- sm[[1]]$S[[1]]*thetalist[[1]]/(1-thetalist[[1]])
-      G <- sm[[1]]$S*thetalist[[1]]/(1-thetalist[[1]])
+      G <- sm[[1]]$S*thetalist[[i]]/(1-thetalist[[i]])
 
       if(L2penalty == "none"){
         D[[i]] <- 0
