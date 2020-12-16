@@ -400,29 +400,22 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
         means = sapply(1:nvar, function(i) sum(weights*X[, i])/temp2)
         score <- exp(c(as.matrix(X) %*% fit$coefficients) + offset - sum(fit$coefficients*means))[ord]
         if (ny==2) {
-          resid <- .C(survival:::Ccoxscore, as.integer(data.n),
-                      as.integer(nvar),
+          resid <- .C(survival:::Ccoxscore2,
                       as.double(yy),
                       x=as.double(xx),
                       as.integer(newstrat),
                       as.double(score),
                       as.double(weights[ord]),
-                      as.integer(method=='efron'),
-                      resid= double(n*nvar),
-                      double(2*nvar))$resid
+                      as.integer(method=='efron'))
         }
         else {
-          resid<- .C(survival:::Cagscore,
-                     as.integer(data.n),
-                     as.integer(nvar),
+          resid<- .C(survival:::Cagscore2,
                      as.double(yy),
                      as.double(xx),
                      as.integer(newstrat),
                      as.double(score),
                      as.double(weights[ord]),
-                     as.integer(method=='efron'),
-                     resid=double(n*nvar),
-                     double(nvar*6))$resid
+                     as.integer(method=='efron'))
         }
 
         if (nvar >1) {
@@ -528,29 +521,22 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
         means = sapply(1:nvar, function(i) sum(weights*X[, i])/temp2)
         score <- exp(c(as.matrix(X) %*% fit$coefficients) + offset - sum(fit$coefficients*means))[ord]
         if (ny==2) {
-          resid <- .C(survival:::Ccoxscore, as.integer(data.n),
-                      as.integer(nvar),
+          resid <- .C(survival:::Ccoxscore2,
                       as.double(yy),
                       x=as.double(xx),
                       as.integer(newstrat),
                       as.double(score),
                       as.double(weights[ord]),
-                      as.integer(method=='efron'),
-                      resid= double(n*nvar),
-                      double(2*nvar))$resid
+                      as.integer(method=='efron'))
         }
         else {
-          resid<- .C(survival:::Cagscore,
-                     as.integer(data.n),
-                     as.integer(nvar),
+          resid<- .C(survival:::Cagscore2,
                      as.double(yy),
                      as.double(xx),
                      as.integer(newstrat),
                      as.double(score),
                      as.double(weights[ord]),
-                     as.integer(method=='efron'),
-                     resid=double(n*nvar),
-                     double(nvar*6))$resid
+                     as.integer(method=='efron'))
         }
 
         if (nvar >1) {
