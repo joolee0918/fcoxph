@@ -6,8 +6,8 @@ df.f <- function(beta, penalty.where, dA, G, I, Dnrow){
   A <- I + diag(dA)
 
   if(Dnrow !=0){
-    H[penalty.where, penalty.where] <- H[penalty.where, penalty.where] + G/2
-    A[penalty.where, penalty.where] <- A[penalty.where, penalty.where] + G/2
+    H[penalty.where, penalty.where] <- H[penalty.where, penalty.where] + G
+    A[penalty.where, penalty.where] <- A[penalty.where, penalty.where] + G
   }
 
 

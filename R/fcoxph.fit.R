@@ -485,8 +485,6 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     nvar <- length(fit$coefficients)
     fit$var <- matrix(fit0$var[[fsel]][,sel[fsel]], nvar, nvar)
     fit$A <- matrix(fit0$A[[fsel]][,sel[fsel]], nvar, nvar)
-    fit$I <- matrix(fit0$I[[fsel]][,sel[fsel]], nvar, nvar)
-    fit$P <- fit0$P[[fsel]][,sel[fsel]]
     fit$u <- fit0$u[[fsel]][, sel[fsel]]
 
     zero <- penalty.where[fit$coefficients[penalty.where]==0]
