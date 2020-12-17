@@ -423,7 +423,8 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
           rr[ord,] <- matrix(resid, ncol=nvar)
         }else rr[ord] <- resid
 
-        if (!missing(cluster)) {
+        print(cluster)
+        if (!is.null(cluster)) {
           if (length(cluster) !=data.n) stop("Wrong length for 'cluster'")
           rr <- drop(rowsum(rr, cluster))
         }
@@ -545,7 +546,6 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
                      as.integer(method=='efron'))
         }
 
-        print(resid)
         print(dim(resid))
 
         if (nvar >1) {
