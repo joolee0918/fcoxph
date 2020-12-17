@@ -521,11 +521,6 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
         means = sapply(1:nvar, function(i) sum(weights*X[, i])/temp2)
         score <- exp(c(as.matrix(X) %*% fit$coefficients) + offset - sum(fit$coefficients*means))[ord]
 
-        print(head(xx))
-        print(head(yy))
-        print(head(newstrat))
-        print(head(score))
-        print(head(weights))
 
         if (ny==2) {
           resid <- .Call(survival:::Ccoxscore2,
@@ -545,6 +540,9 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
                      as.double(weights[ord]),
                      as.integer(method=='efron'))
         }
+
+        print(resid)
+        print(dim(resid))
 
         if (nvar >1) {
           rr <- matrix(0, data.n, nvar)
