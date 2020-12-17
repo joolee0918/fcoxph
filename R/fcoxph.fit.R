@@ -560,8 +560,6 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
 
         A <- matrix(fit0$A[[fsel]][,sel[fsel]], nvar, nvar)
         B <- t(rr)%*%rr
-        C <- colSums(rr)
-        B <- B - t(C)%*%C
         fit$var <- matrix(0, nvar, nvar)
 
         if(length(zero) ==0) fit$var <- solve(A)%*%B%*%solve(A)
