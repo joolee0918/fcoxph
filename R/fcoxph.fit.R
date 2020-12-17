@@ -399,23 +399,28 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
         temp2 = sum(weights)
         means = sapply(1:nvar, function(i) sum(weights*X[, i])/temp2)
         score <- exp(c(as.matrix(X) %*% fit$coefficients) + offset - sum(fit$coefficients*means))[ord]
+        storage.mode(yy) <- storage.mode(xx) <- "double"
+        storage.mode(newstrat) <- "integer"
+        storage.mode(score) <- storage.mode(weights) <- "double"
+
+
         if (ny==2) {
           resid <- .Call(survival:::Ccoxscore2,
-                      as.double(yy),
-                      as.double(xx),
-                      as.integer(newstrat),
-                      as.double(score),
-                      as.double(weights[ord]),
-                      as.integer(method=='efron'))
+                         yy,
+                         xx,
+                         newstrat,
+                         score,
+                         weights[ord],
+                         as.integer(method=='efron'))
         }
         else {
           resid<- .Call(survival:::Cagscore2,
-                     as.double(yy),
-                     as.double(xx),
-                     as.integer(newstrat),
-                     as.double(score),
-                     as.double(weights[ord]),
-                     as.integer(method=='efron'))
+                        yy,
+                        xx,
+                        newstrat,
+                        score,
+                        weights[ord],
+                        as.integer(method=='efron'))
         }
 
         if (nvar >1) {
@@ -553,7 +558,8 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
           rr[ord,] <- resid
         }else rr[ord] <- resid
 
-        if (!missing(cluster)) {
+        print(cluster)
+        if (!is.null(cluster)) {
           if (length(cluster) !=data.n) stop("Wrong length for 'cluster'")
           rr <- drop(rowsum(rr, cluster))
         }
