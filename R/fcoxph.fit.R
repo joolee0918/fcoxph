@@ -548,7 +548,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
 
         if (nvar >1) {
           rr <- matrix(0, data.n, nvar)
-          rr[ord,] <- matrix(resid, ncol=nvar)
+          rr[ord,] <- resid
         }else rr[ord] <- resid
 
         if (!missing(cluster)) {
