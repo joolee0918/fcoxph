@@ -25,7 +25,10 @@ cv.fcoxph <- function (fitobj, x, y, strats, cluster, weights, offset = NULL, co
 
     lambda <- fitobj$lambda
     theta <- fitobj$theta
-    cvraw = matrix(NA, nfolds, length(theta)*length(lambda))
+    nlambda <- length(lambda)
+    ntheta <- length(theta)
+    cvraw = matrix(NA, nfolds, ntheta*nlambda)
+    plk <- matrix(rep(0, ntheta*nlambda), nrow=ntheta)
 
     if (parallel) {
       cl <- parallel::makeCluster(ncluster)
@@ -57,21 +60,25 @@ cv.fcoxph <- function (fitobj, x, y, strats, cluster, weights, offset = NULL, co
                                      L2penalty = L2penalty, sparse.what = sparse.what, argvals = argvals, group.multiplier = group.multiplier, cv.fit=TRUE)
 
         coefmat = out$beta
+        theta <- out$theta
+        lambda <- out$lambda
         if(ncol(y)==2){
-          plfull = cox.deviance(x = x, y = y, offset = offset, strata = strats,
-                                weights = weights, init = coefmat, method = method, control=control)
-          plminusk = cox.deviance(x = x[!which, ], y = y_sub, strata = strats_sub, offset = offset_sub, weights = weights_sub,
-                                  init = coefmat, method = method, control=control)
-          plfull - plminusk
-
-        } else if(ncol(y)==3){
-          plfull = ag.deviance(x = x, y = y, offset = offset, strata = strats,
-                               weights = weights, init = coefmat, method = method, control=control)
-          plminusk = ag.deviance(x = x[!which, ], y = y_sub, strata = strats_sub, offset = offset_sub, weights = weights_sub,
-                                 init = coefmat, method = method, control=control)
-          plfull - plminusk
-
-        }
+          for(k in 1:length(theta)){
+            plk[k,] = cox.deviance(x = x[which, ], y = y[which,], strata = strats[which], offset = offset[which], weights = weights[which],
+                                   init = coefmat[[k]], method = method, control=control)
+          }
+            
+            cvraw[i, ] = as.vector(plk)
+            
+            
+          } else if(ncol(y)==3){
+            for(k in 1:length(theta)){
+            plk[k,] = ag.deviance(x = x[which, ], y = y[which,], strata = strats[which], offset = offset[which], weights = weights[which],
+                                  init = coefmat[[k]], method = method, control=control)
+            }
+            cvraw[i, ] = as.vector(plk)
+            
+          }
       }
       parallel::stopCluster(cl)
       cvraw <- do.call('rbind', cvraw)
@@ -93,6 +100,7 @@ cv.fcoxph <- function (fitobj, x, y, strats, cluster, weights, offset = NULL, co
          strats_sub = strats
        }
 
+    
         out = fcoxpenal.fit(x = x[!which, , drop=FALSE], y =y_sub, strata = strats_sub, offset = offset_sub, init=init,
                                      control = control, weights=weights_sub, method=method,
                                      pcols = pcols, pattr = pattr, assign = assign, npcols = npcols, tuning.method = tuning.method,
@@ -100,28 +108,35 @@ cv.fcoxph <- function (fitobj, x, y, strats, cluster, weights, offset = NULL, co
                                      L2penalty = L2penalty, sparse.what = sparse.what, argvals = argvals, group.multiplier = group.multiplier, cv.fit=TRUE)
 
         coefmat = out$beta
+        
         if(ncol(y)==2){
-          plfull = cox.deviance(x = x, y = y, offset = offset, strata = strats,
-                                weights = weights, init = coefmat, method = method, control=control)
-          plminusk = cox.deviance(x = x[!which, ], y = y_sub, strata = strats_sub, offset = offset_sub, weights = weights_sub,
-                                  init = coefmat, method = method, control=control)
-          cvraw[i, seq(along = plfull)] = plfull - plminusk
+          
+          for(k in 1:length(theta)){
+          plk[k,] = cox.deviance(x = x[which, ], y = y[which,], strata = strats[which], offset = offset[which], weights = weights[which],
+                                  init = coefmat[[k]], method = method, control=control)
+          }
+          
+          cvraw[i, ] = as.vector(plk)
 
         } else if(ncol(y)==3){
-          plfull = ag.deviance(x = x, y = y, offset = offset, strata = strats,
-                                weights = weights, init = coefmat, method = method, control=control)
-          plminusk = ag.deviance(x = x[!which, ], y = y_sub, strata = strats_sub, offset = offset_sub, weights = weights_sub,
-                                  init = coefmat, method = method, control=control)
-          cvraw[i, seq(along = plfull)] = plfull - plminusk
+          for(k in 1:length(theta)){
+          plk[k,] = ag.deviance(x = x[which, ], y = y[which,], strata = strats[which], offset = offset[which], weights = weights[which],
+                                  init = coefmat[[k]], method = method, control=control)
+          }
+          cvraw[i, ] = as.vector(plk)
 
-        }
+      
     }
+      }
     }
 
+   
    cvm = apply(cvraw, 2, mean, na.rm = TRUE)
    cvmin = which.min(cvm)
-
-   return(cvmin)
+   which.lambda <- cvmin %/% ntheta
+   which.theta <- cvmin %% ntheta
+   
+   return(list(cvmin=cvmin, which.lambda, which.theta, opt.lambda=lambda[which.lambda], opt.theta =theta[which.theta]))
 
   }
 
