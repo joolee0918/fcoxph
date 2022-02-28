@@ -136,7 +136,7 @@ cv.fcoxph <- function (fitobj, x, y, strats, cluster, weights, offset = NULL, co
    which.lambda <- cvmin %/% ntheta
    which.theta <- cvmin %% ntheta
    
-   return(list(cvmin=cvmin, which.lambda, which.theta, opt.lambda=lambda[which.lambda], opt.theta =theta[which.theta]))
+   return(list(cvmin=cvmin, which.lambda=which.lambda, which.theta=which.theta, opt.lambda=lambda[which.lambda], opt.theta =theta[which.theta]))
 
   }
 
