@@ -341,7 +341,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
       sel1[i] <- which.min(-2*fit0$loglik[[i]] + 2*fit0$df[[i]])
       sel2[i] <- which.min(-2*fit0$loglik[[i]]+ log(data.n)*fit0$df[[i]]) #+ 0.5*fit0$df*log(length(penalty.where)))
       sel3[i] <-  which.min(-fit0$loglik[[i]]/(data.n*(1-fit0$df[[i]]/data.n)^2) )
-    }else if(tuning.method="cv"){
+    }else if(tuning.method=="cv"){
       cv <- cv.fcoxph(fit0, x=X, y=Y, strats, cluster, weights, offset = offset, control, init, lambda, lambda.min.ratio, nfolds, foldid,
                              parallel = FALSE,  pcols, pattr, assign, npcols = npcols, tuning.method,
                              sm, gamma, alpha, theta, nlambda, penalty, method,
