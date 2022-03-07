@@ -133,8 +133,9 @@ cv.fcoxph <- function (fitobj, x, y, strats, cluster, weights, offset = NULL, co
    
    cvm = apply(cvraw, 2, mean, na.rm = TRUE)
    cvmin = which.min(cvm)
-   which.lambda <- cvmin %/% ntheta
+   which.lambda <- ceiling(cvmin / ntheta)
    which.theta <- cvmin %% ntheta
+   if(which.theta==0) which.theta <- ntheta
    
    return(list(cvmin=cvmin, which.lambda=which.lambda, which.theta=which.theta, opt.lambda=lambda[which.lambda], opt.theta =theta[which.theta]))
 
