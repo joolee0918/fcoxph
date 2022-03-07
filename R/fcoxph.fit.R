@@ -354,7 +354,6 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
                              parallel = FALSE,  pcols, pattr, assign, npcols = npcols, tuning.method,
                              sm, gamma, alpha, theta, nlambda, penalty, method,
                              L2penalty, sparse.what=sparse, argvals, group.multiplier, ncluster)
-      print(cv)
     }
       
 
