@@ -360,6 +360,8 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     } else if (tuning.method=="cv"){
     fsel <- cv$which.theta
     sel[fsel] <- cv$which.lambda
+      print(fsel)
+      print(sel[fsel])
     } else{
     fminv <- min(minv)
     fsel <- which.min(minv) # choose theta
