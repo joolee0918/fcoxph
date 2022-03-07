@@ -323,24 +323,32 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
 
     minv <- sel <- minv1 <- minv2 <- minv3 <- sel1 <- sel2 <- sel3 <- rep(0, length(theta))
     fminv.all <- fsel.all <- rep(0, 3)
-    for(i in 1:length(theta)){
+    
 
     if (tuning.method == "aic") {
+      for(i in 1:length(theta)){
       minv[i] <- min(-2*fit0$loglik[[i]] + 2*fit0$df[[i]])
       sel[i] <- which.min(-2*fit0$loglik[[i]] + 2*fit0$df[[i]]) # choose lambda given theta
+        }
     }else if (tuning.method == "bic") {
+      for(i in 1:length(theta)){
       minv[i] <- min(-2*fit0$loglik[[i]]+ log(data.n)*fit0$df[[i]])
       sel[i] <- which.min(-2*fit0$loglik[[i]]+ log(data.n)*fit0$df[[i]]) #+ 0.5*fit0$df*log(length(penalty.where)))
+        }
     }else if(tuning.method == "gcv") {
+      for(i in 1:length(theta)){
       minv[i] <- min(-fit0$loglik[[i]]/(data.n*(1-fit0$df[[i]]/data.n)^2) )
       sel[i] <- which.min(-fit0$loglik[[i]]/(data.n*(1-fit0$df[[i]]/data.n)^2) )
+        }
     }else if(tuning.method == "all") {
+      for(i in 1:length(theta)){
       minv1[i] <- min(-2*fit0$loglik[[i]] + 2*fit0$df[[i]])
       minv2[i] <- min(-2*fit0$loglik[[i]]+ log(data.n)*fit0$df[[i]])
       minv3[i] <- min(-fit0$loglik[[i]]/(data.n*(1-fit0$df[[i]]/data.n)^2) )
       sel1[i] <- which.min(-2*fit0$loglik[[i]] + 2*fit0$df[[i]])
       sel2[i] <- which.min(-2*fit0$loglik[[i]]+ log(data.n)*fit0$df[[i]]) #+ 0.5*fit0$df*log(length(penalty.where)))
       sel3[i] <-  which.min(-fit0$loglik[[i]]/(data.n*(1-fit0$df[[i]]/data.n)^2) )
+        }
     }else if(tuning.method=="cv"){
       cv <- cv.fcoxph(fit0, x=X, y=Y, strats, cluster, weights, offset = offset, control, init, lambda, lambda.min.ratio, nfolds, foldid,
                              parallel = FALSE,  pcols, pattr, assign, npcols = npcols, tuning.method,
@@ -348,7 +356,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
                              L2penalty, sparse.what=sparse, argvals, group.multiplier, ncluster)
       print(cv)
     }
-      }
+      
 
 
     if(tuning.method =="all"){
