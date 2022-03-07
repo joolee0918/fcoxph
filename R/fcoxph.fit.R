@@ -347,6 +347,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
                              sm, gamma, alpha, theta, nlambda, penalty, method,
                              L2penalty, sparse.what=sparse, argvals, group.multiplier, ncluster)
     }
+      }
 
 
     if(tuning.method =="all"){
