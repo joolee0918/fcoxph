@@ -35,7 +35,7 @@ cv.fcoxph <- function (fitobj, x, y, strats, cluster, weights, offset = NULL, co
       doParallel::registerDoParallel(cl)
 
       #  if (parallel && require(foreach)) {
-      cvraw = foreach::foreach(i = seq(nfolds), .packages = c("glmnet")) %dopar%
+      cvraw = foreach::foreach(i = seq(nfolds), .packages = c("fcoxph")) %dopar%
       {
         if(length(cluster)) {
           which = (1:N)[foldid==i]
