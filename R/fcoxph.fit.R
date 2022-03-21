@@ -368,13 +368,11 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     } else if (tuning.method=="cv"){
     fsel <- cv$which.theta
     sel[fsel] <- cv$which.lambda
-      print(fsel)
-      print(sel[fsel])
+  
     } else{
     fminv <- min(minv)
     fsel <- which.min(minv) # choose theta
-      print(fsel)
-      print(sel)
+
     }
 
 
@@ -393,8 +391,8 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     names(fit$coefficients) <- fit0$varnames
     fit$history <- fit0$beta
     nvar <- length(fit$coefficients)
-    fit$var <- matrix(fit0$var[[fsel]][,sel[fsel]], nvar, nvar)
-    fit$A <- matrix(fit0$A[[fsel]][,sel[fsel]], nvar, nvar)
+    #fit$var <- matrix(fit0$var[[fsel]][,sel[fsel]], nvar, nvar)
+    #fit$A <- matrix(fit0$A[[fsel]][,sel[fsel]], nvar, nvar)
 
     zero <- penalty.where[fit$coefficients[penalty.where]==0]
 
@@ -464,12 +462,12 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
 
         rr <- rr * weights
 
-        A <- matrix(fit0$A[[fsel]][,sel[fsel]], nvar, nvar)
-        B <- t(rr)%*%rr
-        fit$var <- matrix(0, nvar, nvar)
+        #A <- matrix(fit0$A[[fsel]][,sel[fsel]], nvar, nvar)
+        #B <- t(rr)%*%rr
+        #fit$var <- matrix(0, nvar, nvar)
 
-        if(length(zero) ==0) fit$var <- solve(A)%*%B%*%solve(A)
-        else fit$var[-zero, -zero] <- (solve(A)%*%B%*%solve(A))[-zero, -zero]
+        #if(length(zero) ==0) fit$var <- solve(A)%*%B%*%solve(A)
+        #else fit$var[-zero, -zero] <- (solve(A)%*%B%*%solve(A))[-zero, -zero]
       }
     }
 
@@ -517,11 +515,11 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     names(fit$coefficients) <- fit0$varnames
     fit$history <- fit0$beta
     nvar <- length(fit$coefficients)
-    fit$var <- matrix(fit0$var[[fsel]][,sel[fsel]], nvar, nvar)
-    fit$A <- matrix(fit0$A[[fsel]][,sel[fsel]], nvar, nvar)
-    fit$I <- matrix(fit0$I[[fsel]][,sel[fsel]], nvar, nvar)
-    fit$P <- fit0$P[[fsel]][,sel[fsel]]
-    fit$u <- fit0$u[[fsel]][, sel[fsel]]
+    #fit$var <- matrix(fit0$var[[fsel]][,sel[fsel]], nvar, nvar)
+    #fit$A <- matrix(fit0$A[[fsel]][,sel[fsel]], nvar, nvar)
+    #fit$I <- matrix(fit0$I[[fsel]][,sel[fsel]], nvar, nvar)
+    #fit$P <- fit0$P[[fsel]][,sel[fsel]]
+    #fit$u <- fit0$u[[fsel]][, sel[fsel]]
 
     zero <- penalty.where[fit$coefficients[penalty.where]==0]
 
@@ -594,12 +592,12 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
 
         rr <- rr * weights
 
-        A <- matrix(fit0$A[[fsel]][,sel[fsel]], nvar, nvar)
-        B <- t(rr)%*%rr
-        fit$var <- matrix(0, nvar, nvar)
+        #A <- matrix(fit0$A[[fsel]][,sel[fsel]], nvar, nvar)
+        #B <- t(rr)%*%rr
+        #fit$var <- matrix(0, nvar, nvar)
 
-        if(length(zero) ==0) fit$var <- solve(A)%*%B%*%solve(A)
-        else fit$var[-zero, -zero] <- (solve(A)%*%B%*%solve(A))[-zero, -zero]
+        #if(length(zero) ==0) fit$var <- solve(A)%*%B%*%solve(A)
+        #else fit$var[-zero, -zero] <- (solve(A)%*%B%*%solve(A))[-zero, -zero]
       }
     }
 
