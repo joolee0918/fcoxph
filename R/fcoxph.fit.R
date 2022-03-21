@@ -379,14 +379,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     if(tuning.method %in% c("aic", "bic", "gcv", "cv")){
 
     fit <- list()
-
     
-     print(fit0$beta)
-        print(length(fit0$beta))
-      
-      print(fit0$beta[[fsel]])
-      print(dim(fit0$beta[[fsel]]))
-      
     fit$coefficients <- fit0$beta[[fsel]][, sel[fsel]]
     names(fit$coefficients) <- fit0$varnames
     fit$history <- fit0$beta
