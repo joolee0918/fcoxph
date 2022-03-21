@@ -493,7 +493,11 @@ fcoxpenal.fit <- function(x, y, strata, offset, init, control,
     loglik[[iter]] <- fit$loglik[1:fit$fnlam]
     var[[iter]] <- fit$var[,1:fit$fnlam]
     A[[iter]]<- fit$A[,1:fit$fnlam]
-    coef[[iter]]<- fit$beta[,1:fit$fnlam]
+    if(fit$fnlam==1){
+      coef[[iter]]<-  as.matrix(fit$beta[,1:fit$fnlam], ncol=fit$fnlam)
+    } else {
+      coef[[iter]]<- fit$beta[,1:fit$fnlam]
+      }
     I[[iter]] <- fit$I[, 1:fit$fnlam]
     P[[iter]] <- fit$P[, 1:fit$fnlam]
 
