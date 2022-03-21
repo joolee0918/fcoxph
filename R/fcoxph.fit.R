@@ -374,7 +374,7 @@ fcoxph.fit <- function(formula, data, weights, subset, na.action,
     fminv <- min(minv)
     fsel <- which.min(minv) # choose theta
       print(fsel)
-      print(sel[fsel])
+      print(sel)
     }
 
 
