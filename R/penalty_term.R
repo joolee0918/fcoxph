@@ -72,13 +72,13 @@ fs <- function(X, argvals = NULL, xind = NULL, breaks = NULL, integration = c("d
                                                byrow = T)
     }, trapezoidal = {
       diffs <- t(apply(xind, 1, diff))
-      0.5 * cbind(diffs[, 1], t(apply(diffs, 1, filter,
+      0.5 * cbind(t(apply(diffs, 1, filter,
                                       filter = c(1, 1)))[, -(nt - 1)], diffs[, (nt -
                                                                                   1)])
     }, riemann = {
       diffs <- t(apply(xind, 1, diff))
       if(xind[1]==0) cbind(rep(mean(diffs), n), diffs)
-      else cbind(rep(xind[1], n), diffs)
+      else cbind(diffs)
     })
 
   LX <- as.matrix(L * X)
