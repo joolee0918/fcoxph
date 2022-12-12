@@ -67,7 +67,7 @@ fs <- function(X, argvals = NULL, xind = NULL, breaks = NULL, integration = c("d
     L <- switch(integration, dlm={
       matrix(1, nrow=n, ncol=nt)
     }, simpson = {
-      ((xind[, nt] - xind[, 1])/nt)/3 * matrix(c(1, rep(c(4,
+      ((xind[, nt] - xind[, 1])/nt)/3 * matrix(c(rep(c(4,
                                                           2), length = nt - 2), 1), nrow = n, ncol = nt,
                                                byrow = T)
     }, trapezoidal = {
