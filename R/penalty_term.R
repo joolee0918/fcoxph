@@ -53,7 +53,6 @@ fs <- function(X, argvals = NULL, xind = NULL, breaks = NULL, integration = c("d
 
   if (is.null(dim(xind))) {
     xind <- t(xind)
-    stopifnot(ncol(xind) == nt)
     if (nrow(xind) == 1) {
       xind <- matrix(as.vector(xind), nrow = n, ncol = nt,
                      byrow = T)
