@@ -2,17 +2,17 @@
 #' @importFrom fda eval.penalty
 
 #' @export
-fs <- function(X, argvals = NULL, xind = NULL, breaks = NULL, integration = c("dlm", "simpson","trapezoidal", "riemann"),
+fs <- function(X, inner, outer, breaks = NULL, integration = c("dlm", "simpson","trapezoidal", "riemann"),
                 presmooth = NULL, presmooth.opts = NULL, sparse = c("none", "local"), tuning.method=c("aic", "bic", "gcv"),
                 theta = NULL, lambda = NULL, penalty = c("lasso", "MCP", "gBridge"), m = c(3,2),
           ...)
 {
   dots <- list(...)
 
-  if (!is.null(xind)) {
-    cat("Argument xind is placed by argvals. xind will not be supported in the next\n        version of refund.")
-    argvals = xind
-  }
+  argvals <- c(outer[1], inner)
+  xrange <- c(outer[1], inner[length(inner)])
+  xint = c(outer[1], inner, outer[2])
+  
   if (class(X) == "fd") {
     if (is.null(argvals))
       argvals <- argvals <- seq(X$basis$rangeval[1], X$basis$rangeval[2],
@@ -21,7 +21,7 @@ fs <- function(X, argvals = NULL, xind = NULL, breaks = NULL, integration = c("d
   }
   else if (is.null(argvals))
     argvals <- seq(0, 1, l = ncol(X))
-  xrange <- c(argvals[1], argvals[length(argvals)])
+  
   xind = argvals
   n = nrow(X)
   nt = ncol(X)
@@ -51,13 +51,13 @@ fs <- function(X, argvals = NULL, xind = NULL, breaks = NULL, integration = c("d
   newcall <- list(as.symbol(basistype))
 
 
-  if (is.null(dim(xind))) {
-    xind <- t(xind)
-    if (nrow(xind) == 1) {
-      xind <- matrix(as.vector(xind), nrow = n, ncol = nt,
+  if (is.null(dim(xint))) {
+    xint <- t(xint)
+    if (nrow(xint) == 1) {
+      xint <- matrix(as.vector(xint), nrow = n, ncol = nt+1,
                      byrow = T)
     }
-    stopifnot(nrow(xind) == n)
+    stopifnot(nrow(xint) == n)
   }
   if (!is.null(presmooth)) {
     prep.func = refund:::create.prep.func(X, argvals = xind[1, ], method = presmooth, options = presmooth.opts)
@@ -66,18 +66,17 @@ fs <- function(X, argvals = NULL, xind = NULL, breaks = NULL, integration = c("d
     L <- switch(integration, dlm={
       matrix(1, nrow=n, ncol=nt)
     }, simpson = {
-      ((xind[, nt] - xind[, 1])/nt)/3 * matrix(c(rep(c(4,
-                                                          2), length = nt - 2), 1), nrow = n, ncol = nt,
+      ((xint[, nt] - xint[, 1])/nt)/3 * matrix(c(1, rep(c(4,2), length = nt - 2), 1), nrow = n, ncol = nt,
                                                byrow = T)
     }, trapezoidal = {
-      diffs <- t(apply(xind, 1, diff))
-      0.5 * cbind(t(apply(diffs, 1, filter,
+      diffs <- t(apply(xint, 1, diff))
+      0.5 * cbind(diffs[, 1], t(apply(diffs, 1, filter,
                                       filter = c(1, 1)))[, -(nt - 1)], diffs[, (nt -
                                                                                   1)])
     }, riemann = {
-      diffs <- t(apply(xind, 1, diff))
-      diffs
-     })
+      diffs <- t(apply(xint, 1, diff))
+      cbind(rep(xint[1], n), diffs)
+    })
 
   LX <- as.matrix(L * X)
 
@@ -107,7 +106,7 @@ fs <- function(X, argvals = NULL, xind = NULL, breaks = NULL, integration = c("d
   smooth$label <- names
   smooth$plot.me <- TRUE
 
-  res <- list(names=names, X=X, sm = smooth, argvals = argvals, xind = xind[1,], L = L, tindname=tindname,
+  res <- list(names=names, X=X, sm = smooth, argvals = argvals, xind = xind, L = L, tindname=tindname,
               LXname=LXname )
   return(res)
 }
