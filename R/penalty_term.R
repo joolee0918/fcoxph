@@ -2,17 +2,17 @@
 #' @importFrom fda eval.penalty
 
 #' @export
-fs <- function(X, inner=NULL, outer=NULL, breaks = NULL, integration = c("dlm", "simpson","trapezoidal", "riemann"),
+fs <- function(X, argvals = NULL, xind = NULL, breaks = NULL, integration = c("dlm", "simpson","trapezoidal", "riemann"),
                 presmooth = NULL, presmooth.opts = NULL, sparse = c("none", "local"), tuning.method=c("aic", "bic", "gcv"),
                 theta = NULL, lambda = NULL, penalty = c("lasso", "MCP", "gBridge"), m = c(3,2),
           ...)
 {
   dots <- list(...)
 
-  argvals <- c(outer[1], inner)
-  xrange <- c(outer[1], inner[length(inner)])
-  xint = c(outer[1], inner, outer[2])
-  
+  if (!is.null(xind)) {
+    cat("Argument xind is placed by argvals. xind will not be supported in the next\n        version of refund.")
+    argvals = xind
+  }
   if (class(X) == "fd") {
     if (is.null(argvals))
       argvals <- argvals <- seq(X$basis$rangeval[1], X$basis$rangeval[2],
@@ -21,7 +21,7 @@ fs <- function(X, inner=NULL, outer=NULL, breaks = NULL, integration = c("dlm", 
   }
   else if (is.null(argvals))
     argvals <- seq(0, 1, l = ncol(X))
-  
+  xrange <- c(argvals[1], argvals[length(argvals)])
   xind = argvals
   n = nrow(X)
   nt = ncol(X)
@@ -51,13 +51,14 @@ fs <- function(X, inner=NULL, outer=NULL, breaks = NULL, integration = c("dlm", 
   newcall <- list(as.symbol(basistype))
 
 
-  if (is.null(dim(xint))) {
-    xint <- t(xint)
-    if (nrow(xint) == 1) {
-      xint <- matrix(as.vector(xint), nrow = n, ncol = nt+1,
+  if (is.null(dim(xind))) {
+    xind <- t(xind)
+    stopifnot(ncol(xind) == nt)
+    if (nrow(xind) == 1) {
+      xind <- matrix(as.vector(xind), nrow = n, ncol = nt,
                      byrow = T)
     }
-    stopifnot(nrow(xint) == n)
+    stopifnot(nrow(xind) == n)
   }
   if (!is.null(presmooth)) {
     prep.func = refund:::create.prep.func(X, argvals = xind[1, ], method = presmooth, options = presmooth.opts)
@@ -66,16 +67,17 @@ fs <- function(X, inner=NULL, outer=NULL, breaks = NULL, integration = c("dlm", 
     L <- switch(integration, dlm={
       matrix(1, nrow=n, ncol=nt)
     }, simpson = {
-      ((xint[, nt] - xint[, 1])/nt)/3 * matrix(c(1, rep(c(4,2), length = nt - 2), 1), nrow = n, ncol = nt,
+      ((xind[, nt] - xind[, 1])/nt)/3 * matrix(c(1, rep(c(4,
+                                                          2), length = nt - 2), 1), nrow = n, ncol = nt,
                                                byrow = T)
     }, trapezoidal = {
-      diffs <- t(apply(xint, 1, diff))
+      diffs <- t(apply(xind, 1, diff))
       0.5 * cbind(diffs[, 1], t(apply(diffs, 1, filter,
                                       filter = c(1, 1)))[, -(nt - 1)], diffs[, (nt -
                                                                                   1)])
     }, riemann = {
-      diffs <- t(apply(xint, 1, diff))
-      cbind(rep(xint[1], n), diffs)
+      diffs <- t(apply(xind, 1, diff))
+      cbind(diffs, rep(0, n))
     })
 
   LX <- as.matrix(L * X)
