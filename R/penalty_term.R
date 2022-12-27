@@ -2,7 +2,7 @@
 #' @importFrom fda eval.penalty
 
 #' @export
-fs <- function(X, inner, outer, breaks = NULL, integration = c("dlm", "simpson","trapezoidal", "riemann"),
+fs <- function(X, inner=NULL, outer=NULL, breaks = NULL, integration = c("dlm", "simpson","trapezoidal", "riemann"),
                 presmooth = NULL, presmooth.opts = NULL, sparse = c("none", "local"), tuning.method=c("aic", "bic", "gcv"),
                 theta = NULL, lambda = NULL, penalty = c("lasso", "MCP", "gBridge"), m = c(3,2),
           ...)
