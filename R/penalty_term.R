@@ -81,7 +81,6 @@ fs <- function(X, inner=NULL, outer=NULL, breaks = NULL, integration = c("dlm", 
   LX <- as.matrix(L * X)
 
  smooth$X <- LX %*%beta.basismat
- smooth$beta_factor <- as.vector(L[1,]%*%beta.basismat)
 
   ## Penalty
   dmat <- diag(nbasis)
