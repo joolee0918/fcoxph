@@ -2,16 +2,16 @@
 #' @importFrom fda eval.penalty
 
 #' @export
-fs <- function(X, inner, rangelval, breaks = NULL, integration = c("dlm", "simpson","trapezoidal", "riemann"),
+fs <- function(X, inner, outer, breaks = NULL, integration = c("dlm", "simpson","trapezoidal", "riemann"),
                 presmooth = NULL, presmooth.opts = NULL, sparse = c("none", "local"), tuning.method=c("aic", "bic", "gcv"),
                 theta = NULL, lambda = NULL, penalty = c("lasso", "MCP", "gBridge"), m = c(3,2),
           ...)
 {
   dots <- list(...)
 
-  argvals <- c(rangelval[1], inner)
-  xrange <- c(rangelval[1], inner[length(inner)])
-  xint = c(rangelval[1], inner, rangelval[2])
+  argvals <- c(outer[1], inner)
+  xrange <- c(outer[1], inner[length(inner)])
+  xint = c(outer[1], inner, outer[2])
   
   if (class(X) == "fd") {
     if (is.null(argvals))
