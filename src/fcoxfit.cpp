@@ -76,6 +76,8 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
 
   print(maxiter);
   print(eps);
+  print(ibeta);
+  
   for(ilam=0; ilam<nlambda; ilam++){
 
     error = 1;
