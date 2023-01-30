@@ -74,7 +74,8 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
   strata[nused-1] =1;
 
 
-
+  print(maxiter);
+  print(eps);
   for(ilam=0; ilam<nlambda; ilam++){
 
     error = 1;
@@ -250,9 +251,11 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
       }
 
       newbeta = wshoot1(Vstar, Ystar, beta, pen, penalty_f,  lambda[ilam], alpha, maxiter, eps, nused);
-
+      print(newbeta);
+        
       }
       error = max(abs(newbeta - beta)/abs(beta));
+      print(error);
       for(i=0; i<nvar; i++) beta[i] = newbeta[i];
 
     }
