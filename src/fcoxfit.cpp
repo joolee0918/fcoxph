@@ -252,7 +252,7 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
       newbeta = wshoot1(Vstar, Ystar, beta, pen, penalty_f,  lambda[ilam], alpha, maxiter, eps, nused);
 
       }
-      error = max(abs(newbeta - beta));
+      error = max(abs(newbeta - beta)/abs(beta));
       for(i=0; i<nvar; i++) beta[i] = newbeta[i];
 
     }
@@ -300,13 +300,15 @@ List fcoxfit_cpp(NumericVector time,   IntegerVector status,
 
 
     for(k=0; k<n_npvar; k++) fbeta[k]=fabs(pbeta[k]);
-    sumbeta = sum(fbeta);
+    /*sumbeta = sum(fbeta);
     if(sumbeta==0) {
       fnlam = ilam;
-      break;
-    }
+      break; 
+    }*/
+    
   }
-  Rcpp::List res = List::create(Named("fnlam") = fnlam+1,
+  
+  Rcpp::List res = List::create(Named("fnlam") = nlambda,
                                 Named("loglik")= logl,
                                 Named("beta") = fit_beta,
                                 Named("df")=df, Named("var")=var, Named("A") = A,
